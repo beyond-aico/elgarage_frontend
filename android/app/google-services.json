@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "788673567658",
+    "project_id": "auto-mentor-71717",
+    "storage_bucket": "auto-mentor-71717.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:788673567658:android:ad23c3561d9484bd30a9d3",
+        "android_client_info": {
+          "package_name": "com.automentor.automentor"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBScInWfLypic_fwp8EJ2wOSmFDKIK0Leg"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

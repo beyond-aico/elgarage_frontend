@@ -1,0 +1,48 @@
+name: automentor
+description: "Auto Mentor."
+version: 1.0.0+1
+
+environment:
+  sdk: ^3.10.1
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+  cupertino_icons: ^1.0.8
+  google_fonts: ^6.3.3
+  flutter_svg: ^2.2.3
+  font_awesome_flutter: ^10.12.0
+  intl: ^0.20.2
+  url_launcher: ^6.3.2
+  permission_handler: ^12.0.1
+  flutter_localizations:
+    sdk: flutter
+  firebase_core: ^4.2.1
+  cloud_firestore: ^6.1.0
+  http: ^1.6.0
+  speech_to_text: ^7.3.0
+  flutter_tts: ^4.0.2
+  chat_bubbles: ^1.7.0
+  loading_animation_widget: ^1.3.0
+  audioplayers: ^6.5.1
+  dart_openai: ^6.1.1
+  flutter_staggered_animations: ^1.1.1
+  flutter_screenutil: ^5.9.3
+  easy_localization: ^3.0.8
+  crypto: ^3.0.7
+  provider: ^6.1.5+1
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+
+  flutter_lints: ^6.0.0
+
+flutter:
+
+  uses-material-design: true
+
+  assets:
+   - assets/images/
+   - assets/translations/

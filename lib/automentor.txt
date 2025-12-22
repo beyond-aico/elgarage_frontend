@@ -1,0 +1,54 @@
+Folder PATH listing
+Volume serial number is CE4B-4E4F
+C:.
+|   automentor.txt
+|   firebase_options.dart
+|   main.dart
+|   secrets.dart
+|   
++---core
+|   +---ai
+|   |       assistant_service.dart
+|   |       chat_logger.dart
+|   |       system_prompt.dart
+|   |       tts.dart
+|   |       voice_triggers.dart
+|   |       
+|   +---constants
+|   |       app_colors.dart
+|   |       
+|   +---data
+|   |       dummy_data.dart
+|   |       
+|   +---payment
+|   |       fawry_service.dart
+|   |       
+|   \---widgets
+|           app_footer.dart
+|           bouncing_card.dart
+|           global_search_delegate.dart
+|           hero_section.dart
+|           nav_bar.dart
+|           place_card.dart
+|           secondary_hero_section.dart
+|           service_list_template.dart
+|           service_preview_card.dart
+|           
+\---features
+    +---assistant
+    |       assistant_fab.dart
+    |       
+    +---common
+    |       section_page.dart
+    |       
+    \---pages
+            care_page.dart
+            home_page.dart
+            maintenance_page.dart
+            my_garage_page.dart
+            profile_page.dart
+            services_page.dart
+            sos_page.dart
+            spare_parts_page.dart
+            tires_batteries.dart
+            
