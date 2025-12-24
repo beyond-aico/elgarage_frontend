@@ -1,0 +1,154 @@
+Folder PATH listing
+Volume serial number is CE4B-4E4F
+C:.
+|   .gitignore
+|   android.txt
+|   automentor_android.iml
+|   build.gradle.kts
+|   gradle.properties
+|   gradlew
+|   gradlew.bat
+|   key.properties
+|   local.properties
+|   settings.gradle.kts
+|   
++---.gradle
+|   |   file-system.probe
+|   |   
+|   +---8.14
+|   |   |   gc.properties
+|   |   |   
+|   |   +---checksums
+|   |   |       checksums.lock
+|   |   |       md5-checksums.bin
+|   |   |       sha1-checksums.bin
+|   |   |       
+|   |   +---executionHistory
+|   |   |       executionHistory.bin
+|   |   |       executionHistory.lock
+|   |   |       
+|   |   +---expanded
+|   |   +---fileChanges
+|   |   |       last-build.bin
+|   |   |       
+|   |   +---fileHashes
+|   |   |       fileHashes.bin
+|   |   |       fileHashes.lock
+|   |   |       resourceHashesCache.bin
+|   |   |       
+|   |   \---vcsMetadata
+|   +---buildOutputCleanup
+|   |       buildOutputCleanup.lock
+|   |       cache.properties
+|   |       outputFiles.bin
+|   |       
+|   +---kotlin
+|   |   \---errors
+|   |           errors-1765159762442.log
+|   |           errors-1765159762505.log
+|   |           errors-1765537037378.log
+|   |           errors-1765537037405.log
+|   |           errors-1765541545277.log
+|   |           errors-1765541545287.log
+|   |           errors-1765541545294.log
+|   |           errors-1765545433871.log
+|   |           errors-1765545433900.log
+|   |           errors-1765545433915.log
+|   |           errors-1765559851803.log
+|   |           errors-1765559851830.log
+|   |           errors-1765559851844.log
+|   |           errors-1765564003627.log
+|   |           errors-1765564003666.log
+|   |           errors-1765564003682.log
+|   |           
+|   +---noVersion
+|   |       buildLogic.lock
+|   |       
+|   \---vcs-1
+|           gc.properties
+|           
++---.kotlin
+|   +---errors
+|   |       errors-1765159762442.log
+|   |       errors-1765159762505.log
+|   |       errors-1765537037378.log
+|   |       errors-1765537037405.log
+|   |       errors-1765541545277.log
+|   |       errors-1765541545286.log
+|   |       errors-1765541545294.log
+|   |       errors-1765545433871.log
+|   |       errors-1765545433900.log
+|   |       errors-1765545433915.log
+|   |       errors-1765559851803.log
+|   |       errors-1765559851830.log
+|   |       errors-1765559851843.log
+|   |       errors-1765564003627.log
+|   |       errors-1765564003666.log
+|   |       errors-1765564003682.log
+|   |       
+|   \---sessions
++---app
+|   |   build.gradle.kts
+|   |   google-services.json
+|   |   upload-keystore.jks
+|   |   
+|   \---src
+|       +---debug
+|       |       AndroidManifest.xml
+|       |       
+|       +---main
+|       |   |   AndroidManifest.xml
+|       |   |   
+|       |   +---java
+|       |   |   \---io
+|       |   |       \---flutter
+|       |   |           \---plugins
+|       |   |                   GeneratedPluginRegistrant.java
+|       |   |                   
+|       |   +---kotlin
+|       |   |   \---com
+|       |   |       \---beyondaico
+|       |   |           \---elgarage
+|       |   |                   MainActivity.kt
+|       |   |                   
+|       |   \---res
+|       |       +---drawable
+|       |       |       launch_background.xml
+|       |       |       
+|       |       +---drawable-v21
+|       |       |       launch_background.xml
+|       |       |       
+|       |       +---mipmap-hdpi
+|       |       |       ic_launcher.png
+|       |       |       
+|       |       +---mipmap-mdpi
+|       |       |       ic_launcher.png
+|       |       |       
+|       |       +---mipmap-xhdpi
+|       |       |       ic_launcher.png
+|       |       |       
+|       |       +---mipmap-xxhdpi
+|       |       |       ic_launcher.png
+|       |       |       
+|       |       +---mipmap-xxxhdpi
+|       |       |       ic_launcher.png
+|       |       |       
+|       |       +---values
+|       |       |       styles.xml
+|       |       |       
+|       |       \---values-night
+|       |               styles.xml
+|       |               
+|       \---profile
+|               AndroidManifest.xml
+|               
++---build
+|   \---reports
+|       \---problems
+|               problems-report.html
+|               
+\---gradle
+    \---wrapper
+            gradle-wrapper.jar
+            gradle-wrapper.properties
+            

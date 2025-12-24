@@ -1,31 +1,21 @@
 import 'package:flutter/material.dart';
 
 class AppColors {
-  // === Light Tech Theme Identity ===
-  static const Color background = Color(0xFFFAFAFA); // أبيض ثلجي للخلفية
-  static const Color surface = Colors.white;         // أبيض ناصع للكروت
-  static const Color primary = Color(0xFF1F1F1F);    // رمادي غامق جداً (لون البراند الأساسي)
-  static const Color accent = Color(0xFF2563EB);     // أزرق حيوي للأيقونات والزرار
-  
-  // النصوص
-  static const Color textPrimary = Color(0xFF1F1F1F); // أسود/رمادي للكتابة
-  static const Color textSecondary = Color(0xFF64748B); // رمادي متوسط للتفاصيل
-  
-  // التدرجات (تم تعديلها لتناسب الثيم الفاتح)
-  static const LinearGradient mainGradient = LinearGradient(
-    colors: [Color(0xFFF3F4F6), Color(0xFFE5E7EB)], // تدرج رمادي فاتح جداً
-    begin: Alignment.topLeft,
-    end: Alignment.bottomRight,
-  );
-  
-  static const LinearGradient cardGradient = LinearGradient(
-    colors: [Colors.white, Color(0xFFF8FAFC)],
-    begin: Alignment.topLeft,
-    end: Alignment.bottomRight,
-  );
+  // --- الألوان الرئيسية (من وحي Beyond AI) ---
+  // استبدل الأكواد دي بألوان الموقع بتاعكم
+  static const Color primary = Color(0xFF2563EB);      // اللون الأساسي (أزرق مثلاً)
+  static const Color secondary = Color(0xFF1E293B);    // لون ثانوي (غامق للهيدر مثلاً)
+  static const Color accent = Color(0xFFF59E0B);       // لون مميز للأزرار (زي Add to Cart)
 
-  // التوافق مع الكود القديم
-  static const Color textDark = textPrimary;
-  static const Color textLight = Colors.white; // للنصوص اللي فوق خلفيات غامقة
-  static const Color iconColor = primary;
+  // --- ألوان الخلفيات والنصوص ---
+  static const Color background = Color(0xFFF8FAFC);   // خلفية التطبيق (فاتحة مريحة للعين)
+  static const Color cardColor = Colors.white;         // خلفية الكروت (العربيات، المنتجات)
+  
+  static const Color textPrimary = Color(0xFF0F172A);  // للنصوص العناوين
+  static const Color textSecondary = Color(0xFF64748B); // للنصوص الفرعية (زي الكيلومتر)
+
+  // --- ألوان الحالات (Functional Colors) ---
+  static const Color success = Color(0xFF10B981);      // تم بنجاح
+  static const Color error = Color(0xFFEF4444);        // خطأ أو خطر
+  static const Color warning = Color(0xFFF59E0B);      // تنبيه صيانة
 }

@@ -1,21 +1,21 @@
 {
   "project_info": {
-    "project_number": "788673567658",
-    "project_id": "auto-mentor-71717",
-    "storage_bucket": "auto-mentor-71717.firebasestorage.app"
+    "project_number": "602286841824",
+    "project_id": "elgarage-beyond",
+    "storage_bucket": "elgarage-beyond.firebasestorage.app"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:788673567658:android:ad23c3561d9484bd30a9d3",
+        "mobilesdk_app_id": "1:602286841824:android:9a1875fde2ad22aeb31585",
         "android_client_info": {
-          "package_name": "com.automentor.automentor"
+          "package_name": "com.beyondaico.elgarage"
         }
       },
       "oauth_client": [],
       "api_key": [
         {
-          "current_key": "AIzaSyBScInWfLypic_fwp8EJ2wOSmFDKIK0Leg"
+          "current_key": "AIzaSyBPtf4rBwVh6DaCAotzraPBk81XYI6e8Mg"
         }
       ],
       "services": {

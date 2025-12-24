@@ -6,7 +6,6 @@ list(APPEND FLUTTER_PLUGIN_LIST
   audioplayers_windows
   cloud_firestore
   firebase_core
-  flutter_tts
   permission_handler_windows
   speech_to_text_windows
   url_launcher_windows

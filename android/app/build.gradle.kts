@@ -15,7 +15,7 @@ if (keystorePropertiesFile.exists()) {
 }
 
 android {
-    namespace = "com.automentor.automentor"
+    namespace = "com.beyondaico.elgarage"
     compileSdk = flutter.compileSdkVersion
     ndkVersion = flutter.ndkVersion
 
@@ -29,11 +29,11 @@ android {
     }
 
     defaultConfig {
-        applicationId = "com.automentor.automentor"
+        applicationId = "com.beyondaico.elgarage"
         minSdk = flutter.minSdkVersion
         targetSdk = flutter.targetSdkVersion
-        versionCode = 1
-        versionName = "1.0.0"
+        versionCode = 2
+        versionName = "1.0.2"
     }
 
     signingConfigs {
@@ -51,6 +51,9 @@ android {
             signingConfig = signingConfigs.getByName("release")
             isMinifyEnabled = false
             isShrinkResources = false
+            ndk {
+                debugSymbolLevel = "FULL"
+            }
         }
     }
 }
