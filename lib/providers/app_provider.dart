@@ -6,14 +6,14 @@ import 'package:flutter/material.dart';
 import '../data/models/car_model.dart';
 
 class AppProvider with ChangeNotifier {
-  // قائمة العربيات المملوكة للمستخدم (مؤقتاً داتا وهمية لحد ما نربط بالـ API)
+  // --- 1. CAR MANAGEMENT ---
   List<CarModel> _myCars = [
     CarModel(
       id: '1',
       make: 'Hyundai',
       model: 'Tucson',
       year: '2022',
-      imageUrl: 'assets/images/car1.png', // تأكد إن الصورة دي موجودة
+      imageUrl: 'assets/images/car1.png',
       currentKm: 45000,
       monthlyAvgKm: 1500,
     ),
@@ -28,83 +28,207 @@ class AppProvider with ChangeNotifier {
     ),
   ];
 
-  // العربية المختارة حالياً (Nullable عشان ممكن لسه ما اخترش)
   CarModel? _selectedCar;
 
-  // Getter عشان نجيب العربيات
   List<CarModel> get myCars => _myCars;
 
-  // Getter عشان نجيب العربية المختارة، لو مفيش بنرجع أول واحدة كـ Default
   CarModel get selectedCar {
     if (_selectedCar != null) {
       return _selectedCar!;
     } else if (_myCars.isNotEmpty) {
       return _myCars.first;
     } else {
-      // حالة نادرة لو الليست فاضية (هنهندلها في الـ UI)
-      return _myCars.first; 
+      return _myCars.first;
     }
   }
 
-  // دالة تغيير العربية المختارة
   void selectCar(CarModel car) {
     _selectedCar = car;
-    notifyListeners(); // بنبلغ كل الصفحات إن العربية اتغيرت عشان يحدثوا البيانات
+    notifyListeners();
   }
 
-List<ServiceLogModel> _historyLogs = [
+  void addCar(CarModel newCar) {
+    _myCars.add(newCar);
+    notifyListeners();
+  }
+
+  final Map<String, List<String>> _supportedBrands = {
+    'Toyota': ['Corolla', 'Camry', 'Yaris'],
+    'Hyundai': ['Tucson', 'Elantra', 'Verna'],
+    'Kia': ['Sportage', 'Cerato', 'Rio'],
+    'BMW': ['X5', '320i', '530i'],
+    'Mercedes': ['C200', 'E300', 'S500'],
+  };
+
+  List<String> get brands => _supportedBrands.keys.toList();
+
+  List<String> getModelsForBrand(String? brand) {
+    if (brand == null) return [];
+    return _supportedBrands[brand] ?? [];
+  }
+
+
+  // --- 2. MAINTENANCE LOGIC & MATRIX ---
+
+  final Map<int, List<String>> _maintenanceMatrix = {
+    10000: ['Engine Oil', 'Oil Filter'],
+    20000: ['Engine Oil', 'Oil Filter', 'Air Filter', 'Pollen Filter', 'Spark Plugs'],
+    30000: ['Engine Oil', 'Oil Filter', 'Coolant Water'],
+    40000: [
+      'Engine Oil', 'Oil Filter', 'Air Filter', 'Pollen Filter', 'Spark Plugs',
+      'Fuel Filter', 'Gearbox Oil (if 4-gear)'
+    ],
+    50000: ['Engine Oil', 'Oil Filter', 'Gearbox Oil (if 6-gear)'],
+    60000: ['Engine Oil', 'Oil Filter', 'Air Filter', 'Spark Plugs', 'Drive Belt (Kit)'],
+    70000: ['Engine Oil', 'Oil Filter', 'Coolant Water'],
+    80000: [
+      'Engine Oil', 'Oil Filter', 'Air Filter', 'Pollen Filter', 'Spark Plugs',
+      'Fuel Filter', 'Coolant Pump', 'Gearbox Oil (if 4-gear)'
+    ],
+    90000: ['Engine Oil', 'Oil Filter'],
+    100000: ['Engine Oil', 'Oil Filter', 'Air Filter', 'Spark Plugs'],
+    110000: ['Engine Oil', 'Oil Filter'],
+    120000: [
+      'Engine Oil', 'Oil Filter', 'Air Filter', 'Pollen Filter', 'Spark Plugs',
+      'Fuel Filter', 'Drive Belt (Kit)', 'Coolant Water', 'Gearbox Oil'
+    ],
+  };
+
+  // Helper to get NEXT Milestone based on Current KM
+  int get currentMilestone {
+    double km = selectedCar.currentKm;
+    return ((km / 10000).floor() + 1) * 10000;
+  }
+  
+  // *** NEW INTEGRATION LOGIC ***
+  // Checks if a specific part was replaced near a specific mileage milestone
+  bool wasPartReplacedAtMilestone(String partName, int milestoneKm) {
+    // We allow a margin of error (e.g., if he did 30k service at 31k km, it's fine)
+    const int margin = 2000; 
+    
+    // Normalize part name for comparison (remove ' (Clean)', case insensitive)
+    String cleanPartName = partName.replaceAll('(Clean)', '').trim().toLowerCase();
+
+    return _historyLogs.any((log) {
+       // Check mileage range
+       bool isWithinRange = log.mileage >= (milestoneKm - margin) && 
+                            log.mileage <= (milestoneKm + margin);
+       
+       if (!isWithinRange) return false;
+
+       // Check if parts list contains this item
+       return log.partsReplaced.any((p) => p.toLowerCase().contains(cleanPartName));
+    });
+  }
+
+  // Generate items for a specific milestone
+  List<ProductModel> getMaintenanceItemsFor(int milestone) {
+    List<String> requiredParts = _maintenanceMatrix[milestone] ?? ['Engine Oil', 'Oil Filter'];
+
+    return requiredParts.map((part) {
+      // Logic to determine if "Missed"
+      // If the milestone requested is IN THE PAST (less than current milestone)
+      // AND we don't have a record of it being changed in our new intelligent history check.
+      bool missed = false;
+      
+      // Only check for "Missed" if the milestone is completely in the past
+      // (e.g. current is 45k, milestone is 40k. If we are at 40k exactly, it's "Due", not "Missed")
+      if (milestone < currentMilestone) {
+        missed = !wasPartReplacedAtMilestone(part, milestone);
+      }
+
+      return ProductModel(
+        id: '${milestone}_$part',
+        name: part,
+        price: _getPriceForPart(part),
+        category: 'Maintenance',
+        isMissed: missed,
+      );
+    }).toList();
+  }
+
+  // Simulated Price Helper
+  double _getPriceForPart(String name) {
+    name = name.toLowerCase();
+    if (name.contains('oil') && !name.contains('filter')) return 1200; 
+    if (name.contains('filter')) return 350;
+    if (name.contains('spark')) return 800;
+    if (name.contains('belt')) return 2500;
+    if (name.contains('coolant')) return 600;
+    if (name.contains('pump')) return 1800;
+    return 500;
+  }
+
+
+  // --- 3. SERVICE HISTORY LOGS (Updated) ---
+  
+  // Note: Ensure your ServiceLogModel has 'mileage' (double) and 'partsReplaced' (List<String>)
+  List<ServiceLogModel> _historyLogs = [
     ServiceLogModel(
-      id: '1', 
-      serviceName: 'Oil Change', 
-      date: DateTime.now().subtract(const Duration(days: 30)), 
-      cost: 1500,
+      id: '1',
+      serviceName: '40k Maintenance',
+      date: DateTime.now().subtract(const Duration(days: 30)),
+      cost: 3500,
+      mileage: 41000, // He did it a bit late, but within margin
+      partsReplaced: ['Engine Oil', 'Oil Filter', 'Air Filter', 'Spark Plugs'],
     ),
     ServiceLogModel(
-      id: '2', 
-      serviceName: 'Tires Replacement', 
-      date: DateTime.now().subtract(const Duration(days: 120)), 
+      id: '2',
+      serviceName: 'Tires Replacement',
+      date: DateTime.now().subtract(const Duration(days: 120)),
       cost: 8000,
+      mileage: 35000,
+      partsReplaced: ['Tires'],
     ),
   ];
 
   List<ServiceLogModel> get historyLogs => _historyLogs;
 
-  // دالة إضافة سجل جديد
-  void addServiceLog(String name, DateTime date) {
+  // Updated Add Function
+  void addServiceLog({
+    required String name, 
+    required DateTime date, 
+    required double mileage, 
+    required List<String> parts,
+    double cost = 0.0,
+  }) {
     final newLog = ServiceLogModel(
-      id: DateTime.now().toString(), // ID مؤقت
+      id: DateTime.now().toString(),
       serviceName: name,
       date: date,
+      mileage: mileage,
+      partsReplaced: parts,
+      cost: cost,
     );
-    _historyLogs.insert(0, newLog); // بنضيفه في الأول عشان يظهر فوق
+    _historyLogs.insert(0, newLog);
     notifyListeners();
   }
 
-List<ProductModel> _maintenancePackage = [
-    ProductModel(id: '101', name: 'Synthetic Engine Oil (5W-40)', price: 1200, category: 'Oils'),
-    ProductModel(id: '102', name: 'Oil Filter', price: 250, category: 'Filters'),
-    ProductModel(id: '103', name: 'Air Filter', price: 300, category: 'Filters'),
-    ProductModel(id: '104', name: 'AC Filter', price: 450, category: 'Filters'),
-  ];
 
-  List<ProductModel> get maintenancePackage => _maintenancePackage;
-
-  // 2. السلة (Cart)
+  // --- 4. CART & MARKET ---
   List<ProductModel> _cartItems = [];
   List<ProductModel> get cartItems => _cartItems;
 
-  // دالة إضافة للسلة
   void addToCart(List<ProductModel> products) {
     _cartItems.addAll(products);
     notifyListeners();
   }
-  
-  // دالة لحساب إجمالي السلة
+
+  void removeFromCart(ProductModel item) {
+    _cartItems.remove(item);
+    notifyListeners();
+  }
+
+  void clearCart() {
+    _cartItems.clear();
+    notifyListeners();
+  }
+
   double get cartTotal {
     return _cartItems.fold(0, (sum, item) => sum + item.price);
   }
-  
-  // --- إدارة التنقل (عشان لما ندوس Add نروح لصفحة الكارت أوتوماتيك) ---
+
+  // --- 5. NAVIGATION STATE ---
   int _currentTabIndex = 0;
   int get currentTabIndex => _currentTabIndex;
 
@@ -113,25 +237,23 @@ List<ProductModel> _maintenancePackage = [
     notifyListeners();
   }
 
-List<EmergencyModel> _emergencyContacts = [
-    // 1. أوناش
+
+  // --- 6. EMERGENCY CONTACTS ---
+  List<EmergencyModel> _emergencyContacts = [
     EmergencyModel(name: 'Al-Inqaz Towing', phoneNumber: '0100000001', location: 'Nasr City', type: 'Winch', rating: '4.9'),
     EmergencyModel(name: 'Road Hero Winch', phoneNumber: '0100000002', location: 'Maadi', type: 'Winch', rating: '4.7'),
-    
-    // 2. بطاريات
     EmergencyModel(name: 'Fit & Fix Batteries', phoneNumber: '19000', location: 'New Cairo', type: 'Battery', rating: '4.8'),
     EmergencyModel(name: 'Battery Doctors', phoneNumber: '0110000000', location: 'Giza', type: 'Battery', rating: '4.5'),
-
-    // 3. كاوتش
     EmergencyModel(name: 'Tire Man', phoneNumber: '0120000000', location: 'Heliopolis', type: 'Tire', rating: '4.6'),
   ];
 
-  // فلترة القائمة حسب النوع (عشان نعرض كل قسم لوحده)
   List<EmergencyModel> getEmergencyByType(String type) {
     return _emergencyContacts.where((element) => element.type == type).toList();
   }
 
-final List<Map<String, dynamic>> _categories = [
+
+  // --- 7. MARKET DATA ---
+  final List<Map<String, dynamic>> _categories = [
     {'name': 'All', 'icon': CupertinoIcons.square_grid_2x2_fill},
     {'name': 'Service Centers', 'icon': CupertinoIcons.wrench_fill},
     {'name': 'Oils', 'icon': CupertinoIcons.drop_fill},
@@ -143,7 +265,6 @@ final List<Map<String, dynamic>> _categories = [
 
   List<Map<String, dynamic>> get categories => _categories;
 
-  // 2. منتجات الماركت (داتا وهمية مكثفة)
   List<ProductModel> _marketProducts = [
     ProductModel(id: '201', name: 'Shell Helix Ultra', price: 950, category: 'Oils', image: 'assets/images/oil.png'),
     ProductModel(id: '202', name: 'Michelin Tire 16"', price: 4500, category: 'Tires', image: 'assets/images/tire.png'),
@@ -154,8 +275,18 @@ final List<Map<String, dynamic>> _categories = [
   ];
 
   List<ProductModel> get marketProducts => _marketProducts;
+  
+  List<ProductModel> _maintenancePackage = [
+    ProductModel(id: '101', name: 'Synthetic Engine Oil (5W-40)', price: 1200, category: 'Oils'),
+    ProductModel(id: '102', name: 'Oil Filter', price: 250, category: 'Filters'),
+    ProductModel(id: '103', name: 'Air Filter', price: 300, category: 'Filters'),
+    ProductModel(id: '104', name: 'AC Filter', price: 450, category: 'Filters'),
+  ];
+  List<ProductModel> get maintenancePackage => _maintenancePackage;
 
-final List<Map<String, dynamic>> _serviceCenters = [
+
+  // --- 8. SERVICE CENTERS ---
+  final List<Map<String, dynamic>> _serviceCenters = [
     {'name': 'Auto Fix Center', 'location': 'Nasr City', 'labor_cost': 200.0},
     {'name': 'The Mechanic', 'location': 'Maadi', 'labor_cost': 250.0},
     {'name': 'Pro Car Service', 'location': 'New Cairo', 'labor_cost': 300.0},
@@ -163,17 +294,4 @@ final List<Map<String, dynamic>> _serviceCenters = [
   ];
 
   List<Map<String, dynamic>> get serviceCenters => _serviceCenters;
-
-  // دالة حذف من السلة
-  void removeFromCart(ProductModel item) {
-    _cartItems.remove(item);
-    notifyListeners();
-  }
-
-  // دالة مسح السلة بالكامل (بعد الدفع)
-  void clearCart() {
-    _cartItems.clear();
-    notifyListeners();
-  }
-
 }

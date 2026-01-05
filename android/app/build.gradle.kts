@@ -38,10 +38,12 @@ android {
 
     signingConfigs {
         create("release") {
-            keyAlias = keystoreProperties["keyAlias"] as String
-            keyPassword = keystoreProperties["keyPassword"] as String
-            storeFile = file(keystoreProperties["storeFile"] as String)
-            storePassword = keystoreProperties["storePassword"] as String
+            // Using "getProperty" and the Elvis operator (?:) to provide a fallback
+            keyAlias = keystoreProperties.getProperty("keyAlias") ?: ""
+            keyPassword = keystoreProperties.getProperty("keyPassword") ?: ""
+            val storePath = keystoreProperties.getProperty("storeFile") ?: ""
+            storeFile = if (storePath.isNotEmpty()) file(storePath) else null
+            storePassword = keystoreProperties.getProperty("storePassword") ?: ""
         }
     }
 

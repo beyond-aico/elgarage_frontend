@@ -1,9 +1,12 @@
+import 'package:elgarage/screens/add_car_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:provider/provider.dart';
 import '../core/constants/app_colors.dart';
 import '../providers/app_provider.dart';
 import '../widgets/car_card.dart';
+// Don't forget to import your AddCarScreen here
+// import '../screens/add_car_screen.dart'; 
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
@@ -12,9 +15,11 @@ class HomeScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.background,
-      body: CustomScrollView( // استخدمنا ده عشان الصفحة تبقى Scrollable بشكل سلس
+      
+      // 1. THE BODY (The Scrollable List)
+      body: CustomScrollView(
         slivers: [
-          // 1. الهيرو سكشن (معمول بـ SliverAppBar عشان يبقى شكله حلو مع السكرول)
+          // A. Hero Section / Header
           SliverToBoxAdapter(
             child: Container(
               padding: const EdgeInsets.fromLTRB(20, 60, 20, 20),
@@ -24,7 +29,7 @@ class HomeScreen extends StatelessWidget {
               ),
               child: Row(
                 children: [
-                  // صورة البروفايل
+                  // Profile Image
                   Container(
                     width: 60,
                     height: 60,
@@ -32,15 +37,14 @@ class HomeScreen extends StatelessWidget {
                       shape: BoxShape.circle,
                       border: Border.all(color: AppColors.primary, width: 2),
                       image: const DecorationImage(
-                        // صورة افتراضية لحد ما نربط Login
-                        image: NetworkImage('https://i.pravatar.cc/300'), 
+                        image: NetworkImage('https://i.pravatar.cc/300'),
                         fit: BoxFit.cover,
                       ),
                     ),
                   ),
                   const SizedBox(width: 15),
-                  
-                  // الترحيب ورقم التليفون
+
+                  // Welcome Text & Phone
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -50,7 +54,7 @@ class HomeScreen extends StatelessWidget {
                           style: TextStyle(color: Colors.grey[600], fontSize: 14),
                         ),
                         const Text(
-                          'Hesham Fathy', // اسم المستخدم (Dynamic لاحقاً)
+                          'Hesham Fathy',
                           style: TextStyle(
                             fontSize: 20,
                             fontWeight: FontWeight.bold,
@@ -75,8 +79,8 @@ class HomeScreen extends StatelessWidget {
                       ],
                     ),
                   ),
-                  
-                  // زرار الإشعارات (إضافة لطيفة)
+
+                  // Notification Button
                   IconButton(
                     onPressed: () {},
                     icon: const Icon(CupertinoIcons.bell, color: AppColors.textPrimary),
@@ -86,7 +90,7 @@ class HomeScreen extends StatelessWidget {
             ),
           ),
 
-          // عنوان القائمة
+          // B. Section Title
           const SliverToBoxAdapter(
             child: Padding(
               padding: EdgeInsets.fromLTRB(20, 25, 20, 10),
@@ -101,8 +105,7 @@ class HomeScreen extends StatelessWidget {
             ),
           ),
 
-          // 2. قائمة العربيات
-          // بنستخدم Consumer عشان نسمع لأي تغيير في الداتا
+          // C. Car List (Consumer)
           Consumer<AppProvider>(
             builder: (context, provider, child) {
               return SliverList(
@@ -115,10 +118,7 @@ class HomeScreen extends StatelessWidget {
                       car: car,
                       isSelected: isSelected,
                       onTap: () {
-                        // 1. تحديث العربية المختارة في البروفايدر
                         provider.selectCar(car);
-                        
-                        // 2. إظهار رسالة صغيرة (SnackBar)
                         ScaffoldMessenger.of(context).showSnackBar(
                           SnackBar(
                             content: Text('${car.make} ${car.model} Selected'),
@@ -126,8 +126,6 @@ class HomeScreen extends StatelessWidget {
                             duration: const Duration(milliseconds: 500),
                           ),
                         );
-                        
-                        // ملحوظة: هنا ممكن نعمل Auto Navigate لتاب العربية لو حبيت
                       },
                     );
                   },
@@ -136,10 +134,23 @@ class HomeScreen extends StatelessWidget {
               );
             },
           ),
-          
-          // مسافة تحت عشان الفوتر مايغطيش آخر كارت
-          const SliverToBoxAdapter(child: SizedBox(height: 20)),
+
+          // Bottom Padding
+          const SliverToBoxAdapter(child: SizedBox(height: 80)), // Increased height to avoid FAB overlap
         ],
+      ),
+
+      // 2. THE FLOATING ACTION BUTTON
+      floatingActionButton: FloatingActionButton(
+        backgroundColor: AppColors.primary,
+        child: const Icon(Icons.add, color: Colors.white),
+        onPressed: () {
+          // Make sure AddCarScreen is imported or defined
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => const AddCarScreen()),
+          );
+        },
       ),
     );
   }

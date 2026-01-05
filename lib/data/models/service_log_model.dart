@@ -1,15 +1,17 @@
 class ServiceLogModel {
   final String id;
-  final String serviceName; // اسم الصيانة (تغيير زيت، صيانة 10 آلاف..)
-  final DateTime date;      // تاريخ الصيانة
-  final double cost;        // التكلفة (اختياري حالياً)
-  final String notes;       // ملاحظات
+  final String serviceName; 
+  final DateTime date;
+  final double mileage; // <--- Added this
+  final List<String> partsReplaced; // <--- Added this
+  final double cost;
 
   ServiceLogModel({
     required this.id,
     required this.serviceName,
     required this.date,
+    required this.mileage,
+    required this.partsReplaced,
     this.cost = 0.0,
-    this.notes = '',
   });
 }

@@ -7,6 +7,8 @@ class CarModel {
   final double currentKm;     // قراءة العداد الحالية
   final double monthlyAvgKm;  // متوسط الاستهلاك الشهري
   final String plateNumber;   // رقم اللوحة (اختياري للعرض)
+  final DateTime? lastMaintenanceDate;
+  final double? lastMaintenanceKm;
 
   // Constructor
   CarModel({
@@ -18,6 +20,9 @@ class CarModel {
     required this.currentKm,
     required this.monthlyAvgKm,
     this.plateNumber = '',
+    this.lastMaintenanceDate,
+    this.lastMaintenanceKm,
+    
   });
 
   // دالة بسيطة عشان تعرض اسم العربية كامل

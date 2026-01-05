@@ -4,6 +4,7 @@ class ProductModel {
   final double price;      // السعر
   final String category;   // التصنيف (Oils, Filters, Brakes)
   final String? image;     // صورة (اختياري)
+  bool isMissed;
 
   ProductModel({
     required this.id,
@@ -11,5 +12,6 @@ class ProductModel {
     required this.price,
     required this.category,
     this.image,
+    this.isMissed = false,
   });
 }
