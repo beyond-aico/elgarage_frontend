@@ -1,8 +1,108 @@
-﻿===== ROOT FOLDER: lib =====
+
+==================================================
+FILE: .\analysis_options.yaml
+==================================================
+
+# This file configures the analyzer, which statically analyzes Dart code to
+# check for errors, warnings, and lints.
+#
+# The issues identified by the analyzer are surfaced in the UI of Dart-enabled
+# IDEs (https://dart.dev/tools#ides-and-editors). The analyzer can also be
+# invoked from the command line by running `flutter analyze`.
+
+# The following line activates a set of recommended lints for Flutter apps,
+# packages, and plugins designed to encourage good coding practices.
+include: package:flutter_lints/flutter.yaml
+
+linter:
+  # The lint rules applied to this project can be customized in the
+  # section below to disable rules from the `package:flutter_lints/flutter.yaml`
+  # included above or to enable additional rules. A list of all available lints
+  # and their documentation is published at https://dart.dev/lints.
+  #
+  # Instead of disabling a lint rule for the entire project in the
+  # section below, it can also be suppressed for a single line of code
+  # or a specific dart file by using the `// ignore: name_of_lint` and
+  # `// ignore_for_file: name_of_lint` syntax on the line or in the file
+  # producing the lint.
+  rules:
+    # avoid_print: false  # Uncomment to disable the `avoid_print` rule
+    # prefer_single_quotes: true  # Uncomment to enable the `prefer_single_quotes` rule
+
+# Additional information about this file can be found at
+# https://dart.dev/guides/language/analysis-options
 
 
+==================================================
+FILE: .\firebase.json
+==================================================
 
-===== FILE: lib\main.dart =====
+{"flutter":{"platforms":{"android":{"default":{"projectId":"elgarage-beyond","appId":"1:602286841824:android:9a1875fde2ad22aeb31585","fileOutput":"android/app/google-services.json"}},"dart":{"lib/firebase_options.dart":{"projectId":"elgarage-beyond","configurations":{"android":"1:602286841824:android:9a1875fde2ad22aeb31585","ios":"1:602286841824:ios:11006aa1d78cb22ab31585","macos":"1:602286841824:ios:0ed219da4fe238c7b31585","web":"1:602286841824:web:f67d15614ccc8ec4b31585","windows":"1:602286841824:web:bfdd510f5f407d0db31585"}}}}}}
+
+==================================================
+FILE: .\pubspec.yaml
+==================================================
+
+name: elgarage
+description: "El Garage."
+version: 1.0.3+1
+
+environment:
+  sdk: ^3.10.1
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+  cupertino_icons: ^1.0.8
+  google_fonts: ^6.3.3
+  flutter_svg: ^2.2.3
+  font_awesome_flutter: ^10.12.0
+  intl: ^0.20.2
+  url_launcher: ^6.3.2
+  permission_handler: ^12.0.1
+  flutter_localizations:
+    sdk: flutter
+  firebase_core: ^4.2.1
+  cloud_firestore: ^6.1.0
+  http: ^1.6.0
+  loading_animation_widget: ^1.3.0
+  flutter_staggered_animations: ^1.1.1
+  flutter_screenutil: ^5.9.3
+  easy_localization: ^3.0.8
+  crypto: ^3.0.7
+  provider: ^6.1.5+1
+  change_app_package_name: ^1.5.0
+  audioplayers: ^6.5.1
+  dart_openai: ^6.1.1
+  speech_to_text: ^7.3.0
+  cached_network_image: ^3.4.1
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+
+  flutter_lints: ^6.0.0
+
+flutter:
+
+  uses-material-design: true
+
+  assets:
+   - assets/images/
+   - assets/translations/
+
+==================================================
+FILE: .\.vscode\settings.json
+==================================================
+
+{
+    "cmake.sourceDirectory": "D:/elgarage/linux"
+}
+
+==================================================
+FILE: .\lib\main.dart
+==================================================
 
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -12,58 +112,97 @@ import 'providers/app_provider.dart';
 import 'screens/main_layout.dart';
 
 void main() {
-  runApp(const AutoMentorApp());
+  runApp(const ElGarageApp());
 }
 
-class AutoMentorApp extends StatelessWidget {
-  const AutoMentorApp({super.key});
+class ElGarageApp extends StatelessWidget {
+  const ElGarageApp({super.key});
 
   @override
   Widget build(BuildContext context) {
     return MultiProvider(
-      // هنا بنعرف التطبيق إن فيه "مخ" اسمه AppProvider لازم يسمع كلامه
       providers: [
         ChangeNotifierProvider(create: (_) => AppProvider()),
       ],
       child: MaterialApp(
-        title: 'Auto Mentor',
+        title: 'El Garage',
         debugShowCheckedModeBanner: false,
         
-        // إعدادات الثيم والألوان والخطوط
         theme: ThemeData(
           primaryColor: AppColors.primary,
           scaffoldBackgroundColor: AppColors.background,
           
-          // إعداد الخطوط (Cairo للعربي والإنجليزي شكله شيك)
           textTheme: GoogleFonts.cairoTextTheme(
             Theme.of(context).textTheme,
           ),
           
-          // ألوان التطبيق العامة
-          colorScheme: ColorScheme.fromSeed(
+colorScheme: ColorScheme.fromSeed(
             seedColor: AppColors.primary,
-            secondary: AppColors.secondary,
+            primary: AppColors.primary,
+            secondary: AppColors.accent,
           ),
           
           useMaterial3: true,
         ),
         
-        // أول شاشة هتفتح هي الـ Layout اللي شايل الفوتر
         home: const MainLayout(),
       ),
     );
   }
 }
 
+==================================================
+FILE: .\lib\secrets.dart
+==================================================
 
+import 'package:flutter/material.dart';
 
-===== FILE: lib\secrets.dart =====
+class AppColors {
+  // === 🏎️ Modern Sport Theme (روح رياضية وفخامة) ===
+  
+  // 1. اللون الأساسي: أسود فحمي مائل للأزرق (فخم جداً للهيدر والفوتر)
+  static const Color primary = Color(0xFF1B1F23); 
+  
+  // 2. لون الروح (Accent): برتقالي ناري (للأزرار المهمة، الأيقونات النشطة)
+  // ده اللون اللي "هيحيي" التطبيق بجد
+  static const Color accent = Color(0xFFFF6B00); 
 
+  // 3. لون ثانوي: رمادي معدني (للأيقونات الفرعية والتفاصيل)
+  static const Color secondary = Color(0xFF546E7A);
 
+  // --- الخلفيات والكروت ---
+  static const Color background = Color(0xFFF4F6F8); // رمادي فاتح جداً (ثلجي)
+  static const Color surface = Colors.white;         // أبيض ناصع للكروت
+  
+  // --- النصوص ---
+  static const Color textPrimary = Color(0xFF263238); // رصاصي غامق (أشيك من الأسود الصريح)
+  static const Color textSecondary = Color(0xFF78909C); // رصاصي فاتح مريح
 
+  // --- التدرجات (عشان لو حبيت تعمل زرار شكله 3D) ---
+  static const LinearGradient primaryGradient = LinearGradient(
+    colors: [Color(0xFF1B1F23), Color(0xFF37474F)],
+    begin: Alignment.topLeft,
+    end: Alignment.bottomRight,
+  );
+  
+  static const LinearGradient accentGradient = LinearGradient(
+    colors: [Color(0xFFFF8F00), Color(0xFFFF6B00)], // تدرج برتقالي حيوي
+    begin: Alignment.topLeft,
+    end: Alignment.bottomRight,
+  );
 
+  // === Compatibility (عشان الكود القديم يشتغل زي الفل) ===
+  static const Color cardColor = surface;
+  
+  // ألوان الحالات (Functional)
+  static const Color success = Color(0xFF00C853);      // أخضر نيون (Android Green)
+  static const Color error = Color(0xFFD50000);        // أحمر صريح
+  static const Color warning = Color(0xFFFFD600);      // أصفر
+}
 
-===== FILE: lib\core\constants\app_colors.dart =====
+==================================================
+FILE: .\lib\core\constants\app_colors.dart
+==================================================
 
 import 'package:flutter/material.dart';
 
@@ -87,9 +226,30 @@ class AppColors {
   static const Color warning = Color(0xFFF59E0B);      // تنبيه صيانة
 }
 
+==================================================
+FILE: .\lib\core\constants\maintenance_constants.dart
+==================================================
 
+class MaintenanceParts {
+  static const String engineOil = "Engine Oil";
+  static const String oilFilter = "Oil Filter";
+  static const String fuelFilter = "Fuel Filter";
+  static const String airFilter = "Air Filter";
+  static const String pollenFilter = "Pollen Filter";
+  static const String sparkPlugs = "Spark Plugs";
+  static const String driveBelt = "Drive Belt";
+  static const String coolant = "Coolant Water";
+  static const String gearboxOil = "Gearbox Oil";
 
-===== FILE: lib\data\models\car_model.dart =====
+  static const List<String> allParts = [
+    engineOil, oilFilter, fuelFilter, airFilter, 
+    pollenFilter, sparkPlugs, driveBelt, coolant, gearboxOil
+  ];
+}
+
+==================================================
+FILE: .\lib\data\models\car_model.dart
+==================================================
 
 class CarModel {
   final String id;
@@ -100,6 +260,8 @@ class CarModel {
   final double currentKm;     // قراءة العداد الحالية
   final double monthlyAvgKm;  // متوسط الاستهلاك الشهري
   final String plateNumber;   // رقم اللوحة (اختياري للعرض)
+  final DateTime? lastMaintenanceDate;
+  final double? lastMaintenanceKm;
 
   // Constructor
   CarModel({
@@ -111,15 +273,18 @@ class CarModel {
     required this.currentKm,
     required this.monthlyAvgKm,
     this.plateNumber = '',
+    this.lastMaintenanceDate,
+    this.lastMaintenanceKm,
+    
   });
 
   // دالة بسيطة عشان تعرض اسم العربية كامل
   String get fullName => '$make $model $year';
 }
 
-
-
-===== FILE: lib\data\models\emergency_model.dart =====
+==================================================
+FILE: .\lib\data\models\emergency_model.dart
+==================================================
 
 class EmergencyModel {
   final String name;
@@ -137,9 +302,9 @@ class EmergencyModel {
   });
 }
 
-
-
-===== FILE: lib\data\models\product_model.dart =====
+==================================================
+FILE: .\lib\data\models\product_model.dart
+==================================================
 
 class ProductModel {
   final String id;
@@ -147,6 +312,7 @@ class ProductModel {
   final double price;      // السعر
   final String category;   // التصنيف (Oils, Filters, Brakes)
   final String? image;     // صورة (اختياري)
+  bool isMissed;
 
   ProductModel({
     required this.id,
@@ -154,49 +320,51 @@ class ProductModel {
     required this.price,
     required this.category,
     this.image,
+    this.isMissed = false,
   });
 }
 
-
-
-===== FILE: lib\data\models\service_log_model.dart =====
+==================================================
+FILE: .\lib\data\models\service_log_model.dart
+==================================================
 
 class ServiceLogModel {
   final String id;
-  final String serviceName; // اسم الصيانة (تغيير زيت، صيانة 10 آلاف..)
-  final DateTime date;      // تاريخ الصيانة
-  final double cost;        // التكلفة (اختياري حالياً)
-  final String notes;       // ملاحظات
+  final String serviceName; 
+  final DateTime date;
+  final double mileage; // <--- Added this
+  final List<String> partsReplaced; // <--- Added this
+  final double cost;
 
   ServiceLogModel({
     required this.id,
     required this.serviceName,
     required this.date,
+    required this.mileage,
+    required this.partsReplaced,
     this.cost = 0.0,
-    this.notes = '',
   });
 }
 
-
-
-===== FILE: lib\providers\app_provider.dart =====
+==================================================
+FILE: .\lib\providers\app_provider.dart
+==================================================
 
 import 'package:elgarage/data/models/emergency_model.dart';
 import 'package:elgarage/data/models/product_model.dart';
 import 'package:elgarage/data/models/service_log_model.dart';
 import 'package:flutter/cupertino.dart';
-import 'package:flutter/material.dart';
 import '../data/models/car_model.dart';
 
 class AppProvider with ChangeNotifier {
-  // قائمة العربيات المملوكة للمستخدم (مؤقتاً داتا وهمية لحد ما نربط بالـ API)
-  List<CarModel> _myCars = [
+  // --- 1. CAR MANAGEMENT ---
+  final List<CarModel> _myCars = [
     CarModel(
       id: '1',
       make: 'Hyundai',
       model: 'Tucson',
       year: '2022',
-      imageUrl: 'assets/images/car1.png', // تأكد إن الصورة دي موجودة
+      imageUrl: 'assets/images/car1.png',
       currentKm: 45000,
       monthlyAvgKm: 1500,
     ),
@@ -211,83 +379,207 @@ class AppProvider with ChangeNotifier {
     ),
   ];
 
-  // العربية المختارة حالياً (Nullable عشان ممكن لسه ما اخترش)
   CarModel? _selectedCar;
 
-  // Getter عشان نجيب العربيات
   List<CarModel> get myCars => _myCars;
 
-  // Getter عشان نجيب العربية المختارة، لو مفيش بنرجع أول واحدة كـ Default
   CarModel get selectedCar {
     if (_selectedCar != null) {
       return _selectedCar!;
     } else if (_myCars.isNotEmpty) {
       return _myCars.first;
     } else {
-      // حالة نادرة لو الليست فاضية (هنهندلها في الـ UI)
-      return _myCars.first; 
+      return _myCars.first;
     }
   }
 
-  // دالة تغيير العربية المختارة
   void selectCar(CarModel car) {
     _selectedCar = car;
-    notifyListeners(); // بنبلغ كل الصفحات إن العربية اتغيرت عشان يحدثوا البيانات
+    notifyListeners();
   }
 
-List<ServiceLogModel> _historyLogs = [
+  void addCar(CarModel newCar) {
+    _myCars.add(newCar);
+    notifyListeners();
+  }
+
+  final Map<String, List<String>> _supportedBrands = {
+    'Toyota': ['Corolla', 'Camry', 'Yaris'],
+    'Hyundai': ['Tucson', 'Elantra', 'Verna'],
+    'Kia': ['Sportage', 'Cerato', 'Rio'],
+    'BMW': ['X5', '320i', '530i'],
+    'Mercedes': ['C200', 'E300', 'S500'],
+  };
+
+  List<String> get brands => _supportedBrands.keys.toList();
+
+  List<String> getModelsForBrand(String? brand) {
+    if (brand == null) return [];
+    return _supportedBrands[brand] ?? [];
+  }
+
+
+  // --- 2. MAINTENANCE LOGIC & MATRIX ---
+
+  final Map<int, List<String>> _maintenanceMatrix = {
+    10000: ['Engine Oil', 'Oil Filter'],
+    20000: ['Engine Oil', 'Oil Filter', 'Air Filter', 'Pollen Filter', 'Spark Plugs'],
+    30000: ['Engine Oil', 'Oil Filter', 'Coolant Water'],
+    40000: [
+      'Engine Oil', 'Oil Filter', 'Air Filter', 'Pollen Filter', 'Spark Plugs',
+      'Fuel Filter', 'Gearbox Oil (if 4-gear)'
+    ],
+    50000: ['Engine Oil', 'Oil Filter', 'Gearbox Oil (if 6-gear)'],
+    60000: ['Engine Oil', 'Oil Filter', 'Air Filter', 'Spark Plugs', 'Drive Belt (Kit)'],
+    70000: ['Engine Oil', 'Oil Filter', 'Coolant Water'],
+    80000: [
+      'Engine Oil', 'Oil Filter', 'Air Filter', 'Pollen Filter', 'Spark Plugs',
+      'Fuel Filter', 'Coolant Pump', 'Gearbox Oil (if 4-gear)'
+    ],
+    90000: ['Engine Oil', 'Oil Filter'],
+    100000: ['Engine Oil', 'Oil Filter', 'Air Filter', 'Spark Plugs'],
+    110000: ['Engine Oil', 'Oil Filter'],
+    120000: [
+      'Engine Oil', 'Oil Filter', 'Air Filter', 'Pollen Filter', 'Spark Plugs',
+      'Fuel Filter', 'Drive Belt (Kit)', 'Coolant Water', 'Gearbox Oil'
+    ],
+  };
+
+  // Helper to get NEXT Milestone based on Current KM
+  int get currentMilestone {
+    double km = selectedCar.currentKm;
+    return ((km / 10000).floor() + 1) * 10000;
+  }
+  
+  // *** NEW INTEGRATION LOGIC ***
+  // Checks if a specific part was replaced near a specific mileage milestone
+  bool wasPartReplacedAtMilestone(String partName, int milestoneKm) {
+    // We allow a margin of error (e.g., if he did 30k service at 31k km, it's fine)
+    const int margin = 2000; 
+    
+    // Normalize part name for comparison (remove ' (Clean)', case insensitive)
+    String cleanPartName = partName.replaceAll('(Clean)', '').trim().toLowerCase();
+
+    return _historyLogs.any((log) {
+       // Check mileage range
+       bool isWithinRange = log.mileage >= (milestoneKm - margin) && 
+                            log.mileage <= (milestoneKm + margin);
+       
+       if (!isWithinRange) return false;
+
+       // Check if parts list contains this item
+       return log.partsReplaced.any((p) => p.toLowerCase().contains(cleanPartName));
+    });
+  }
+
+  // Generate items for a specific milestone
+  List<ProductModel> getMaintenanceItemsFor(int milestone) {
+    List<String> requiredParts = _maintenanceMatrix[milestone] ?? ['Engine Oil', 'Oil Filter'];
+
+    return requiredParts.map((part) {
+      // Logic to determine if "Missed"
+      // If the milestone requested is IN THE PAST (less than current milestone)
+      // AND we don't have a record of it being changed in our new intelligent history check.
+      bool missed = false;
+      
+      // Only check for "Missed" if the milestone is completely in the past
+      // (e.g. current is 45k, milestone is 40k. If we are at 40k exactly, it's "Due", not "Missed")
+      if (milestone < currentMilestone) {
+        missed = !wasPartReplacedAtMilestone(part, milestone);
+      }
+
+      return ProductModel(
+        id: '${milestone}_$part',
+        name: part,
+        price: _getPriceForPart(part),
+        category: 'Maintenance',
+        isMissed: missed,
+      );
+    }).toList();
+  }
+
+  // Simulated Price Helper
+  double _getPriceForPart(String name) {
+    name = name.toLowerCase();
+    if (name.contains('oil') && !name.contains('filter')) return 1200; 
+    if (name.contains('filter')) return 350;
+    if (name.contains('spark')) return 800;
+    if (name.contains('belt')) return 2500;
+    if (name.contains('coolant')) return 600;
+    if (name.contains('pump')) return 1800;
+    return 500;
+  }
+
+
+  // --- 3. SERVICE HISTORY LOGS (Updated) ---
+  
+  // Note: Ensure your ServiceLogModel has 'mileage' (double) and 'partsReplaced' (List<String>)
+  final List<ServiceLogModel> _historyLogs = [
     ServiceLogModel(
-      id: '1', 
-      serviceName: 'Oil Change', 
-      date: DateTime.now().subtract(const Duration(days: 30)), 
-      cost: 1500,
+      id: '1',
+      serviceName: '40k Maintenance',
+      date: DateTime.now().subtract(const Duration(days: 30)),
+      cost: 3500,
+      mileage: 41000, // He did it a bit late, but within margin
+      partsReplaced: ['Engine Oil', 'Oil Filter', 'Air Filter', 'Spark Plugs'],
     ),
     ServiceLogModel(
-      id: '2', 
-      serviceName: 'Tires Replacement', 
-      date: DateTime.now().subtract(const Duration(days: 120)), 
+      id: '2',
+      serviceName: 'Tires Replacement',
+      date: DateTime.now().subtract(const Duration(days: 120)),
       cost: 8000,
+      mileage: 35000,
+      partsReplaced: ['Tires'],
     ),
   ];
 
   List<ServiceLogModel> get historyLogs => _historyLogs;
 
-  // دالة إضافة سجل جديد
-  void addServiceLog(String name, DateTime date) {
+  // Updated Add Function
+  void addServiceLog({
+    required String name, 
+    required DateTime date, 
+    required double mileage, 
+    required List<String> parts,
+    double cost = 0.0,
+  }) {
     final newLog = ServiceLogModel(
-      id: DateTime.now().toString(), // ID مؤقت
+      id: DateTime.now().toString(),
       serviceName: name,
       date: date,
+      mileage: mileage,
+      partsReplaced: parts,
+      cost: cost,
     );
-    _historyLogs.insert(0, newLog); // بنضيفه في الأول عشان يظهر فوق
+    _historyLogs.insert(0, newLog);
     notifyListeners();
   }
 
-List<ProductModel> _maintenancePackage = [
-    ProductModel(id: '101', name: 'Synthetic Engine Oil (5W-40)', price: 1200, category: 'Oils'),
-    ProductModel(id: '102', name: 'Oil Filter', price: 250, category: 'Filters'),
-    ProductModel(id: '103', name: 'Air Filter', price: 300, category: 'Filters'),
-    ProductModel(id: '104', name: 'AC Filter', price: 450, category: 'Filters'),
-  ];
 
-  List<ProductModel> get maintenancePackage => _maintenancePackage;
-
-  // 2. السلة (Cart)
-  List<ProductModel> _cartItems = [];
+  // --- 4. CART & MARKET ---
+  final List<ProductModel> _cartItems = [];
   List<ProductModel> get cartItems => _cartItems;
 
-  // دالة إضافة للسلة
   void addToCart(List<ProductModel> products) {
     _cartItems.addAll(products);
     notifyListeners();
   }
-  
-  // دالة لحساب إجمالي السلة
+
+  void removeFromCart(ProductModel item) {
+    _cartItems.remove(item);
+    notifyListeners();
+  }
+
+  void clearCart() {
+    _cartItems.clear();
+    notifyListeners();
+  }
+
   double get cartTotal {
     return _cartItems.fold(0, (sum, item) => sum + item.price);
   }
-  
-  // --- إدارة التنقل (عشان لما ندوس Add نروح لصفحة الكارت أوتوماتيك) ---
+
+  // --- 5. NAVIGATION STATE ---
   int _currentTabIndex = 0;
   int get currentTabIndex => _currentTabIndex;
 
@@ -296,25 +588,23 @@ List<ProductModel> _maintenancePackage = [
     notifyListeners();
   }
 
-List<EmergencyModel> _emergencyContacts = [
-    // 1. أوناش
+
+  // --- 6. EMERGENCY CONTACTS ---
+  final List<EmergencyModel> _emergencyContacts = [
     EmergencyModel(name: 'Al-Inqaz Towing', phoneNumber: '0100000001', location: 'Nasr City', type: 'Winch', rating: '4.9'),
     EmergencyModel(name: 'Road Hero Winch', phoneNumber: '0100000002', location: 'Maadi', type: 'Winch', rating: '4.7'),
-    
-    // 2. بطاريات
     EmergencyModel(name: 'Fit & Fix Batteries', phoneNumber: '19000', location: 'New Cairo', type: 'Battery', rating: '4.8'),
     EmergencyModel(name: 'Battery Doctors', phoneNumber: '0110000000', location: 'Giza', type: 'Battery', rating: '4.5'),
-
-    // 3. كاوتش
     EmergencyModel(name: 'Tire Man', phoneNumber: '0120000000', location: 'Heliopolis', type: 'Tire', rating: '4.6'),
   ];
 
-  // فلترة القائمة حسب النوع (عشان نعرض كل قسم لوحده)
   List<EmergencyModel> getEmergencyByType(String type) {
     return _emergencyContacts.where((element) => element.type == type).toList();
   }
 
-final List<Map<String, dynamic>> _categories = [
+
+  // --- 7. MARKET DATA ---
+  final List<Map<String, dynamic>> _categories = [
     {'name': 'All', 'icon': CupertinoIcons.square_grid_2x2_fill},
     {'name': 'Service Centers', 'icon': CupertinoIcons.wrench_fill},
     {'name': 'Oils', 'icon': CupertinoIcons.drop_fill},
@@ -326,8 +616,7 @@ final List<Map<String, dynamic>> _categories = [
 
   List<Map<String, dynamic>> get categories => _categories;
 
-  // 2. منتجات الماركت (داتا وهمية مكثفة)
-  List<ProductModel> _marketProducts = [
+  final List<ProductModel> _marketProducts = [
     ProductModel(id: '201', name: 'Shell Helix Ultra', price: 950, category: 'Oils', image: 'assets/images/oil.png'),
     ProductModel(id: '202', name: 'Michelin Tire 16"', price: 4500, category: 'Tires', image: 'assets/images/tire.png'),
     ProductModel(id: '203', name: 'Varta Battery 70Ah', price: 3200, category: 'Batteries'),
@@ -337,8 +626,18 @@ final List<Map<String, dynamic>> _categories = [
   ];
 
   List<ProductModel> get marketProducts => _marketProducts;
+  
+  final List<ProductModel> _maintenancePackage = [
+    ProductModel(id: '101', name: 'Synthetic Engine Oil (5W-40)', price: 1200, category: 'Oils'),
+    ProductModel(id: '102', name: 'Oil Filter', price: 250, category: 'Filters'),
+    ProductModel(id: '103', name: 'Air Filter', price: 300, category: 'Filters'),
+    ProductModel(id: '104', name: 'AC Filter', price: 450, category: 'Filters'),
+  ];
+  List<ProductModel> get maintenancePackage => _maintenancePackage;
 
-final List<Map<String, dynamic>> _serviceCenters = [
+
+  // --- 8. SERVICE CENTERS ---
+  final List<Map<String, dynamic>> _serviceCenters = [
     {'name': 'Auto Fix Center', 'location': 'Nasr City', 'labor_cost': 200.0},
     {'name': 'The Mechanic', 'location': 'Maadi', 'labor_cost': 250.0},
     {'name': 'Pro Car Service', 'location': 'New Cairo', 'labor_cost': 300.0},
@@ -346,24 +645,197 @@ final List<Map<String, dynamic>> _serviceCenters = [
   ];
 
   List<Map<String, dynamic>> get serviceCenters => _serviceCenters;
-
-  // دالة حذف من السلة
-  void removeFromCart(ProductModel item) {
-    _cartItems.remove(item);
-    notifyListeners();
-  }
-
-  // دالة مسح السلة بالكامل (بعد الدفع)
-  void clearCart() {
-    _cartItems.clear();
-    notifyListeners();
-  }
-
 }
 
+==================================================
+FILE: .\lib\screens\add_car_screen.dart
+==================================================
 
+import 'package:flutter/material.dart';
+import 'package:flutter/cupertino.dart';
+import 'package:provider/provider.dart';
+import '../core/constants/app_colors.dart';
+import '../providers/app_provider.dart';
+import '../data/models/car_model.dart';
 
-===== FILE: lib\screens\cart_screen.dart =====
+class AddCarScreen extends StatefulWidget {
+  const AddCarScreen({super.key});
+
+  @override
+  State<AddCarScreen> createState() => _AddCarScreenState();
+}
+
+class _AddCarScreenState extends State<AddCarScreen> {
+  final _formKey = GlobalKey<FormState>();
+
+  // State local to the form
+  String? _selectedBrand;
+  String? _selectedModel;
+  final _yearController = TextEditingController();
+  final _mileageController = TextEditingController();
+  final _avgConsController = TextEditingController();
+  final _lastMaintKmController = TextEditingController();
+  DateTime? _selectedDate;
+
+  @override
+  Widget build(BuildContext context) {
+    // Calling the Provider
+    final carProvider = Provider.of<AppProvider>(context);
+
+    return Scaffold(
+      backgroundColor: AppColors.background,
+      appBar: AppBar(title: const Text("Add New Car")),
+      body: SingleChildScrollView(
+        padding: const EdgeInsets.all(20),
+        child: Form(
+          key: _formKey,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Text("Car Identity", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+              const SizedBox(height: 15),
+
+              // --- Brand Dropdown (From Provider) ---
+              DropdownButtonFormField<String>(
+                initialValue: _selectedBrand,
+                decoration: _inputDecoration("Select Brand", CupertinoIcons.tag),
+                items: carProvider.brands.map((brand) {
+                  return DropdownMenuItem(value: brand, child: Text(brand));
+                }).toList(),
+                onChanged: (value) {
+                  setState(() {
+                    _selectedBrand = value;
+                    _selectedModel = null; 
+                  });
+                },
+                validator: (value) => value == null ? "Required" : null,
+              ),
+
+              const SizedBox(height: 15),
+
+              // --- Model Dropdown (From Provider) ---
+              DropdownButtonFormField<String>(
+                initialValue: _selectedModel,
+                disabledHint: const Text("Select Brand First"),
+                decoration: _inputDecoration("Select Model", CupertinoIcons.car_detailed),
+                // We ask the provider for models based on the selected brand
+                items: carProvider.getModelsForBrand(_selectedBrand).map((model) {
+                  return DropdownMenuItem(value: model, child: Text(model));
+                }).toList(),
+                onChanged: (value) {
+                  setState(() => _selectedModel = value);
+                },
+                validator: (value) => value == null ? "Required" : null,
+              ),
+
+              const SizedBox(height: 15),
+
+              Row(
+                children: [
+                  Expanded(child: _buildTextField(_yearController, "Year", CupertinoIcons.calendar, isNumber: true)),
+                  const SizedBox(width: 10),
+                  Expanded(child: _buildTextField(_mileageController, "Current KM", CupertinoIcons.speedometer, isNumber: true)),
+                ],
+              ),
+
+              _buildTextField(_avgConsController, "Monthly Avg KM", CupertinoIcons.graph_square, isNumber: true),
+
+              const Divider(height: 40),
+              const Text("Last Maintenance", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+              const SizedBox(height: 15),
+
+              _buildDatePicker(),
+              const SizedBox(height: 15),
+              _buildTextField(_lastMaintKmController, "Maintenance KM", CupertinoIcons.wrench, isNumber: true),
+
+              const SizedBox(height: 30),
+
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: AppColors.primary,
+                    padding: const EdgeInsets.symmetric(vertical: 16),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                  ),
+                  onPressed: () => _submitForm(carProvider), // Pass provider to the submit function
+                  child: const Text("Save Car", style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  // --- UI Helper Methods ---
+
+  InputDecoration _inputDecoration(String label, IconData icon) {
+    return InputDecoration(
+      labelText: label,
+      prefixIcon: Icon(icon, color: AppColors.primary, size: 20),
+      filled: true,
+      fillColor: Colors.white,
+      border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
+    );
+  }
+
+  Widget _buildTextField(TextEditingController controller, String label, IconData icon, {bool isNumber = false}) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 15),
+      child: TextFormField(
+        controller: controller,
+        keyboardType: isNumber ? TextInputType.number : TextInputType.text,
+        decoration: _inputDecoration(label, icon),
+        validator: (value) => value!.isEmpty ? "Required" : null,
+      ),
+    );
+  }
+
+  Widget _buildDatePicker() {
+    return InkWell(
+      onTap: () async {
+        final picked = await showDatePicker(context: context, initialDate: DateTime.now(), firstDate: DateTime(2010), lastDate: DateTime.now());
+        if (picked != null) setState(() => _selectedDate = picked);
+      },
+      child: Container(
+        padding: const EdgeInsets.all(15),
+        decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(12)),
+        child: Row(
+          children: [
+            const Icon(CupertinoIcons.calendar, color: AppColors.primary),
+            const SizedBox(width: 10),
+            Text(_selectedDate == null ? "Select Maintenance Date" : "${_selectedDate!.toLocal()}".split(' ')[0]),
+          ],
+        ),
+      ),
+    );
+  }
+
+  void _submitForm(AppProvider provider) {
+    if (_formKey.currentState!.validate()) {
+      final newCar = CarModel(
+        id: DateTime.now().toString(),
+        make: _selectedBrand!,
+        model: _selectedModel!,
+        year: _yearController.text,
+        imageUrl: 'assets/images/car1.png',
+        currentKm: double.parse(_mileageController.text),
+        monthlyAvgKm: double.parse(_avgConsController.text),
+        lastMaintenanceDate: _selectedDate,
+        lastMaintenanceKm: double.tryParse(_lastMaintKmController.text),
+      );
+
+      provider.addCar(newCar);
+      Navigator.pop(context);
+    }
+  }
+}
+
+==================================================
+FILE: .\lib\screens\cart_screen.dart
+==================================================
 
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
@@ -409,7 +881,7 @@ class CartScreen extends StatelessWidget {
                 child: ListView.separated(
                   padding: const EdgeInsets.all(16),
                   itemCount: cartItems.length,
-                  separatorBuilder: (_, __) => const SizedBox(height: 10),
+                  separatorBuilder: (_, _) => const SizedBox(height: 10),
                   itemBuilder: (context, index) {
                     final item = cartItems[index];
                     return Dismissible( // عشان نسحب العنصر نمسحه
@@ -452,7 +924,7 @@ class CartScreen extends StatelessWidget {
                 decoration: BoxDecoration(
                   color: Colors.white,
                   borderRadius: const BorderRadius.vertical(top: Radius.circular(30)),
-                  boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.1), blurRadius: 10, offset: const Offset(0, -5))],
+                  boxShadow: [BoxShadow(color: Colors.black.withAlpha(1), blurRadius: 10, offset: const Offset(0, -5))],
                 ),
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
@@ -590,9 +1062,9 @@ class CartScreen extends StatelessWidget {
   }
 }
 
-
-
-===== FILE: lib\screens\car_details_screen.dart =====
+==================================================
+FILE: .\lib\screens\car_details_screen.dart
+==================================================
 
 import 'package:elgarage/screens/tabs/emergency_tab.dart';
 import 'package:elgarage/screens/tabs/history_tab.dart';
@@ -670,28 +1142,31 @@ class CarDetailsScreen extends StatelessWidget {
   }
 }
 
-
-
-===== FILE: lib\screens\emergency_screen.dart =====
-
-
-
-
-
-===== FILE: lib\screens\history_screen.dart =====
+==================================================
+FILE: .\lib\screens\emergency_screen.dart
+==================================================
 
 
 
+==================================================
+FILE: .\lib\screens\history_screen.dart
+==================================================
 
 
-===== FILE: lib\screens\home_screen.dart =====
 
+==================================================
+FILE: .\lib\screens\home_screen.dart
+==================================================
+
+import 'package:elgarage/screens/add_car_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:provider/provider.dart';
 import '../core/constants/app_colors.dart';
 import '../providers/app_provider.dart';
 import '../widgets/car_card.dart';
+// Don't forget to import your AddCarScreen here
+// import '../screens/add_car_screen.dart'; 
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
@@ -700,9 +1175,11 @@ class HomeScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.background,
-      body: CustomScrollView( // استخدمنا ده عشان الصفحة تبقى Scrollable بشكل سلس
+      
+      // 1. THE BODY (The Scrollable List)
+      body: CustomScrollView(
         slivers: [
-          // 1. الهيرو سكشن (معمول بـ SliverAppBar عشان يبقى شكله حلو مع السكرول)
+          // A. Hero Section / Header
           SliverToBoxAdapter(
             child: Container(
               padding: const EdgeInsets.fromLTRB(20, 60, 20, 20),
@@ -712,7 +1189,7 @@ class HomeScreen extends StatelessWidget {
               ),
               child: Row(
                 children: [
-                  // صورة البروفايل
+                  // Profile Image
                   Container(
                     width: 60,
                     height: 60,
@@ -720,15 +1197,14 @@ class HomeScreen extends StatelessWidget {
                       shape: BoxShape.circle,
                       border: Border.all(color: AppColors.primary, width: 2),
                       image: const DecorationImage(
-                        // صورة افتراضية لحد ما نربط Login
-                        image: NetworkImage('https://i.pravatar.cc/300'), 
+                        image: NetworkImage('https://i.pravatar.cc/300'),
                         fit: BoxFit.cover,
                       ),
                     ),
                   ),
                   const SizedBox(width: 15),
-                  
-                  // الترحيب ورقم التليفون
+
+                  // Welcome Text & Phone
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -738,7 +1214,7 @@ class HomeScreen extends StatelessWidget {
                           style: TextStyle(color: Colors.grey[600], fontSize: 14),
                         ),
                         const Text(
-                          'Hesham Fathy', // اسم المستخدم (Dynamic لاحقاً)
+                          'Hesham Fathy',
                           style: TextStyle(
                             fontSize: 20,
                             fontWeight: FontWeight.bold,
@@ -763,8 +1239,8 @@ class HomeScreen extends StatelessWidget {
                       ],
                     ),
                   ),
-                  
-                  // زرار الإشعارات (إضافة لطيفة)
+
+                  // Notification Button
                   IconButton(
                     onPressed: () {},
                     icon: const Icon(CupertinoIcons.bell, color: AppColors.textPrimary),
@@ -774,7 +1250,7 @@ class HomeScreen extends StatelessWidget {
             ),
           ),
 
-          // عنوان القائمة
+          // B. Section Title
           const SliverToBoxAdapter(
             child: Padding(
               padding: EdgeInsets.fromLTRB(20, 25, 20, 10),
@@ -789,8 +1265,7 @@ class HomeScreen extends StatelessWidget {
             ),
           ),
 
-          // 2. قائمة العربيات
-          // بنستخدم Consumer عشان نسمع لأي تغيير في الداتا
+          // C. Car List (Consumer)
           Consumer<AppProvider>(
             builder: (context, provider, child) {
               return SliverList(
@@ -803,10 +1278,7 @@ class HomeScreen extends StatelessWidget {
                       car: car,
                       isSelected: isSelected,
                       onTap: () {
-                        // 1. تحديث العربية المختارة في البروفايدر
                         provider.selectCar(car);
-                        
-                        // 2. إظهار رسالة صغيرة (SnackBar)
                         ScaffoldMessenger.of(context).showSnackBar(
                           SnackBar(
                             content: Text('${car.make} ${car.model} Selected'),
@@ -814,8 +1286,6 @@ class HomeScreen extends StatelessWidget {
                             duration: const Duration(milliseconds: 500),
                           ),
                         );
-                        
-                        // ملحوظة: هنا ممكن نعمل Auto Navigate لتاب العربية لو حبيت
                       },
                     );
                   },
@@ -824,32 +1294,43 @@ class HomeScreen extends StatelessWidget {
               );
             },
           ),
-          
-          // مسافة تحت عشان الفوتر مايغطيش آخر كارت
-          const SliverToBoxAdapter(child: SizedBox(height: 20)),
+
+          // Bottom Padding
+          const SliverToBoxAdapter(child: SizedBox(height: 80)), // Increased height to avoid FAB overlap
         ],
+      ),
+
+      // 2. THE FLOATING ACTION BUTTON
+      floatingActionButton: FloatingActionButton(
+        backgroundColor: AppColors.primary,
+        child: const Icon(Icons.add, color: Colors.white),
+        onPressed: () {
+          // Make sure AddCarScreen is imported or defined
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => const AddCarScreen()),
+          );
+        },
       ),
     );
   }
 }
 
-
-
-===== FILE: lib\screens\maintenance_screen.dart =====
-
-
+==================================================
+FILE: .\lib\screens\maintenance_screen.dart
+==================================================
 
 
 
-===== FILE: lib\screens\main_layout.dart =====
+==================================================
+FILE: .\lib\screens\main_layout.dart
+==================================================
 
 import 'package:elgarage/screens/cart_screen.dart';
 import 'package:elgarage/screens/marketplace_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart'; // عشان أيقونات iOS الشيك
 import '../core/constants/app_colors.dart';
-import 'package:provider/provider.dart';
-import '../providers/app_provider.dart';
 import 'home_screen.dart';
 import 'car_details_screen.dart';
 
@@ -885,7 +1366,7 @@ class _MainLayoutState extends State<MainLayout> {
         decoration: BoxDecoration(
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.1),
+              color: Colors.black.withAlpha(1),
               blurRadius: 10,
               offset: const Offset(0, -5),
             ),
@@ -933,9 +1414,9 @@ class _MainLayoutState extends State<MainLayout> {
   }
 }
 
-
-
-===== FILE: lib\screens\marketplace_screen.dart =====
+==================================================
+FILE: .\lib\screens\marketplace_screen.dart
+==================================================
 
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
@@ -1031,7 +1512,7 @@ class MarketplaceScreen extends StatelessWidget {
                                 color: Colors.white,
                                 shape: BoxShape.circle,
                                 boxShadow: [
-                                  BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 5, offset: const Offset(0, 2))
+                                  BoxShadow(color: Colors.black.withAlpha(05), blurRadius: 5, offset: const Offset(0, 2))
                                 ],
                               ),
                               child: Icon(cat['icon'], color: AppColors.primary),
@@ -1071,7 +1552,7 @@ class MarketplaceScreen extends StatelessWidget {
                           color: Colors.white,
                           borderRadius: BorderRadius.circular(16),
                           boxShadow: [
-                            BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 5)
+                            BoxShadow(color: Colors.black.withAlpha(05), blurRadius: 5)
                           ],
                         ),
                         child: Column(
@@ -1099,7 +1580,7 @@ class MarketplaceScreen extends StatelessWidget {
                                 children: [
                                   Text(
                                     product.category,
-                                    style: TextStyle(fontSize: 10, color: AppColors.primary.withOpacity(0.8), fontWeight: FontWeight.bold),
+                                    style: TextStyle(fontSize: 10, color: AppColors.primary.withAlpha(8), fontWeight: FontWeight.bold),
                                   ),
                                   const SizedBox(height: 4),
                                   Text(
@@ -1150,9 +1631,9 @@ class MarketplaceScreen extends StatelessWidget {
   }
 }
 
-
-
-===== FILE: lib\screens\tabs\emergency_tab.dart =====
+==================================================
+FILE: .\lib\screens\tabs\emergency_tab.dart
+==================================================
 
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
@@ -1160,7 +1641,6 @@ import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart'; // عشان الاتصال
 import '../../core/constants/app_colors.dart';
 import '../../providers/app_provider.dart';
-import '../../data/models/emergency_model.dart';
 
 class EmergencyTab extends StatelessWidget {
   const EmergencyTab({super.key});
@@ -1175,9 +1655,9 @@ class EmergencyTab extends StatelessWidget {
           Container(
             padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
-              color: AppColors.error.withOpacity(0.1),
+              color: AppColors.error.withAlpha(1),
               borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: AppColors.error.withOpacity(0.3)),
+              border: Border.all(color: AppColors.error.withAlpha(3)),
             ),
             child: Row(
               children: [
@@ -1297,14 +1777,14 @@ class EmergencyTab extends StatelessWidget {
   }
 }
 
-
-
-===== FILE: lib\screens\tabs\history_tab.dart =====
+==================================================
+FILE: .\lib\screens\tabs\history_tab.dart
+==================================================
 
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:provider/provider.dart';
-import 'package:intl/intl.dart'; // عشان تنسيق التاريخ
+import 'package:intl/intl.dart';
 import '../../core/constants/app_colors.dart';
 import '../../providers/app_provider.dart';
 
@@ -1315,17 +1795,29 @@ class HistoryTab extends StatelessWidget {
   Widget build(BuildContext context) {
     return Stack(
       children: [
-        // 1. قائمة السجلات
+        // 1. Service Logs List
         Consumer<AppProvider>(
           builder: (context, provider, child) {
             final logs = provider.historyLogs;
             
             if (logs.isEmpty) {
-              return const Center(child: Text("No history yet."));
+              return Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(CupertinoIcons.doc_text_search, size: 60, color: Colors.grey[300]),
+                    const SizedBox(height: 10),
+                    const Text(
+                      "No history yet.",
+                      style: TextStyle(color: Colors.grey, fontSize: 16),
+                    ),
+                  ],
+                ),
+              );
             }
 
             return ListView.builder(
-              padding: const EdgeInsets.fromLTRB(16, 10, 16, 80), // 80 عشان الزرار مايغطيش آخر عنصر
+              padding: const EdgeInsets.fromLTRB(16, 10, 16, 100), // Extra padding for FAB
               itemCount: logs.length,
               itemBuilder: (context, index) {
                 final log = logs[index];
@@ -1337,42 +1829,85 @@ class HistoryTab extends StatelessWidget {
                     borderRadius: BorderRadius.circular(12),
                     boxShadow: [
                       BoxShadow(
-                        color: Colors.black.withOpacity(0.03),
+                        color: Colors.black.withAlpha(03),
                         blurRadius: 5,
                         offset: const Offset(0, 2),
                       ),
                     ],
                   ),
-                  child: Row(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      // أيقونة التاريخ
-                      Container(
-                        padding: const EdgeInsets.all(10),
-                        decoration: BoxDecoration(
-                          color: AppColors.primary.withOpacity(0.1),
-                          shape: BoxShape.circle,
-                        ),
-                        child: const Icon(CupertinoIcons.calendar, color: AppColors.primary, size: 20),
-                      ),
-                      const SizedBox(width: 15),
-                      // التفاصيل
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              log.serviceName,
-                              style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                      Row(
+                        children: [
+                          // Date Icon
+                          Container(
+                            padding: const EdgeInsets.all(10),
+                            decoration: BoxDecoration(
+                              color: AppColors.primary.withAlpha(1),
+                              shape: BoxShape.circle,
                             ),
-                            Text(
-                              DateFormat('dd MMM yyyy').format(log.date), // تنسيق زي: 24 Dec 2025
-                              style: const TextStyle(color: Colors.grey, fontSize: 13),
+                            child: const Icon(CupertinoIcons.calendar, color: AppColors.primary, size: 20),
+                          ),
+                          const SizedBox(width: 15),
+                          
+                          // Main Details
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  log.serviceName,
+                                  style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                                ),
+                                const SizedBox(height: 4),
+                                Row(
+                                  children: [
+                                    Text(
+                                      DateFormat('dd MMM yyyy').format(log.date),
+                                      style: const TextStyle(color: Colors.grey, fontSize: 13),
+                                    ),
+                                    if (log.mileage > 0) ...[
+                                      const SizedBox(width: 10),
+                                      Container(
+                                        width: 4, height: 4, 
+                                        decoration: const BoxDecoration(color: Colors.grey, shape: BoxShape.circle),
+                                      ),
+                                      const SizedBox(width: 10),
+                                      Text(
+                                        '${log.mileage.toInt()} km',
+                                        style: const TextStyle(color: Colors.grey, fontSize: 13),
+                                      ),
+                                    ],
+                                  ],
+                                ),
+                              ],
                             ),
-                          ],
-                        ),
+                          ),
+                          // Success Check
+                          const Icon(CupertinoIcons.check_mark_circled, color: AppColors.success),
+                        ],
                       ),
-                      // علامة صح
-                      const Icon(CupertinoIcons.check_mark_circled, color: AppColors.success),
+                      
+                      // Display Replaced Parts Tags (if any)
+                      if (log.partsReplaced.isNotEmpty) ...[
+                        const SizedBox(height: 12),
+                        const Divider(height: 1),
+                        const SizedBox(height: 8),
+                        Wrap(
+                          spacing: 6,
+                          runSpacing: 4,
+                          children: log.partsReplaced.map((part) => Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                            decoration: BoxDecoration(
+                              color: Colors.grey[100],
+                              borderRadius: BorderRadius.circular(4),
+                              border: Border.all(color: Colors.grey[300]!),
+                            ),
+                            child: Text(part, style: TextStyle(fontSize: 11, color: Colors.grey[700])),
+                          )).toList(),
+                        )
+                      ]
                     ],
                   ),
                 );
@@ -1381,7 +1916,7 @@ class HistoryTab extends StatelessWidget {
           },
         ),
 
-        // 2. زرار الإضافة العائم (+)
+        // 2. Floating Action Button (+)
         Positioned(
           bottom: 20,
           right: 20,
@@ -1396,48 +1931,80 @@ class HistoryTab extends StatelessWidget {
     );
   }
 
-  // فنكشن بتفتح الشيت اللي تحت عشان نضيف داتا
+  // --- ADD SERVICE SHEET ---
   void _showAddLogSheet(BuildContext context) {
     final nameController = TextEditingController();
+    final mileageController = TextEditingController();
+    
+    // Default values
     DateTime selectedDate = DateTime.now();
+    List<String> selectedParts = [];
+    
+    // Hardcoded list of common parts for the user to pick from
+    final List<String> availableParts = [
+      'Engine Oil', 'Oil Filter', 'Air Filter', 'Cabin Filter', 
+      'Spark Plugs', 'Brake Pads', 'Tires', 'Battery', 
+      'Coolant', 'Wipers', 'Timing Belt', 'Gearbox Oil'
+    ];
 
     showModalBottomSheet(
       context: context,
-      isScrollControlled: true, // عشان الكيبورد مايغطيش الشيت
+      isScrollControlled: true, // Needed for the keyboard to push the sheet up
+      backgroundColor: Colors.white,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
       builder: (context) {
-        return Padding(
-          padding: EdgeInsets.only(
-            bottom: MediaQuery.of(context).viewInsets.bottom + 20,
-            left: 20,
-            right: 20,
-            top: 20,
-          ),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const Text("Add Service Record", style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
-              const SizedBox(height: 20),
-              
-              // حقل اسم الصيانة
-              TextField(
-                controller: nameController,
-                decoration: InputDecoration(
-                  labelText: "Service Name",
-                  hintText: "e.g. Oil Change, Brake Pads",
-                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
-                  prefixIcon: const Icon(CupertinoIcons.wrench),
-                ),
+        // We use StatefulBuilder INSIDE the sheet to manage the local state 
+        // (like changing date or selecting chips) without rebuilding the whole page.
+        return StatefulBuilder(
+          builder: (context, setState) {
+            return Padding(
+              padding: EdgeInsets.only(
+                bottom: MediaQuery.of(context).viewInsets.bottom + 20,
+                left: 20,
+                right: 20,
+                top: 20,
               ),
-              const SizedBox(height: 15),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Center(
+                    child: Text(
+                      "Add Service Record", 
+                      style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)
+                    ),
+                  ),
+                  const SizedBox(height: 25),
+                  
+                  // 1. Service Name
+                  TextField(
+                    controller: nameController,
+                    decoration: InputDecoration(
+                      labelText: "Service Name",
+                      hintText: "e.g. 40,000 km Maintenance",
+                      prefixIcon: const Icon(CupertinoIcons.wrench),
+                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                    ),
+                  ),
+                  const SizedBox(height: 15),
 
-              // حقل التاريخ (بسيط)
-              StatefulBuilder( // عشان نحدث النص لما نختار تاريخ
-                builder: (context, setState) {
-                  return InkWell(
+                  // 2. Mileage Field (NEW)
+                  TextField(
+                    controller: mileageController,
+                    keyboardType: TextInputType.number,
+                    decoration: InputDecoration(
+                      labelText: "Mileage (km)",
+                      hintText: "e.g. 40500",
+                      prefixIcon: const Icon(CupertinoIcons.speedometer),
+                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                    ),
+                  ),
+                  const SizedBox(height: 15),
+
+                  // 3. Date Picker
+                  InkWell(
                     onTap: () async {
                       final picked = await showDatePicker(
                         context: context,
@@ -1452,7 +2019,7 @@ class HistoryTab extends StatelessWidget {
                     child: Container(
                       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 15),
                       decoration: BoxDecoration(
-                        border: Border.all(color: Colors.grey),
+                        border: Border.all(color: Colors.grey[400]!),
                         borderRadius: BorderRadius.circular(12),
                       ),
                       child: Row(
@@ -1463,46 +2030,106 @@ class HistoryTab extends StatelessWidget {
                             DateFormat('dd/MM/yyyy').format(selectedDate),
                             style: const TextStyle(fontSize: 16),
                           ),
+                          const Spacer(),
+                          const Icon(Icons.arrow_drop_down, color: Colors.grey),
                         ],
                       ),
                     ),
-                  );
-                },
-              ),
-              
-              const SizedBox(height: 20),
-
-              // زرار الحفظ
-              SizedBox(
-                width: double.infinity,
-                child: ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: AppColors.primary,
-                    padding: const EdgeInsets.symmetric(vertical: 15),
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                   ),
-                  onPressed: () {
-                    if (nameController.text.isNotEmpty) {
-                      // نضيف للسجل
-                      Provider.of<AppProvider>(context, listen: false)
-                          .addServiceLog(nameController.text, selectedDate);
-                      Navigator.pop(context); // نقفل الشيت
-                    }
-                  },
-                  child: const Text("Save Record", style: TextStyle(color: Colors.white, fontSize: 16)),
-                ),
+                  
+                  const SizedBox(height: 20),
+
+                  // 4. Parts Selector (NEW)
+                  const Text(
+                    "Parts Replaced:", 
+                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)
+                  ),
+                  const SizedBox(height: 10),
+                  
+                  Container(
+                    constraints: const BoxConstraints(maxHeight: 150), // Limit height if too many tags
+                    child: SingleChildScrollView(
+                      child: Wrap(
+                        spacing: 8,
+                        runSpacing: 0,
+                        children: availableParts.map((part) {
+                          final isSelected = selectedParts.contains(part);
+                          return FilterChip(
+                            label: Text(part),
+                            selected: isSelected,
+                            selectedColor: AppColors.primary.withAlpha(2),
+                            checkmarkColor: AppColors.primary,
+                            labelStyle: TextStyle(
+                              color: isSelected ? AppColors.primary : Colors.black87,
+                              fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
+                              fontSize: 13
+                            ),
+                            backgroundColor: Colors.grey[100],
+                            onSelected: (bool value) {
+                              setState(() {
+                                if (value) {
+                                  selectedParts.add(part);
+                                } else {
+                                  selectedParts.remove(part);
+                                }
+                              });
+                            },
+                          );
+                        }).toList(),
+                      ),
+                    ),
+                  ),
+
+                  const SizedBox(height: 30),
+
+                  // 5. Save Button
+                  SizedBox(
+                    width: double.infinity,
+                    child: ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: AppColors.primary,
+                        padding: const EdgeInsets.symmetric(vertical: 16),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                      ),
+                      onPressed: () {
+                        if (nameController.text.isNotEmpty) {
+                          // Parse Mileage safely
+                          double mileage = double.tryParse(mileageController.text) ?? 0.0;
+                          
+                          // Call Provider
+                          Provider.of<AppProvider>(context, listen: false).addServiceLog(
+                            name: nameController.text,
+                            date: selectedDate,
+                            mileage: mileage,
+                            parts: selectedParts,
+                          );
+                          
+                          Navigator.pop(context); // Close Sheet
+                          
+                          ScaffoldMessenger.of(context).showSnackBar(
+                             const SnackBar(content: Text("Service Log Saved Successfully!"))
+                          );
+                        }
+                      },
+                      child: const Text(
+                        "Save Record", 
+                        style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold)
+                      ),
+                    ),
+                  ),
+                ],
               ),
-            ],
-          ),
+            );
+          },
         );
       },
     );
   }
 }
 
-
-
-===== FILE: lib\screens\tabs\maintenance_tab.dart =====
+==================================================
+FILE: .\lib\screens\tabs\maintenance_tab.dart
+==================================================
 
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
@@ -1510,143 +2137,255 @@ import 'package:provider/provider.dart';
 import '../../core/constants/app_colors.dart';
 import '../../providers/app_provider.dart';
 
-class MaintenanceTab extends StatelessWidget {
+class MaintenanceTab extends StatefulWidget {
   const MaintenanceTab({super.key});
 
   @override
+  State<MaintenanceTab> createState() => _MaintenanceTabState();
+}
+
+class _MaintenanceTabState extends State<MaintenanceTab> {
+  int? _selectedMilestone;
+
+  @override
   Widget build(BuildContext context) {
-    return Consumer<AppProvider>(
-      builder: (context, provider, child) {
-        final packageItems = provider.maintenancePackage;
+    final provider = Provider.of<AppProvider>(context);
+    
+    // Calculate Milestones
+    final current = provider.currentMilestone;
+    final prev = current - 10000;
+    final next = current + 10000;
 
-        // حساب إجمالي سعر الباقة
-        final double packageTotal = packageItems.fold(0, (sum, item) => sum + item.price);
+    // Default selection to "Current" if not set
+    _selectedMilestone ??= current;
 
-        return Column(
-          children: [
-            // عنوان توضيحي
-            Container(
-              padding: const EdgeInsets.all(16),
-              color: AppColors.primary.withOpacity(0.05),
-              child: Row(
-                children: [
-                  const Icon(CupertinoIcons.info, color: AppColors.primary),
-                  const SizedBox(width: 10),
-                  Expanded(
-                    child: Text(
-                      "Recommended maintenance for 60,000 KM service.",
-                      style: TextStyle(color: AppColors.primary, fontWeight: FontWeight.w600),
-                    ),
+    // Get items for the selected milestone from Provider
+    // (The Provider now calculates 'isMissed' internally based on history)
+    final items = provider.getMaintenanceItemsFor(_selectedMilestone!);
+
+    return Column(
+      children: [
+        // --- 1. Milestone Timeline Selector ---
+        Container(
+          height: 100,
+          padding: const EdgeInsets.symmetric(vertical: 15),
+          child: ListView(
+            scrollDirection: Axis.horizontal,
+            padding: const EdgeInsets.symmetric(horizontal: 15),
+            children: [
+              // We handle cases where previous might be 0 or negative
+              if (prev > 0) 
+                _milestoneCard(prev, "Previous", _selectedMilestone == prev),
+              _milestoneCard(current, "Recommended", _selectedMilestone == current),
+              _milestoneCard(next, "Upcoming", _selectedMilestone == next),
+            ],
+          ),
+        ),
+
+        // --- 2. List of Maintenance Items ---
+        Expanded(
+          child: ListView.builder(
+            padding: const EdgeInsets.fromLTRB(16, 5, 16, 16),
+            itemCount: items.length,
+            itemBuilder: (context, index) {
+              final item = items[index];
+              
+              // Helper flags
+              bool isCurrentView = _selectedMilestone == current;
+              bool isPastView = _selectedMilestone! < current;
+              
+              // If we are in the past, and it wasn't missed, it means it's Done.
+              bool isDone = isPastView && !item.isMissed;
+
+              return Container(
+                margin: const EdgeInsets.only(bottom: 12),
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  // Dynamic Background Color: Amber if missed, White otherwise
+                  color: item.isMissed ? Colors.amber.withAlpha(08) : Colors.white,
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(
+                    // Dynamic Border: Amber if missed
+                    color: item.isMissed ? Colors.amber.withAlpha(5) : Colors.grey.shade200,
+                    width: item.isMissed ? 1.5 : 1,
                   ),
-                ],
-              ),
-            ),
-
-            // قائمة المكونات
-            Expanded(
-              child: ListView.builder(
-                padding: const EdgeInsets.all(16),
-                itemCount: packageItems.length,
-                itemBuilder: (context, index) {
-                  final item = packageItems[index];
-                  return Card(
-                    elevation: 0,
-                    margin: const EdgeInsets.only(bottom: 10),
-                    color: Colors.white,
-                    shape: RoundedRectangleBorder(
-                        side: BorderSide(color: Colors.grey.shade200),
-                        borderRadius: BorderRadius.circular(12)),
-                    child: ListTile(
-                      leading: Container(
-                        padding: const EdgeInsets.all(8),
-                        decoration: BoxDecoration(
-                          color: Colors.grey[100],
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                        // أيقونة حسب النوع (بسيط)
-                        child: Icon(
-                          item.category == 'Oils' ? CupertinoIcons.drop_fill : CupertinoIcons.settings,
-                          color: AppColors.textSecondary,
-                        ),
+                  boxShadow: [
+                    if (!item.isMissed)
+                      BoxShadow(color: Colors.black.withAlpha(02), blurRadius: 4, offset: const Offset(0, 2))
+                  ],
+                ),
+                child: Row(
+                  children: [
+                    // --- Icon Status ---
+                    Container(
+                      padding: const EdgeInsets.all(8),
+                      decoration: BoxDecoration(
+                        color: item.isMissed 
+                            ? Colors.amber.withAlpha(2) 
+                            : AppColors.primary.withAlpha(1),
+                        shape: BoxShape.circle,
                       ),
-                      title: Text(item.name, style: const TextStyle(fontWeight: FontWeight.bold)),
-                      subtitle: Text(item.category),
-                      trailing: Text(
-                        '${item.price.toStringAsFixed(0)} EGP',
-                        style: const TextStyle(fontWeight: FontWeight.bold, color: AppColors.primary),
+                      child: Icon(
+                        item.isMissed 
+                            ? CupertinoIcons.exclamationmark_triangle_fill 
+                            : CupertinoIcons.settings,
+                        color: item.isMissed ? Colors.amber[700] : AppColors.primary,
+                        size: 20,
                       ),
                     ),
-                  );
-                },
-              ),
-            ),
-
-            // زرار الإضافة (Sticky Bottom)
-            Container(
-              padding: const EdgeInsets.all(20),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                boxShadow: [
-                  BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 10, offset: const Offset(0, -5))
-                ],
-              ),
-              child: Column(
-                children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      const Text("Total Package:", style: TextStyle(color: Colors.grey)),
-                      Text(
-                        '$packageTotal EGP',
-                        style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: AppColors.textPrimary),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 15),
-                  SizedBox(
-                    width: double.infinity,
-                    child: ElevatedButton.icon(
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: AppColors.primary,
-                        padding: const EdgeInsets.symmetric(vertical: 16),
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                      ),
-                      onPressed: () {
-                        // 1. إضافة العناصر للسلة
-                        provider.addToCart(packageItems);
-
-                        // 2. رسالة تأكيد
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(
-                            content: const Text('Package added to cart successfully!'),
-                            backgroundColor: AppColors.success,
-                            action: SnackBarAction(
-                              label: 'GO TO CART',
-                              textColor: Colors.white,
-                              onPressed: () {
-                                // هنا هنفعّل كود التنقل للكارت لاحقاً
-                              },
+                    const SizedBox(width: 15),
+                    
+                    // --- Name & Category ---
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            item.name,
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 15,
+                              color: item.isMissed ? Colors.brown[700] : AppColors.textPrimary,
                             ),
                           ),
-                        );
-                      },
-                      icon: const Icon(CupertinoIcons.cart_badge_plus, color: Colors.white),
-                      label: const Text("Add Package to Cart", style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold)),
+                          const SizedBox(height: 2),
+                          if (item.isMissed)
+                            const Text(
+                              "Missed in previous service!", 
+                              style: TextStyle(fontSize: 11, color: Colors.amber, fontWeight: FontWeight.bold)
+                            )
+                          else if (isDone)
+                             const Text(
+                              "Completed", 
+                              style: TextStyle(fontSize: 11, color: AppColors.success, fontWeight: FontWeight.bold)
+                            )
+                          else
+                            Text(
+                              item.category, 
+                              style: const TextStyle(fontSize: 11, color: Colors.grey)
+                            ),
+                        ],
+                      ),
                     ),
-                  ),
-                ],
+
+                    // --- Action Buttons ---
+                    
+                    // Case A: Past View + Completed = Show Checkmark
+                    if (isDone)
+                      const Icon(CupertinoIcons.check_mark_circled_solid, color: AppColors.success),
+
+                    // Case B: Current View OR Missed Item = Show Add to Cart
+                    if (!isDone) 
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.end,
+                        children: [
+                          Text(
+                            '${item.price.toInt()} EGP', 
+                            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13)
+                          ),
+                          const SizedBox(height: 5),
+                          InkWell(
+                            onTap: () {
+                              provider.addToCart([item]);
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                  content: Text("${item.name} added to cart"),
+                                  duration: const Duration(seconds: 1),
+                                )
+                              );
+                            },
+                            child: const Icon(CupertinoIcons.add_circled_solid, color: AppColors.primary, size: 28),
+                          )
+                        ],
+                      ),
+                  ],
+                ),
+              );
+            },
+          ),
+        ),
+
+        // --- 3. "Add All" Button (Only visible on Current Milestone) ---
+        if (_selectedMilestone == current)
+          Padding(
+            padding: const EdgeInsets.all(20),
+            child: ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: AppColors.primary,
+                minimumSize: const Size(double.infinity, 50),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                elevation: 2,
+              ),
+              onPressed: () {
+                provider.addToCart(items);
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text("All recommended items added to cart"))
+                );
+              },
+              child: const Text(
+                "Add All to Cart", 
+                style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16)
               ),
             ),
+          )
+      ],
+    );
+  }
+
+  // --- Helper for Milestone Cards ---
+  Widget _milestoneCard(int km, String label, bool isSelected) {
+    return GestureDetector(
+      onTap: () => setState(() => _selectedMilestone = km),
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 300),
+        width: 110,
+        margin: const EdgeInsets.only(right: 12),
+        decoration: BoxDecoration(
+          color: isSelected ? AppColors.primary : Colors.white,
+          borderRadius: BorderRadius.circular(16),
+          border: isSelected ? null : Border.all(color: Colors.grey.shade300),
+          boxShadow: [
+            if(isSelected)
+              BoxShadow(color: AppColors.primary.withAlpha(3), blurRadius: 8, offset: const Offset(0, 4))
           ],
-        );
-      },
+        ),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Text(
+              label, 
+              style: TextStyle(
+                fontSize: 11, 
+                fontWeight: FontWeight.w500,
+                color: isSelected ? Colors.white70 : Colors.grey
+              )
+            ),
+            const SizedBox(height: 4),
+            Text(
+              "${km ~/ 1000}k", 
+              style: TextStyle(
+                fontSize: 22, 
+                fontWeight: FontWeight.bold, 
+                color: isSelected ? Colors.white : AppColors.textPrimary
+              )
+            ),
+            Text(
+              "km", 
+              style: TextStyle(
+                fontSize: 12, 
+                color: isSelected ? Colors.white : AppColors.textPrimary
+              )
+            ),
+          ],
+        ),
+      ),
     );
   }
 }
 
-
-
-===== FILE: lib\widgets\car_card.dart =====
+==================================================
+FILE: .\lib\widgets\car_card.dart
+==================================================
 
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
@@ -1679,7 +2418,7 @@ class CarCard extends StatelessWidget {
               : null,
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.05),
+              color: Colors.black.withAlpha(05),
               blurRadius: 10,
               offset: const Offset(0, 4),
             ),
@@ -1725,7 +2464,7 @@ class CarCard extends StatelessWidget {
                       Container(
                         padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                         decoration: BoxDecoration(
-                          color: AppColors.primary.withOpacity(0.1),
+                          color: AppColors.primary.withAlpha(1),
                           borderRadius: BorderRadius.circular(8),
                         ),
                         child: Text(
@@ -1766,9 +2505,9 @@ class CarCard extends StatelessWidget {
   }
 }
 
-
-
-===== FILE: lib\widgets\car_header.dart =====
+==================================================
+FILE: .\lib\widgets\car_header.dart
+==================================================
 
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
@@ -1797,12 +2536,12 @@ class CarHeader extends StatelessWidget {
                 width: 70,
                 height: 70,
                 decoration: BoxDecoration(
-                  color: AppColors.primary.withOpacity(0.1),
+                  color: AppColors.primary.withAlpha(1),
                   borderRadius: BorderRadius.circular(15),
                   image: DecorationImage(
                     image: AssetImage(car.imageUrl),
                     fit: BoxFit.cover,
-                    onError: (_, __) {}, // لو الصورة مش موجودة ما يضربش
+                    onError: (_, _) {}, // لو الصورة مش موجودة ما يضربش
                   ),
                 ),
                 child: car.imageUrl.isEmpty 
@@ -1889,15 +2628,14 @@ class CarHeader extends StatelessWidget {
   }
 }
 
-
-
-===== FILE: lib\widgets\custom_hero.dart =====
-
-
+==================================================
+FILE: .\lib\widgets\custom_hero.dart
+==================================================
 
 
 
-===== FILE: lib\widgets\custom_nav_bar.dart =====
-
+==================================================
+FILE: .\lib\widgets\custom_nav_bar.dart
+==================================================
 
 

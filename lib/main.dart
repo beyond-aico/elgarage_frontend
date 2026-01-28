@@ -1,49 +1,51 @@
+import 'package:elgarage/screens/login_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'core/constants/app_colors.dart';
 import 'providers/app_provider.dart';
-import 'screens/main_layout.dart';
+import 'providers/auth_provider.dart';
+import 'package:firebase_core/firebase_core.dart'; // مكتبة فايربيز
 
-void main() {
-  runApp(const AutoMentorApp());
+void main() async {
+  // 1. ضمان تهيئة الـ Widgets قبل أي كود Async
+  WidgetsFlutterBinding.ensureInitialized();
+  
+  // 2. تشغيل فايربيز (لازم تكون حملت ملف google-services.json)
+  await Firebase.initializeApp();
+
+  runApp(const ElGarageApp());
 }
 
-class AutoMentorApp extends StatelessWidget {
-  const AutoMentorApp({super.key});
+class ElGarageApp extends StatelessWidget {
+  const ElGarageApp({super.key});
 
   @override
   Widget build(BuildContext context) {
     return MultiProvider(
-      // هنا بنعرف التطبيق إن فيه "مخ" اسمه AppProvider لازم يسمع كلامه
       providers: [
         ChangeNotifierProvider(create: (_) => AppProvider()),
+        ChangeNotifierProvider(create: (_) => AuthProvider()),
       ],
       child: MaterialApp(
-        title: 'Auto Mentor',
+        title: 'El Garage',
         debugShowCheckedModeBanner: false,
         
-        // إعدادات الثيم والألوان والخطوط
         theme: ThemeData(
           primaryColor: AppColors.primary,
           scaffoldBackgroundColor: AppColors.background,
-          
-          // إعداد الخطوط (Cairo للعربي والإنجليزي شكله شيك)
           textTheme: GoogleFonts.cairoTextTheme(
             Theme.of(context).textTheme,
           ),
-          
-          // ألوان التطبيق العامة
           colorScheme: ColorScheme.fromSeed(
             seedColor: AppColors.primary,
-            secondary: AppColors.secondary,
+            primary: AppColors.primary,
+            secondary: AppColors.accent,
           ),
-          
           useMaterial3: true,
         ),
         
-        // أول شاشة هتفتح هي الـ Layout اللي شايل الفوتر
-        home: const MainLayout(),
+        home: const LoginScreen(),
       ),
     );
   }

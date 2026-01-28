@@ -12,7 +12,20 @@
           "package_name": "com.beyondaico.elgarage"
         }
       },
-      "oauth_client": [],
+      "oauth_client": [
+        {
+          "client_id": "602286841824-j0aavp2s0u70k7uk8ag2f3g0irkcf8ln.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.beyondaico.elgarage",
+            "certificate_hash": "7cee5eb46208ddd164dff81f19d06e87f537f5dc"
+          }
+        },
+        {
+          "client_id": "602286841824-j8e55rjmjcm9smr05tg23g61j3a40mca.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
       "api_key": [
         {
           "current_key": "AIzaSyBPtf4rBwVh6DaCAotzraPBk81XYI6e8Mg"
@@ -20,7 +33,19 @@
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": []
+          "other_platform_oauth_client": [
+            {
+              "client_id": "602286841824-j8e55rjmjcm9smr05tg23g61j3a40mca.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "602286841824-442k0hd8is0m1shkefqtvj5d65kchsbd.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.beyondaico.elgarage"
+              }
+            }
+          ]
         }
       }
     }

@@ -1,30 +1,57 @@
-class CarModel {
+class Car {
   final String id;
-  final String make;          // الماركة (Toyota, BMW)
-  final String model;         // الموديل (Corolla, X5)
-  final String year;          // السنة
-  final String imageUrl;      // صورة العربية
-  final double currentKm;     // قراءة العداد الحالية
-  final double monthlyAvgKm;  // متوسط الاستهلاك الشهري
-  final String plateNumber;   // رقم اللوحة (اختياري للعرض)
-  final DateTime? lastMaintenanceDate;
-  final double? lastMaintenanceKm;
+  final String make;
+  final String model;
+  final int year;
+  final String? licensePlate;
+  final String? color;
+  final String? vin;
+  final String? imageUrl;
+  final int currentKm;
 
-  // Constructor
-  CarModel({
+  Car({
     required this.id,
     required this.make,
     required this.model,
     required this.year,
-    required this.imageUrl,
-    required this.currentKm,
-    required this.monthlyAvgKm,
-    this.plateNumber = '',
-    this.lastMaintenanceDate,
-    this.lastMaintenanceKm,
-    
+    this.licensePlate,
+    this.color,
+    this.vin,
+    this.imageUrl,
+    this.currentKm = 0,
   });
 
-  // دالة بسيطة عشان تعرض اسم العربية كامل
-  String get fullName => '$make $model $year';
+factory Car.fromJson(Map<String, dynamic> json) {
+    String makeData = 'Unknown Make';
+    String modelData = 'Unknown Model';
+
+    // 1. استخراج البيانات من الكائن المتداخل model (وهذا هو الأصح حسب الباك إند الحالي)
+    if (json['model'] != null && json['model'] is Map) {
+      modelData = json['model']['name'] ?? 'Unknown Model';
+      
+      // الدخول لعمق أكبر لجلب الماركة
+      if (json['model']['brand'] != null && json['model']['brand'] is Map) {
+        makeData = json['model']['brand']['name'] ?? 'Unknown Make';
+      }
+    } 
+    // 2. محاولة القراءة المباشرة (احتياطي)
+    else {
+      makeData = json['make'] ?? 'Unknown Make';
+      modelData = json['model'] is String ? json['model'] : 'Unknown Model';
+    }
+
+    return Car(
+      id: json['id']?.toString() ?? '',
+      make: makeData,
+      model: modelData,
+      year: json['year'] is String ? int.tryParse(json['year']) : (json['year'] ?? 0),
+      licensePlate: json['plateNumber'] ?? 'No Plate',
+      color: json['color'] ?? 'N/A',
+      vin: json['vin'],
+      imageUrl: json['imageUrl'] ?? '',
+      currentKm: json['currentKm'] != null 
+          ? (json['currentKm'] is int ? json['currentKm'] : int.tryParse(json['currentKm'].toString()) ?? 0)
+          : (json['mileageKm'] is int ? json['mileageKm'] : int.tryParse(json['mileageKm'].toString()) ?? 0),
+    );
+  }
 }

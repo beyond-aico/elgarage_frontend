@@ -4,7 +4,6 @@ import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart'; // عشان الاتصال
 import '../../core/constants/app_colors.dart';
 import '../../providers/app_provider.dart';
-import '../../data/models/emergency_model.dart';
 
 class EmergencyTab extends StatelessWidget {
   const EmergencyTab({super.key});
@@ -19,9 +18,9 @@ class EmergencyTab extends StatelessWidget {
           Container(
             padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
-              color: AppColors.error.withOpacity(0.1),
+              color: AppColors.error.withAlpha(1),
               borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: AppColors.error.withOpacity(0.3)),
+              border: Border.all(color: AppColors.error.withAlpha(3)),
             ),
             child: Row(
               children: [

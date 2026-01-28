@@ -42,7 +42,7 @@ class CartScreen extends StatelessWidget {
                 child: ListView.separated(
                   padding: const EdgeInsets.all(16),
                   itemCount: cartItems.length,
-                  separatorBuilder: (_, __) => const SizedBox(height: 10),
+                  separatorBuilder: (_, _) => const SizedBox(height: 10),
                   itemBuilder: (context, index) {
                     final item = cartItems[index];
                     return Dismissible( // عشان نسحب العنصر نمسحه
@@ -85,7 +85,7 @@ class CartScreen extends StatelessWidget {
                 decoration: BoxDecoration(
                   color: Colors.white,
                   borderRadius: const BorderRadius.vertical(top: Radius.circular(30)),
-                  boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.1), blurRadius: 10, offset: const Offset(0, -5))],
+                  boxShadow: [BoxShadow(color: Colors.black.withAlpha(1), blurRadius: 10, offset: const Offset(0, -5))],
                 ),
                 child: Column(
                   mainAxisSize: MainAxisSize.min,

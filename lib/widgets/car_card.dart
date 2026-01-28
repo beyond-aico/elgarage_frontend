@@ -1,18 +1,17 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/cupertino.dart';
 import '../core/constants/app_colors.dart';
-import '../data/models/car_model.dart';
+import '../data/models/car_model.dart'; // تأكد إن ده المسار الصح
 
 class CarCard extends StatelessWidget {
-  final CarModel car;
-  final VoidCallback onTap;
+  final Car car; // غيرنا من CarModel لـ Car
   final bool isSelected;
+  final VoidCallback? onTap;
 
   const CarCard({
     super.key,
     required this.car,
-    required this.onTap,
     this.isSelected = false,
+    this.onTap,
   });
 
   @override
@@ -20,95 +19,88 @@ class CarCard extends StatelessWidget {
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+        margin: const EdgeInsets.only(bottom: 15),
+        padding: const EdgeInsets.all(15),
         decoration: BoxDecoration(
-          color: AppColors.cardColor,
-          borderRadius: BorderRadius.circular(16),
-          border: isSelected 
-              ? Border.all(color: AppColors.primary, width: 2) 
-              : null,
+          color: isSelected ? AppColors.primary.withAlpha(1) : Colors.white,
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(
+            color: isSelected ? AppColors.primary : Colors.transparent,
+            width: 2,
+          ),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.05),
+              color: Colors.black.withAlpha(05),
               blurRadius: 10,
-              offset: const Offset(0, 4),
+              offset: const Offset(0, 5),
             ),
           ],
         ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+        child: Row(
           children: [
-            // 1. صورة العربية
-            ClipRRect(
-              borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
-              child: Image.asset(
-                car.imageUrl,
-                height: 150,
-                width: double.infinity,
-                fit: BoxFit.cover,
-                // عشان لو الصورة مش موجودة ما يضربش ايرور
-                errorBuilder: (context, error, stackTrace) => Container(
-                  height: 150,
-                  color: Colors.grey[300],
-                  child: const Icon(CupertinoIcons.car_detailed, size: 50, color: Colors.grey),
-                ),
+            // Car Image
+            Container(
+              width: 80,
+              height: 80,
+              decoration: BoxDecoration(
+                color: Colors.grey[100],
+                borderRadius: BorderRadius.circular(15),
+                image: car.imageUrl != null && car.imageUrl!.isNotEmpty
+                    ? DecorationImage(
+                        image: NetworkImage(car.imageUrl!),
+                        fit: BoxFit.cover,
+                      )
+                    : null,
               ),
+              child: car.imageUrl == null || car.imageUrl!.isEmpty
+                  ? Icon(Icons.directions_car, size: 40, color: Colors.grey[400])
+                  : null,
             ),
-            
-            // 2. بيانات العربية
-            Padding(
-              padding: const EdgeInsets.all(16.0),
+            const SizedBox(width: 15),
+
+            // Car Info
+            Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(
-                        '${car.make} ${car.model}',
-                        style: const TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
-                          color: AppColors.textPrimary,
-                        ),
-                      ),
-                      Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                        decoration: BoxDecoration(
-                          color: AppColors.primary.withOpacity(0.1),
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                        child: Text(
-                          car.year,
-                          style: const TextStyle(
-                            color: AppColors.primary,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ),
-                    ],
+                  Text(
+                    '${car.make} ${car.model}',
+                    style: const TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                      color: AppColors.textPrimary,
+                    ),
                   ),
-                  const SizedBox(height: 8),
-                  Row(
-                    children: [
-                      const Icon(CupertinoIcons.speedometer, size: 16, color: AppColors.textSecondary),
-                      const SizedBox(width: 4),
-                      Text(
-                        '${car.currentKm} KM',
-                        style: const TextStyle(color: AppColors.textSecondary),
+                  const SizedBox(height: 5),
+                  Text(
+                    '${car.year} • ${car.color ?? "No Color"}',
+                    style: TextStyle(
+                      fontSize: 14,
+                      color: Colors.grey[600],
+                    ),
+                  ),
+                  const SizedBox(height: 5),
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                    decoration: BoxDecoration(
+                      color: AppColors.background,
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: Text(
+                      car.licensePlate ?? 'No Plate',
+                      style: const TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.w600,
+                        letterSpacing: 1,
                       ),
-                      const Spacer(),
-                       const Icon(CupertinoIcons.graph_square, size: 16, color: AppColors.textSecondary),
-                      const SizedBox(width: 4),
-                      Text(
-                        'Avg: ${car.monthlyAvgKm}/mo',
-                        style: const TextStyle(color: AppColors.textSecondary, fontSize: 12),
-                      ),
-                    ],
+                    ),
                   ),
                 ],
               ),
             ),
+            
+            if (isSelected)
+              const Icon(Icons.check_circle, color: AppColors.primary),
           ],
         ),
       ),

@@ -1,0 +1,55 @@
+Folder PATH listing
+Volume serial number is CE4B-4E4F
+C:.
+|   frontend.lib.txt
+|   main.dart
+|   secrets.dart
+|   
++---core
+|   +---constants
+|   |       app_colors.dart
+|   |       maintenance_constants.dart
+|   |       
+|   +---theme
+|   \---utils
++---data
+|   +---dummy_data
+|   +---models
+|   |       auth_response_model.dart
+|   |       car_model.dart
+|   |       emergency_model.dart
+|   |       maintenance_item_model.dart
+|   |       product_model.dart
+|   |       service_log_model.dart
+|   |       
+|   \---services
+|           auth_service.dart
+|           car_service.dart
+|           
++---providers
+|       app_provider.dart
+|       auth_provider.dart
+|       
++---screens
+|   |   add_car_screen.dart
+|   |   cart_screen.dart
+|   |   car_details_screen.dart
+|   |   emergency_screen.dart
+|   |   history_screen.dart
+|   |   home_screen.dart
+|   |   login_screen.dart
+|   |   main_layout.dart
+|   |   marketplace_screen.dart
+|   |   register_screen.dart
+|   |   
+|   \---tabs
+|           emergency_tab.dart
+|           history_tab.dart
+|           maintenance_tab.dart
+|           
+\---widgets
+        car_card.dart
+        car_header.dart
+        custom_hero.dart
+        custom_nav_bar.dart
+        

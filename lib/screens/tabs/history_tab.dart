@@ -46,7 +46,7 @@ class HistoryTab extends StatelessWidget {
                     borderRadius: BorderRadius.circular(12),
                     boxShadow: [
                       BoxShadow(
-                        color: Colors.black.withOpacity(0.03),
+                        color: Colors.black.withAlpha(03),
                         blurRadius: 5,
                         offset: const Offset(0, 2),
                       ),
@@ -61,7 +61,7 @@ class HistoryTab extends StatelessWidget {
                           Container(
                             padding: const EdgeInsets.all(10),
                             decoration: BoxDecoration(
-                              color: AppColors.primary.withOpacity(0.1),
+                              color: AppColors.primary.withAlpha(1),
                               shape: BoxShape.circle,
                             ),
                             child: const Icon(CupertinoIcons.calendar, color: AppColors.primary, size: 20),
@@ -274,7 +274,7 @@ class HistoryTab extends StatelessWidget {
                           return FilterChip(
                             label: Text(part),
                             selected: isSelected,
-                            selectedColor: AppColors.primary.withOpacity(0.2),
+                            selectedColor: AppColors.primary.withAlpha(2),
                             checkmarkColor: AppColors.primary,
                             labelStyle: TextStyle(
                               color: isSelected ? AppColors.primary : Colors.black87,
@@ -308,26 +308,29 @@ class HistoryTab extends StatelessWidget {
                         padding: const EdgeInsets.symmetric(vertical: 16),
                         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                       ),
-                      onPressed: () {
-                        if (nameController.text.isNotEmpty) {
-                          // Parse Mileage safely
-                          double mileage = double.tryParse(mileageController.text) ?? 0.0;
-                          
-                          // Call Provider
-                          Provider.of<AppProvider>(context, listen: false).addServiceLog(
-                            name: nameController.text,
-                            date: selectedDate,
-                            mileage: mileage,
-                            parts: selectedParts,
-                          );
-                          
-                          Navigator.pop(context); // Close Sheet
-                          
-                          ScaffoldMessenger.of(context).showSnackBar(
-                             const SnackBar(content: Text("Service Log Saved Successfully!"))
-                          );
-                        }
-                      },
+// ... داخل الملف عند الزرار Save Record
+
+onPressed: () {
+  if (nameController.text.isNotEmpty) {
+    double mileage = double.tryParse(mileageController.text) ?? 0.0;
+    
+    // التعديل هنا: نبعت البيانات كـ Map أو Object واحد
+    // لأن الدالة في البروفايدر: void addServiceLog(dynamic log)
+    Provider.of<AppProvider>(context, listen: false).addServiceLog({
+      'name': nameController.text,
+      'date': selectedDate,
+      'mileage': mileage,
+      'parts': selectedParts,
+    });
+    
+    Navigator.pop(context);
+    
+    ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Service Log Saved (Local Only)!"))
+    );
+  }
+},
+// ...
                       child: const Text(
                         "Save Record", 
                         style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold)

@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import '../core/constants/app_colors.dart';
-import '../data/models/car_model.dart';
+import '../data/models/car_model.dart'; // تأكد إنه بيشاور على الموديل الجديد
 
 class CarHeader extends StatelessWidget {
-  final CarModel car;
+  final Car car; // 1. استخدام الكلاس الجديد
 
   const CarHeader({super.key, required this.car});
 
@@ -20,26 +20,28 @@ class CarHeader extends StatelessWidget {
         children: [
           Row(
             children: [
-              // 1. أيقونة/صورة العربية (صغيرة)
+              // 1. صورة العربية
               Container(
                 width: 70,
                 height: 70,
                 decoration: BoxDecoration(
-                  color: AppColors.primary.withOpacity(0.1),
+                  color: AppColors.primary.withAlpha(20),
                   borderRadius: BorderRadius.circular(15),
-                  image: DecorationImage(
-                    image: AssetImage(car.imageUrl),
-                    fit: BoxFit.cover,
-                    onError: (_, __) {}, // لو الصورة مش موجودة ما يضربش
-                  ),
+                  image: car.imageUrl != null && car.imageUrl!.isNotEmpty
+                      ? DecorationImage(
+                          image: NetworkImage(car.imageUrl!), // استخدام NetworkImage
+                          fit: BoxFit.cover,
+                          onError: (_, __) {}, 
+                        )
+                      : null,
                 ),
-                child: car.imageUrl.isEmpty 
+                child: car.imageUrl == null || car.imageUrl!.isEmpty
                     ? const Icon(CupertinoIcons.car_detailed, size: 30, color: AppColors.primary)
                     : null,
               ),
               const SizedBox(width: 15),
 
-              // 2. تفاصيل الاسم والموديل
+              // 2. الاسم والموديل
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -53,7 +55,7 @@ class CarHeader extends StatelessWidget {
                       ),
                     ),
                     Text(
-                      'Year: ${car.year} | Plate: ${car.plateNumber.isEmpty ? "N/A" : car.plateNumber}',
+                      'Year: ${car.year} | ${car.licensePlate ?? "No Plate"}', // استخدام licensePlate
                       style: const TextStyle(color: AppColors.textSecondary),
                     ),
                   ],
@@ -63,7 +65,7 @@ class CarHeader extends StatelessWidget {
           ),
           const SizedBox(height: 20),
 
-          // 3. شريط المعلومات (عداد الكيلومتر + الصيانة القادمة)
+          // 3. شريط المعلومات (Placeholders مؤقتاً)
           Container(
             padding: const EdgeInsets.all(15),
             decoration: BoxDecoration(
@@ -76,14 +78,14 @@ class CarHeader extends StatelessWidget {
                 _buildInfoItem(
                   icon: CupertinoIcons.speedometer,
                   title: 'Current KM',
-                  value: '${car.currentKm} km',
+                  value: 'N/A', // العربية لسه مفهاش عداد في الموديل الحالي
                   color: AppColors.primary,
                 ),
                 Container(width: 1, height: 40, color: Colors.grey[300]),
                 _buildInfoItem(
                   icon: CupertinoIcons.wrench_fill,
                   title: 'Next Service',
-                  value: 'Oct 24', // ده داتا وهمية هنحسبها لاحقاً
+                  value: 'Soon',
                   color: AppColors.warning,
                 ),
               ],
@@ -94,7 +96,6 @@ class CarHeader extends StatelessWidget {
     );
   }
 
-  // دالة مساعدة صغيرة عشان ما نكررش الكود
   Widget _buildInfoItem({
     required IconData icon,
     required String title,
