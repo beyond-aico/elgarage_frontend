@@ -92,7 +92,7 @@ class MarketplaceScreen extends StatelessWidget {
                                 color: Colors.white,
                                 shape: BoxShape.circle,
                                 boxShadow: [
-                                  BoxShadow(color: Colors.black.withAlpha(5), blurRadius: 5, offset: const Offset(0, 2))
+                                  BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 5, offset: const Offset(0, 2))
                                 ],
                               ),
                               child: Icon(cat['icon'], color: AppColors.primary),
@@ -132,7 +132,7 @@ class MarketplaceScreen extends StatelessWidget {
                           color: Colors.white,
                           borderRadius: BorderRadius.circular(16),
                           boxShadow: [
-                            BoxShadow(color: Colors.black.withAlpha(05), blurRadius: 5)
+                            BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 5)
                           ],
                         ),
                         child: Column(
@@ -160,7 +160,7 @@ class MarketplaceScreen extends StatelessWidget {
                                 children: [
                                   Text(
                                     product.category,
-                                    style: TextStyle(fontSize: 10, color: AppColors.primary.withAlpha(8), fontWeight: FontWeight.bold),
+                                    style: TextStyle(fontSize: 10, color: AppColors.primary.withOpacity(0.8), fontWeight: FontWeight.bold),
                                   ),
                                   const SizedBox(height: 4),
                                   Text(

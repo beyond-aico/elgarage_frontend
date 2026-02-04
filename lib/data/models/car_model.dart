@@ -54,4 +54,6 @@ factory Car.fromJson(Map<String, dynamic> json) {
           : (json['mileageKm'] is int ? json['mileageKm'] : int.tryParse(json['mileageKm'].toString()) ?? 0),
     );
   }
+
+  get plateNumber => null;
 }

@@ -1,0 +1,4837 @@
+--- FLUTTER PROJECT DUMP ---
+Target Extensions: ['.dart', '.yaml', '.gradle', '.xml', '.plist', '.json']
+==================================================
+
+
+==================================================
+FILE START: .\main.dart
+==================================================
+
+// --- FILE: lib/main.dart ---
+
+import 'package:elgarage/screens/login_screen.dart';
+import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'core/constants/app_colors.dart';
+import 'providers/app_provider.dart';
+import 'providers/auth_provider.dart';
+import 'screens/main_layout.dart'; // للمستخدم العادي
+import 'screens/fleet/fleet_dashboard.dart'; // لمدير الأسطول
+import 'screens/driver/driver_screen.dart'; // للسائق
+
+void main() async {
+  // 1. تهيئة الـ Widgets وضمان عمل الكود الـ Async
+  WidgetsFlutterBinding.ensureInitialized();
+  
+  // 2. تشغيل فايربيز (تأكد من وجود ملفات الإعداد في مجلد android/ios)
+  await Firebase.initializeApp();
+
+  runApp(const AutoMentorApp());
+}
+
+class AutoMentorApp extends StatelessWidget {
+  const AutoMentorApp({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (_) => AuthProvider()),
+        ChangeNotifierProvider(create: (_) => AppProvider()),
+      ],
+      child: MaterialApp(
+        title: 'Auto Mentor Fleet',
+        debugShowCheckedModeBanner: false,
+        theme: ThemeData(
+          // --- الهوية الصناعية الجديدة (Asphalt & Mango) ---
+          primaryColor: AppColors.primary,
+          scaffoldBackgroundColor: AppColors.background,
+          fontFamily: 'Roboto', // الخط التقني المعتمد
+          
+          colorScheme: const ColorScheme.light(
+            primary: AppColors.primary,
+            secondary: AppColors.warning,
+            surface: AppColors.cardColor,
+          ),
+          
+          // ستايل الأزرار الموحد (Industrial Style)
+          elevatedButtonTheme: ElevatedButtonThemeData(
+            style: ElevatedButton.styleFrom(
+              elevation: 4,
+              shadowColor: Colors.black,
+              shape: const RoundedRectangleBorder(borderRadius: BorderRadius.zero),
+            ),
+          ),
+          useMaterial3: true,
+        ),
+        
+        // --- منطق التوجيه الذكي عند فتح التطبيق ---
+        home: const InitialRouter(), 
+      ),
+    );
+  }
+}
+
+// --- الملف: lib/main.dart ---
+// ... الاستيرادات ...
+
+class InitialRouter extends StatelessWidget {
+  const InitialRouter({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    final auth = Provider.of<AuthProvider>(context);
+
+    // 1. إذا لم يكن مسجلاً، اذهب للوج إن
+    if (!auth.isAuthenticated) {
+      return const LoginScreen();
+    }
+
+    // 2. التوجيه الصارم بناءً على الدور (Role)
+    final role = auth.user?.role;
+    print("🚦 Current User Role: $role");
+
+    if (role == "FLEET_MANAGER") {
+      return const FleetDashboard(); // واجهة المدير فقط
+    } else if (role == "DRIVER") {
+      return const DriverScreen(); // واجهة السائق فقط
+    } else {
+      return const MainLayout(); // واجهة المستخدم العادي (الماركت والجراج)
+    }
+  }
+}
+
+==================================================
+FILE END: .\main.dart
+==================================================
+
+==================================================
+FILE START: .\secrets.dart
+==================================================
+
+import 'package:flutter/material.dart';
+
+class AppColors {
+  // === 🏎️ Modern Sport Theme (روح رياضية وفخامة) ===
+  
+  // 1. اللون الأساسي: أسود فحمي مائل للأزرق (فخم جداً للهيدر والفوتر)
+  static const Color primary = Color(0xFF1B1F23); 
+  
+  // 2. لون الروح (Accent): برتقالي ناري (للأزرار المهمة، الأيقونات النشطة)
+  // ده اللون اللي "هيحيي" التطبيق بجد
+  static const Color accent = Color(0xFFFF6B00); 
+
+  // 3. لون ثانوي: رمادي معدني (للأيقونات الفرعية والتفاصيل)
+  static const Color secondary = Color(0xFF546E7A);
+
+  // --- الخلفيات والكروت ---
+  static const Color background = Color(0xFFF4F6F8); // رمادي فاتح جداً (ثلجي)
+  static const Color surface = Colors.white;         // أبيض ناصع للكروت
+  
+  // --- النصوص ---
+  static const Color textPrimary = Color(0xFF263238); // رصاصي غامق (أشيك من الأسود الصريح)
+  static const Color textSecondary = Color(0xFF78909C); // رصاصي فاتح مريح
+
+  // --- التدرجات (عشان لو حبيت تعمل زرار شكله 3D) ---
+  static const LinearGradient primaryGradient = LinearGradient(
+    colors: [Color(0xFF1B1F23), Color(0xFF37474F)],
+    begin: Alignment.topLeft,
+    end: Alignment.bottomRight,
+  );
+  
+  static const LinearGradient accentGradient = LinearGradient(
+    colors: [Color(0xFFFF8F00), Color(0xFFFF6B00)], // تدرج برتقالي حيوي
+    begin: Alignment.topLeft,
+    end: Alignment.bottomRight,
+  );
+
+  // === Compatibility (عشان الكود القديم يشتغل زي الفل) ===
+  static const Color cardColor = surface;
+  
+  // ألوان الحالات (Functional)
+  static const Color success = Color(0xFF00C853);      // أخضر نيون (Android Green)
+  static const Color error = Color(0xFFD50000);        // أحمر صريح
+  static const Color warning = Color(0xFFFFD600);      // أصفر
+}
+
+==================================================
+FILE END: .\secrets.dart
+==================================================
+
+==================================================
+FILE START: .\core\constants\app_colors.dart
+==================================================
+
+import 'package:flutter/material.dart';
+
+class AppColors {
+  // --- الألوان الرئيسية (Ismaily Spirit Colors) ---
+  static const Color primary = Color(0xFFFFAB00);      // المانجاوي
+  static const Color secondary = Color(0xFF101010);    // الأسفلتي
+  static const Color accent = Color(0xFFFFA000);       
+
+  // --- ألوان الخلفيات ---
+  static const Color background = Color(0xFFFAF9F6);   
+  static const Color cardColor = Colors.white;         
+  static const Color surface = Color(0xFFFAF9F6);      // أضفت دي عشان لو فيه ملف محتاجها
+
+  // --- النصوص (ثبتنا المسميات اللي بتعمل Errors) ---
+  static const Color textPrimary = Color(0xFF212121);  
+  static const Color textSecondary = Color(0xFF757575); 
+  
+  // ✅ الروابط اللي هتحل كل الـ Errors اللي ظهرت عندك:
+  static const Color textMain = textPrimary;    // حل مشكلة Undefined getter 'textMain'
+  static const Color textSub = textSecondary;   // حل مشكلة Undefined getter 'textSub'
+  static const Color textOnDark = Colors.white;
+
+  // --- ألوان الحالات (Functional Colors) ---
+  static const Color success = Color(0xFF2E7D32);      
+  static const Color error = Color(0xFFD32F2F);        
+  static const Color warning = Color(0xFFFFA000);      
+  static const Color danger = error;            // ✅ حل مشكلة Undefined getter 'danger'
+
+  // --- إضافات تقنية لشريط التحذير ---
+  static const Color tapeBlack = Color(0xFF101010); 
+}
+
+==================================================
+FILE END: .\core\constants\app_colors.dart
+==================================================
+
+==================================================
+FILE START: .\core\constants\maintenance_constants.dart
+==================================================
+
+class MaintenanceParts {
+  static const String engineOil = "Engine Oil";
+  static const String oilFilter = "Oil Filter";
+  static const String fuelFilter = "Fuel Filter";
+  static const String airFilter = "Air Filter";
+  static const String pollenFilter = "Pollen Filter";
+  static const String sparkPlugs = "Spark Plugs";
+  static const String driveBelt = "Drive Belt";
+  static const String coolant = "Coolant Water";
+  static const String gearboxOil = "Gearbox Oil";
+
+  static const List<String> allParts = [
+    engineOil, oilFilter, fuelFilter, airFilter, 
+    pollenFilter, sparkPlugs, driveBelt, coolant, gearboxOil
+  ];
+}
+
+==================================================
+FILE END: .\core\constants\maintenance_constants.dart
+==================================================
+
+==================================================
+FILE START: .\core\ui\app_footer.dart
+==================================================
+
+import 'package:flutter/material.dart';
+import 'package:flutter/cupertino.dart';
+import '../constants/app_colors.dart';
+
+class AppFooter extends StatelessWidget {
+  final int currentIndex;
+  final Function(int) onTap;
+
+  const AppFooter({
+    super.key,
+    required this.currentIndex,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return BottomAppBar(
+      shape: const CircularNotchedRectangle(),
+      notchMargin: 8,
+      color: AppColors.textMain, 
+      child: SizedBox(
+        height: 60,
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            _buildNavItem(0, Icons.garage, 'My Garage'),
+            _buildNavItem(1, Icons.vertical_shades_closed, 'My Car'),
+            const SizedBox(width: 40), // مساحة للزر المركزي
+            _buildNavItem(3, CupertinoIcons.cart_fill, 'SOS'),
+            _buildNavItem(4, Icons.more, 'More'),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildNavItem(int index, IconData icon, String label) {
+    bool isActive = currentIndex == index;
+    return GestureDetector(
+      onTap: () => onTap(index),
+      behavior: HitTestBehavior.opaque,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 10),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(
+              icon, 
+              color: isActive ? AppColors.primary : Colors.white54, 
+              size: 24
+            ),
+            const SizedBox(height: 2),
+            Text(
+              label.toUpperCase(),
+              style: TextStyle(
+                color: isActive ? AppColors.primary : Colors.white54, 
+                fontSize: 9,
+                fontWeight: isActive ? FontWeight.bold : FontWeight.normal,
+                letterSpacing: 0.5
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+==================================================
+FILE END: .\core\ui\app_footer.dart
+==================================================
+
+==================================================
+FILE START: .\core\ui\fleet_header.dart
+==================================================
+
+import 'package:elgarage/core/ui/home_header.dart';
+import 'package:flutter/material.dart';
+import '../../core/constants/app_colors.dart';
+
+class FleetHeader extends StatelessWidget {
+  final String userName;
+  final String points;
+  final VoidCallback onGrowFleet;
+
+  const FleetHeader({
+    super.key,
+    required this.userName,
+    required this.points,
+    required this.onGrowFleet,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Stack(
+      children: [
+        // الخلفية المقوسة - تم تقليل الارتفاع ليلتحم مع الزرار تماماً
+        ClipPath(
+          clipper: HeroClipper(),
+          child: Container(
+            height: 275, // هذا الارتفاع يضمن انتهاء اللون الأسود عند الزرار
+            width: double.infinity,
+            color: AppColors.textMain,
+          ),
+        ),
+
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
+          child: SafeArea(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Text('Welcome back,', style: TextStyle(color: Colors.white70, fontSize: 13)),
+                        Text(userName, style: const TextStyle(color: Colors.white, fontSize: 22, fontWeight: FontWeight.w900)),
+                        const SizedBox(height: 10),
+                        // قسم النقاط
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                          decoration: BoxDecoration(
+                            color: AppColors.primary.withOpacity(0.1),
+                            border: Border.all(color: AppColors.primary, width: 1),
+                            borderRadius: BorderRadius.circular(15),
+                          ),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              const Icon(Icons.stars, color: AppColors.primary, size: 14),
+                              const SizedBox(width: 5),
+                              Text('$points FLEET POINTS', style: const TextStyle(color: AppColors.primary, fontWeight: FontWeight.bold, fontSize: 10)),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.end,
+                      children: [
+                        Image.asset('assets/images/logo.png', height: 80, 
+                          errorBuilder: (c, e, s) => const Icon(Icons.admin_panel_settings, color: Colors.white, size: 50)),
+                        const SizedBox(height: 10),
+                        const Icon(Icons.shopping_bag_outlined, color: Colors.white, size: 26),
+                      ],
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 25),
+                // زر التوسع - الآن هو في نهاية القوس تماماً
+                ElevatedButton.icon(
+                  onPressed: onGrowFleet,
+                  icon: const Icon(Icons.add_business_outlined, size: 20),
+                  label: const Text('GROW MY FLEET', style: TextStyle(fontWeight: FontWeight.w900, letterSpacing: 1.5)),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: AppColors.primary,
+                    foregroundColor: Colors.black,
+                    padding: const EdgeInsets.symmetric(horizontal: 35, vertical: 15),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+==================================================
+FILE END: .\core\ui\fleet_header.dart
+==================================================
+
+==================================================
+FILE START: .\core\ui\home_header.dart
+==================================================
+
+import 'package:flutter/material.dart';
+import '../constants/app_colors.dart';
+
+class HomeHeader extends StatelessWidget {
+  final String title;
+  final String userName;
+  final String statsText;
+  final String actionLabel;
+  final VoidCallback onActionPressed;
+  final IconData actionIcon;
+  final Widget rightIcon;
+
+  const HomeHeader({
+    super.key,
+    required this.title,
+    required this.userName,
+    required this.statsText,
+    required this.actionLabel,
+    required this.onActionPressed,
+    this.actionIcon = Icons.add_circle_outline,
+    this.rightIcon = const Icon(Icons.garage_rounded, color: Colors.white, size: 40),
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Stack(
+      children: [
+        // الخلفية المقوسة المستخرجة من HomeScreen
+        ClipPath(
+          clipper: HeroClipper(),
+          child: Container(
+            height: 280,
+            width: double.infinity,
+            color: AppColors.textMain, 
+          ),
+        ),
+        
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
+          child: Column(
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(title, style: const TextStyle(color: Colors.white70, fontSize: 14)),
+                      Text(
+                        userName, 
+                        style: const TextStyle(color: Colors.white, fontSize: 24, fontWeight: FontWeight.w900),
+                      ),
+                      const SizedBox(height: 8),
+                      Row(
+                        children: [
+                          const Icon(Icons.stars, color: AppColors.primary, size: 16),
+                          const SizedBox(width: 5),
+                          Text(
+                            statsText, 
+                            style: const TextStyle(color: AppColors.primary, fontWeight: FontWeight.bold, fontSize: 12),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    children: [
+                      rightIcon,
+                      const SizedBox(height: 15),
+                      const Icon(Icons.shopping_bag_outlined, color: Colors.white, size: 24),
+                    ],
+                  ),
+                ],
+              ),
+              const SizedBox(height: 35),
+              ElevatedButton.icon(
+                onPressed: onActionPressed,
+                icon: Icon(actionIcon, size: 20),
+                label: Text(actionLabel, style: const TextStyle(fontWeight: FontWeight.w900, letterSpacing: 1)),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: AppColors.primary,
+                  foregroundColor: Colors.black,
+                  padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 15),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+// الكليبر المسؤول عن التقويسة
+class HeroClipper extends CustomClipper<Path> {
+  @override
+  Path getClip(Size size) {
+    Path path = Path();
+    path.lineTo(0, size.height - 60);
+    path.quadraticBezierTo(size.width / 2, size.height, size.width, size.height - 60);
+    path.lineTo(size.width, 0);
+    path.close();
+    return path;
+  }
+  @override
+  bool shouldReclip(CustomClipper<Path> oldClipper) => false;
+}
+
+==================================================
+FILE END: .\core\ui\home_header.dart
+==================================================
+
+==================================================
+FILE START: .\data\dummy_data.dart
+==================================================
+
+// Assuming you have or will create basic models
+
+// --- MOCK DATABASE SERVICE ---
+class DummyDataService {
+  
+  // 1. Users Table (Simulating DB Table)
+  static final List<Map<String, dynamic>> _users = [
+    {
+      'id': 'u_admin',
+      'username': 'f',
+      'password': 'f', // In real app, this is hashed
+      'role': 'FLEET_MANAGER',
+      'name': 'Hesham Fathy',
+      'company': 'ElGarage Logistics'
+    },
+    {
+      'id': 'u_driver_01',
+      'username': 'd',
+      'password': 'd',
+      'role': 'DRIVER',
+      'assignedCarId': 'c_001',
+      'name': 'Ahmed Driver'
+    },
+    {
+      'id': 'u_individual',
+      'username': 'u',
+      'password': 'u',
+      'role': 'INDIVIDUAL',
+      'name': 'Individual Owner'
+    }
+  ];
+
+  // 2. Fleet Cars Table
+  // Generating 20 dummy cars with industrial/fleet context
+  static final List<Map<String, dynamic>> _fleetCars = List.generate(20, (index) {
+    int id = index + 1;
+    double mileage = 10000.0 + (index * 5000); 
+    bool maintenanceNeeded = mileage > 50000 && mileage < 55000; // Random logic
+    
+    return {
+      'id': 'c_${id.toString().padLeft(3, '0')}',
+      'make': index % 2 == 0 ? 'Toyota' : 'Chevrolet',
+      'model': index % 2 == 0 ? 'Hilux' : 'Optra',
+      'year': 2021 + (index % 3),
+      'plateNumber': 'ABC ${100 + id}',
+      'currentOdometer': mileage,
+      'status': maintenanceNeeded ? 'MAINTENANCE_REQUIRED' : 'ACTIVE',
+      'lastServiceDate': '2025-10-${(id % 30).toString().padLeft(2, '0')}',
+      'image': 'assets/images/car_placeholder.png', // Placeholder
+      'driverId': 'u_driver_${id.toString().padLeft(2, '0')}'
+    };
+  });
+
+  // 3. Maintenance Logs
+  static final List<Map<String, dynamic>> logs = [];
+
+  // --- METHODS ---
+
+  static Map<String, dynamic>? login(String username, String password, String type) {
+    try {
+      final user = _users.firstWhere(
+        (u) => u['username'] == username && u['password'] == password,
+      );
+      
+      // Strict Role Check
+      if (type == 'FLEET' && user['role'] == 'INDIVIDUAL') return null;
+      if (type == 'INDIVIDUAL' && user['role'] != 'INDIVIDUAL') return null;
+      
+      return user;
+    } catch (e) {
+      return null;
+    }
+  }
+
+  static List<Map<String, dynamic>> getFleetCars() {
+    return _fleetCars;
+  }
+
+  static Map<String, dynamic>? getCarById(String id) {
+    return _fleetCars.firstWhere((c) => c['id'] == id, orElse: () => {});
+  }
+
+  // Driver updates Odometer
+  static Map<String, dynamic> updateOdometer(String carId, double newReading) {
+    final carIndex = _fleetCars.indexWhere((c) => c['id'] == carId);
+    if (carIndex != -1) {
+      _fleetCars[carIndex]['currentOdometer'] = newReading;
+      
+      // Simple Logic: If mileage > 100,000 trigger alert
+      if (newReading % 10000 < 500) { 
+         _fleetCars[carIndex]['status'] = 'MAINTENANCE_REQUIRED';
+      } else {
+         _fleetCars[carIndex]['status'] = 'ACTIVE';
+      }
+      return _fleetCars[carIndex];
+    }
+    throw Exception('Car not found');
+  }
+}
+
+==================================================
+FILE END: .\data\dummy_data.dart
+==================================================
+
+==================================================
+FILE START: .\data\models\auth_response_model.dart
+==================================================
+
+class User {
+  final String id;
+  final String email;
+  final String name;
+  final String phone;
+  final String role;
+
+  User({
+    required this.id,
+    required this.email,
+    required this.name,
+    required this.phone,
+    required this.role,
+  });
+
+  factory User.fromJson(Map<String, dynamic> json) {
+    return User(
+      id: json['id'] ?? '',
+      email: json['email'] ?? '',
+      name: json['name'] ?? '',
+      phone: json['phone'] ?? '',
+      role: json['role'] ?? 'CUSTOMER',
+    );
+  }
+}
+
+class AuthResponse {
+  final String accessToken;
+  final String refreshToken;
+  final User user;
+
+  AuthResponse({
+    required this.accessToken,
+    required this.refreshToken,
+    required this.user,
+  });
+
+  factory AuthResponse.fromJson(Map<String, dynamic> json) {
+    // حسب هيكل الرد اللي شفناه في Postman (data جواها accessToken)
+    final data = json['data']; 
+    return AuthResponse(
+      accessToken: data['accessToken'] ?? '',
+      refreshToken: data['refreshToken'] ?? '',
+      user: User.fromJson(data['user']),
+    );
+  }
+}
+
+==================================================
+FILE END: .\data\models\auth_response_model.dart
+==================================================
+
+==================================================
+FILE START: .\data\models\car_model.dart
+==================================================
+
+class Car {
+  final String id;
+  final String make;
+  final String model;
+  final int year;
+  final String? licensePlate;
+  final String? color;
+  final String? vin;
+  final String? imageUrl;
+  final int currentKm;
+
+  Car({
+    required this.id,
+    required this.make,
+    required this.model,
+    required this.year,
+    this.licensePlate,
+    this.color,
+    this.vin,
+    this.imageUrl,
+    this.currentKm = 0,
+  });
+
+factory Car.fromJson(Map<String, dynamic> json) {
+    String makeData = 'Unknown Make';
+    String modelData = 'Unknown Model';
+
+    // 1. استخراج البيانات من الكائن المتداخل model (وهذا هو الأصح حسب الباك إند الحالي)
+    if (json['model'] != null && json['model'] is Map) {
+      modelData = json['model']['name'] ?? 'Unknown Model';
+      
+      // الدخول لعمق أكبر لجلب الماركة
+      if (json['model']['brand'] != null && json['model']['brand'] is Map) {
+        makeData = json['model']['brand']['name'] ?? 'Unknown Make';
+      }
+    } 
+    // 2. محاولة القراءة المباشرة (احتياطي)
+    else {
+      makeData = json['make'] ?? 'Unknown Make';
+      modelData = json['model'] is String ? json['model'] : 'Unknown Model';
+    }
+
+    return Car(
+      id: json['id']?.toString() ?? '',
+      make: makeData,
+      model: modelData,
+      year: json['year'] is String ? int.tryParse(json['year']) : (json['year'] ?? 0),
+      licensePlate: json['plateNumber'] ?? 'No Plate',
+      color: json['color'] ?? 'N/A',
+      vin: json['vin'],
+      imageUrl: json['imageUrl'] ?? '',
+      currentKm: json['currentKm'] != null 
+          ? (json['currentKm'] is int ? json['currentKm'] : int.tryParse(json['currentKm'].toString()) ?? 0)
+          : (json['mileageKm'] is int ? json['mileageKm'] : int.tryParse(json['mileageKm'].toString()) ?? 0),
+    );
+  }
+
+  get plateNumber => null;
+}
+
+==================================================
+FILE END: .\data\models\car_model.dart
+==================================================
+
+==================================================
+FILE START: .\data\models\emergency_model.dart
+==================================================
+
+class EmergencyModel {
+  final String name;
+  final String phoneNumber;
+  final String location;     // المنطقة (Nasr City, Maadi...)
+  final String type;         // 'Winch', 'Tire', 'Battery'
+  final String rating;       // تقييم (4.5)
+
+  EmergencyModel({
+    required this.name,
+    required this.phoneNumber,
+    required this.location,
+    required this.type,
+    required this.rating,
+  });
+}
+
+==================================================
+FILE END: .\data\models\emergency_model.dart
+==================================================
+
+==================================================
+FILE START: .\data\models\maintenance_item_model.dart
+==================================================
+
+class MaintenanceItem {
+  final String id;
+  final String name;
+  final String category;
+  final double price;
+  final bool isMissed;
+  final String status;
+
+  MaintenanceItem({
+    required this.id,
+    required this.name,
+    required this.category,
+    required this.price,
+    this.isMissed = false,
+    required this.status,
+  });
+
+  factory MaintenanceItem.fromJson(Map<String, dynamic> json) {
+    return MaintenanceItem(
+      id: json['id']?.toString() ?? '',
+      name: json['name'] ?? 'Unknown Service',
+      category: json['category'] ?? 'General',
+      price: (json['price'] is num) ? (json['price'] as num).toDouble() : 0.0,
+      isMissed: json['isMissed'] ?? false,
+      status: json['status'] ?? 'PENDING',
+    );
+  }
+}
+
+==================================================
+FILE END: .\data\models\maintenance_item_model.dart
+==================================================
+
+==================================================
+FILE START: .\data\models\product_model.dart
+==================================================
+
+class ProductModel {
+  final String id;
+  final String name;       // اسم القطعة (زيت 10 آلاف)
+  final double price;      // السعر
+  final String category;   // التصنيف (Oils, Filters, Brakes)
+  final String? image;     // صورة (اختياري)
+  bool isMissed;
+
+  ProductModel({
+    required this.id,
+    required this.name,
+    required this.price,
+    required this.category,
+    this.image,
+    this.isMissed = false,
+  });
+}
+
+==================================================
+FILE END: .\data\models\product_model.dart
+==================================================
+
+==================================================
+FILE START: .\data\models\service_log_model.dart
+==================================================
+
+class ServiceLogModel {
+  final String id;
+  final String serviceName; 
+  final DateTime date;
+  final double mileage; // <--- Added this
+  final List<String> partsReplaced; // <--- Added this
+  final double cost;
+
+  ServiceLogModel({
+    required this.id,
+    required this.serviceName,
+    required this.date,
+    required this.mileage,
+    required this.partsReplaced,
+    this.cost = 0.0,
+  });
+}
+
+==================================================
+FILE END: .\data\models\service_log_model.dart
+==================================================
+
+==================================================
+FILE START: .\data\services\auth_service.dart
+==================================================
+
+import 'dart:convert';
+import 'package:http/http.dart' as http;
+import '../models/auth_response_model.dart';
+
+class AuthService {
+final String baseUrl = 'http://192.168.8.17:3000/api/v1/auth';
+
+  Future<AuthResponse> register(String name, String email, String phone, String password) async {
+    final response = await http.post(
+      Uri.parse('$baseUrl/register'),
+      headers: {'Content-Type': 'application/json'},
+      body: jsonEncode({
+        'name': name,
+        'email': email,
+        'phone': phone,
+        'password': password,
+      }),
+    );
+
+    if (response.statusCode == 201) {
+      return AuthResponse.fromJson(jsonDecode(response.body));
+    } else {
+      throw Exception('Failed to register: ${response.body}');
+    }
+  }
+
+  Future<AuthResponse> login(String email, String password) async {
+    final response = await http.post(
+      Uri.parse('$baseUrl/login'),
+      headers: {'Content-Type': 'application/json'},
+      body: jsonEncode({
+        'email': email,
+        'password': password,
+      }),
+    );
+
+    if (response.statusCode == 201 || response.statusCode == 200) {
+      return AuthResponse.fromJson(jsonDecode(response.body));
+    } else {
+      throw Exception('Login failed: ${response.body}');
+    }
+  }
+}
+
+==================================================
+FILE END: .\data\services\auth_service.dart
+==================================================
+
+==================================================
+FILE START: .\data\services\car_service.dart
+==================================================
+
+import 'dart:convert';
+import 'package:http/http.dart' as http;
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import '../models/car_model.dart';
+
+class CarService {
+  final String baseUrl = 'http://192.168.8.17:3000/api/v1'; 
+  final _storage = const FlutterSecureStorage();
+
+  Future<String?> _getToken() async => await _storage.read(key: 'accessToken');
+Future<List<Car>> getFleetCars() async {
+    final token = await _getToken();
+    final response = await http.get(
+      Uri.parse('$baseUrl/cars/fleet'),
+      headers: {
+        'Authorization': 'Bearer $token',
+        'Content-Type': 'application/json',
+      },
+    );
+
+    if (response.statusCode == 200) {
+      final List<dynamic> data = json.decode(response.body);
+      return data.map((json) => Car.fromJson(json)).toList();
+    }
+    return [];
+  }
+ // ... داخل CarService
+Future<Map<String, dynamic>?> updateMileage(String carId, int mileage) async {
+    final token = await _getToken();
+    final response = await http.patch(
+      Uri.parse('$baseUrl/cars/$carId/mileage'),
+      headers: {
+        'Authorization': 'Bearer $token',
+        'Content-Type': 'application/json',
+      },
+      body: jsonEncode({'mileage': mileage}),
+    );
+
+    if (response.statusCode == 200) {
+      return json.decode(response.body); // سيعيد داتا تحتوي على needsMaintenancePayment
+    }
+    return null;
+  }
+  Future<List<Car>> getMyCars() async {
+    final token = await _getToken();
+    final response = await http.get(
+      Uri.parse('$baseUrl/cars'),
+      headers: {'Authorization': 'Bearer $token'},
+    );
+
+    if (response.statusCode == 200) {
+      final dynamic decodedBody = json.decode(response.body);
+      
+      // 🔥 سطر الطباعة المهم جداً: هيورينا شكل الداتا في التيرمنال
+      print("📦 RAW CARS DATA: $decodedBody"); 
+
+      List<dynamic> data;
+      if (decodedBody is Map<String, dynamic> && decodedBody.containsKey('data')) {
+        data = decodedBody['data'];
+      } else if (decodedBody is List) {
+        data = decodedBody;
+      } else {
+        return [];
+      }
+      return data.map((json) => Car.fromJson(json)).toList();
+    } else {
+      throw Exception('Failed to load cars');
+    }
+  }
+
+  Future<List<dynamic>> getMaintenanceDue(String carId) async {
+    final token = await _getToken();
+    final url = '$baseUrl/maintenance/$carId/due';
+    print("🚀 Fetching Due Maintenance from: $url");
+
+    try {
+      final response = await http.get(
+        Uri.parse(url),
+        headers: {'Authorization': 'Bearer $token'},
+      );
+
+      print("📡 Maintenance Status: ${response.statusCode}");
+      print("📦 RAW MAINTENANCE DATA: ${response.body}");
+
+      if (response.statusCode == 200) {
+        final body = json.decode(response.body);
+        
+        // المتغير اللي هنخزن فيه القائمة النهائية
+        List<dynamic> itemsList = [];
+
+        // 1. فحص الهيكل العام للرد
+        if (body is Map && body.containsKey('data')) {
+          final dataContent = body['data'];
+
+          // ✅ التعديل الجوهري هنا:
+          // الهيكل الجديد: data عبارة عن Map جواها مفتاح اسمه items
+          if (dataContent is Map && dataContent.containsKey('items')) {
+             itemsList = dataContent['items'];
+             
+             // ملاحظة: لو حابب توصل لمعلومة الـ nextServiceAt ممكن تطبعها هنا
+             // print("Next Service at: ${dataContent['nextServiceAt']}");
+          } 
+          // الهيكل القديم (احتياطي): data عبارة عن List مباشرة
+          else if (dataContent is List) {
+             itemsList = dataContent;
+          }
+        } 
+        // حالة نادرة: الرد عبارة عن List مباشرة بدون data wrapper
+        else if (body is List) {
+          itemsList = body;
+        }
+
+        return itemsList;
+      }
+    } catch (e) {
+      print("❌ Error fetching maintenance: $e");
+    }
+    return [];
+  }
+  // 2. Get Brands (التعديل: استخدام المسار العام cars/brands)
+  Future<List<dynamic>> getBrands() async {
+    final token = await _getToken();
+    // المسار الصحيح للمستخدمين (مش Admin)
+    final url = '$baseUrl/cars/brands'; 
+    print("🚀 Fetching Brands from: $url");
+
+    try {
+      final response = await http.get(
+        Uri.parse(url), 
+        headers: {'Authorization': 'Bearer $token'},
+      );
+
+      print("📡 Brands Status: ${response.statusCode}");
+      print("📦 Brands Body: ${response.body}");
+
+      if (response.statusCode == 200) {
+        final body = json.decode(response.body);
+        if (body is Map && body.containsKey('data')) {
+          return body['data']; 
+        } else if (body is List) {
+          return body;
+        }
+      }
+    } catch (e) {
+      print("❌ Error fetching brands: $e");
+    }
+    return [];
+  }
+
+  // 3. Get Models (التعديل: استخدام المسار العام cars/models)
+  Future<List<dynamic>> getModels(String brandId) async {
+    final token = await _getToken();
+    // المسار الصحيح للموديلات
+    final url = '$baseUrl/cars/models/$brandId';
+    print("🚀 Fetching Models from: $url");
+
+    try {
+      final response = await http.get(
+        Uri.parse(url), 
+        headers: {'Authorization': 'Bearer $token'},
+      );
+
+      print("📡 Models Status: ${response.statusCode}");
+      
+      if (response.statusCode == 200) {
+        final body = json.decode(response.body);
+        if (body is Map && body.containsKey('data')) {
+          return body['data']; 
+        } else if (body is List) {
+          return body;
+        }
+      }
+    } catch (e) {
+      print("❌ Error fetching models: $e");
+    }
+    return [];
+  }
+
+  // 4. Add Car
+  Future<void> addCar(Map<String, dynamic> carData) async {
+    final token = await _getToken();
+    
+final payload = {
+      // لازم المفاتيح دي تكون مطابقة للي كتبناه في الباك إند
+      "carModelId": carData['modelId'], // لاحظ: هنا بنبعت modelId بس الباك إند بيستقبله كـ carModelId
+      "year": carData['year'],
+      "color": carData['color'],
+      "currentKm": carData['currentKm'], 
+      "plateNumber": "No Plate" // قيمة افتراضية لو مش موجودة
+    };
+
+    final response = await http.post(
+      Uri.parse('$baseUrl/cars'),
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer $token',
+      },
+      body: jsonEncode(payload),
+    );
+
+    if (response.statusCode != 201 && response.statusCode != 200) {
+      throw Exception('Failed to add car: ${response.body}');
+    }
+  }
+}
+
+==================================================
+FILE END: .\data\services\car_service.dart
+==================================================
+
+==================================================
+FILE START: .\providers\app_provider.dart
+==================================================
+
+import 'package:flutter/material.dart'; // تم تغيير cupertino إلى material لدعم ChangeNotifier بشكل أفضل
+import 'package:flutter/cupertino.dart';
+// استيراد الموديلات بناءً على شجرة الملفات
+import '../data/models/car_model.dart';
+import '../data/models/maintenance_item_model.dart';
+import '../data/models/product_model.dart';
+import '../data/models/service_log_model.dart';
+import '../data/models/emergency_model.dart';
+import '../data/services/car_service.dart';
+
+class AppProvider with ChangeNotifier {
+  final CarService _carService = CarService();
+  
+  // ==========================================================
+  // --- 1. CAR SECTION (Backend Integrated) ---
+  // ==========================================================
+  List<Car> _myCars = [];
+  bool _isLoadingCars = false;
+  String? _carError;
+  Car? _selectedCar; 
+
+  List<Car> get myCars => _myCars;
+  bool get isLoadingCars => _isLoadingCars;
+  String? get carError => _carError;
+  Car? get selectedCar => _selectedCar;
+
+  // Fleet Logic
+  List<Car> get fleetCars => _myCars;
+  Car? get assignedDriverCar => _selectedCar; // للسواق
+
+  // إحصائيات وهمية للأدمن (Analytics)
+  Map<String, dynamic> get fleetAnalytics => {
+    "total_units": _myCars.length,
+    "active_now": (_myCars.length * 0.8).floor(),
+    "maintenance_due": _myCars.where((c) => (c.currentKm % 10000) > 9000).length,
+    "monthly_cost": "45,000 EGP",
+    "efficiency": "94%"
+  };
+
+  void setSelectedCar(Car car) {
+    _selectedCar = car;
+    _dueMaintenance = []; // تصفير الصيانة القديمة
+    notifyListeners();
+  }
+
+  // دعم المسمى القديم لتجنب الأخطاء في الواجهات
+  void selectCar(Car car) => setSelectedCar(car);
+
+  // تم إصلاح الخطأ هنا: تعريف متغير التحميل كخاصية في الكلاس وليس متغير محلي
+  bool _isUpdatingMileage = false;
+  bool get isUpdatingMileage => _isUpdatingMileage;
+
+  Future<bool> updateDriverMileage(String carId, int newMileage) async {
+    _isUpdatingMileage = true; // تغيير الحالة العامة للتحميل
+    notifyListeners();
+    try {
+      // تفعيل مناداة الـ API (تأكد من وجود الدالة في car_service)
+      await _carService.updateMileage(carId, newMileage);
+      
+      // تحديث البيانات محلياً بعد نجاح العملية
+      await fetchMyCars(); 
+      
+      return true;
+    } catch (e) {
+      print("Error updating mileage: $e");
+      return false;
+    } finally {
+      _isUpdatingMileage = false;
+      notifyListeners();
+    }
+  }
+
+  Future<void> fetchMyCars() async {
+    _isLoadingCars = true;
+    _carError = null;
+    notifyListeners();
+    try {
+      _myCars = await _carService.getMyCars();
+      if (_myCars.isNotEmpty && _selectedCar == null) {
+        _selectedCar = _myCars.first;
+      }
+    } catch (e) {
+      _carError = e.toString();
+    } finally {
+      _isLoadingCars = false;
+      notifyListeners();
+    }
+  }
+
+  // ==========================================================
+  // --- 2. MAINTENANCE LOGIC (Matrix & Intelligent Check) ---
+  // ==========================================================
+  List<MaintenanceItem> _dueMaintenance = [];
+  bool _isLoadingMaintenance = false;
+  List<MaintenanceItem> get dueMaintenance => _dueMaintenance;
+  bool get isLoadingMaintenance => _isLoadingMaintenance;
+
+  // مصفوفة الصيانة (Maintenance Matrix)
+  final Map<int, List<String>> _maintenanceMatrix = {
+    10000: ['Engine Oil', 'Oil Filter'],
+    20000: ['Engine Oil', 'Oil Filter', 'Air Filter', 'Pollen Filter', 'Spark Plugs'],
+    30000: ['Engine Oil', 'Oil Filter', 'Coolant Water'],
+    40000: ['Engine Oil', 'Oil Filter', 'Air Filter', 'Pollen Filter', 'Spark Plugs', 'Fuel Filter', 'Gearbox Oil'],
+    50000: ['Engine Oil', 'Oil Filter', 'Gearbox Oil'],
+    60000: ['Engine Oil', 'Oil Filter', 'Air Filter', 'Spark Plugs', 'Drive Belt (Kit)'],
+  };
+
+  // جلب الصيانات من الباك إند
+  Future<void> fetchDueMaintenance({required String carId}) async {
+    if (_selectedCar == null && _myCars.isNotEmpty) {
+       _selectedCar = _myCars.firstWhere((element) => element.id == carId, orElse: () => _myCars.first);
+    }
+    _isLoadingMaintenance = true;
+    notifyListeners();
+    try {
+      final rawData = await _carService.getMaintenanceDue(carId);
+      _dueMaintenance = rawData.map((item) => MaintenanceItem.fromJson(item)).toList();
+    } catch (e) {
+      print("Error loading maintenance: $e");
+    } finally {
+      _isLoadingMaintenance = false;
+      notifyListeners();
+    }
+  }
+
+  // حساب الكيلومتر القادم (Milestone)
+  int get currentMilestone {
+    if (_selectedCar == null) return 10000;
+    int km = _selectedCar!.currentKm;
+    return ((km / 10000).floor() + 1) * 10000;
+  }
+
+  // الفحص الذكي للتاريخ (Intelligent History Check)
+  bool wasPartReplacedAtMilestone(String partName, int milestoneKm) {
+    const int margin = 2000; 
+    String cleanPartName = partName.replaceAll('(Clean)', '').trim().toLowerCase();
+    return _historyLogs.any((log) {
+       bool isWithinRange = log.mileage >= (milestoneKm - margin) && log.mileage <= (milestoneKm + margin);
+       if (!isWithinRange) return false;
+       return log.partsReplaced.any((p) => p.toLowerCase().contains(cleanPartName));
+    });
+  }
+
+  // توليد عناصر الصيانة بناءً على التاريخ والمصفوفة
+  List<ProductModel> getMaintenanceItemsFor(int milestone) {
+    List<String> requiredParts = _maintenanceMatrix[milestone] ?? ['Engine Oil', 'Oil Filter'];
+    return requiredParts.map((part) {
+      bool missed = false;
+      if (milestone < currentMilestone) {
+        missed = !wasPartReplacedAtMilestone(part, milestone);
+      }
+      return ProductModel(
+        id: '${milestone}_$part',
+        name: part,
+        price: _getPriceForPart(part),
+        category: 'Maintenance',
+        isMissed: missed,
+      );
+    }).toList();
+  }
+
+  double _getPriceForPart(String name) {
+    name = name.toLowerCase();
+    if (name.contains('oil') && !name.contains('filter')) return 1200; 
+    if (name.contains('filter')) return 350;
+    if (name.contains('spark')) return 800;
+    if (name.contains('belt')) return 2500;
+    return 500;
+  }
+
+  // ==========================================================
+  // --- 3. HISTORY, CART, EMERGENCY & MARKET (Local State) ---
+  // ==========================================================
+  
+  final List<ServiceLogModel> _historyLogs = []; 
+  List<ServiceLogModel> get historyLogs => _historyLogs;
+
+  void addServiceLog(dynamic logData) {
+    if (logData is Map) {
+      _historyLogs.insert(0, ServiceLogModel(
+        id: DateTime.now().toString(),
+        serviceName: logData['name'],
+        date: logData['date'],
+        mileage: logData['mileage'],
+        partsReplaced: List<String>.from(logData['parts']),
+      ));
+    }
+    notifyListeners();
+  }
+
+  final List<ProductModel> _cartItems = [];
+  List<ProductModel> get cartItems => _cartItems;
+  double get cartTotal => _cartItems.fold(0, (sum, item) => sum + item.price);
+
+  void addToCart(List<dynamic> products) {
+    for (var p in products) { if (p is ProductModel) _cartItems.add(p); }
+    notifyListeners();
+  }
+
+  void removeFromCart(dynamic item) {
+    _cartItems.remove(item);
+    notifyListeners();
+  }
+
+  final List<EmergencyModel> _emergencyContacts = [
+    EmergencyModel(name: 'Al-Inqaz Towing', phoneNumber: '0100000001', location: 'Nasr City', type: 'Winch', rating: '4.9'),
+    EmergencyModel(name: 'Battery Doctors', phoneNumber: '0110000000', location: 'Giza', type: 'Battery', rating: '4.5'),
+  ];
+
+  List<EmergencyModel> getEmergencyByType(String type) {
+    return _emergencyContacts.where((element) => element.type == type).toList();
+  }
+
+  final List<Map<String, dynamic>> _categories = [
+    {'name': 'All', 'icon': CupertinoIcons.square_grid_2x2_fill},
+    {'name': 'Service Centers', 'icon': CupertinoIcons.wrench_fill},
+    {'name': 'Oils', 'icon': CupertinoIcons.drop_fill},
+  ];
+  List<Map<String, dynamic>> get categories => _categories;
+
+  final List<ProductModel> _marketProducts = [
+    ProductModel(id: '201', name: 'Shell Helix Ultra', price: 950, category: 'Oils'),
+    ProductModel(id: '202', name: 'Michelin Tire 16"', price: 4500, category: 'Tires'),
+  ];
+  List<ProductModel> get marketProducts => _marketProducts;
+
+  final List<Map<String, dynamic>> _serviceCenters = [
+    {'name': 'Auto Fix Center', 'location': 'Nasr City', 'labor_cost': 200.0},
+    {'name': 'Pro Car Service', 'location': 'New Cairo', 'labor_cost': 300.0},
+  ];
+  List<Map<String, dynamic>> get serviceCenters => _serviceCenters;
+
+  // ==========================================================
+  // --- 4. HELPERS (Dropdowns & Navigation) ---
+  // ==========================================================
+  int _currentTabIndex = 0;
+  int get currentTabIndex => _currentTabIndex;
+  void setTabIndex(int index) { _currentTabIndex = index; notifyListeners(); }
+
+  Future<List<dynamic>> fetchBrands() async => await _carService.getBrands();
+  Future<List<dynamic>> fetchModels(String brandId) async => await _carService.getModels(brandId);
+  
+  Future<bool> addNewCarv2(Map<String, dynamic> carData) async {
+    try {
+      await _carService.addCar(carData);
+      await fetchMyCars();
+      return true;
+    } catch (e) { return false; }
+  }
+}
+
+==================================================
+FILE END: .\providers\app_provider.dart
+==================================================
+
+==================================================
+FILE START: .\providers\auth_provider.dart
+==================================================
+
+import 'package:flutter/material.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import '../data/models/auth_response_model.dart';
+import '../data/services/auth_service.dart';
+
+class AuthProvider with ChangeNotifier {
+  // بنستخدم السرفيس الخاصة بالباك إند بتاعنا بس
+  final AuthService _authService = AuthService();
+  final _storage = const FlutterSecureStorage();
+  
+  User? _user;
+  String? _token;
+  bool _isLoading = false;
+  String? _errorMessage;
+
+  User? get user => _user;
+  bool get isLoading => _isLoading;
+  String? get errorMessage => _errorMessage;
+  bool get isAuthenticated => _token != null;
+
+  Null get currentUser => null;
+
+  // --- Login (Email/Password) ---
+  Future<bool> login(String email, String password) async {
+    _isLoading = true;
+    _errorMessage = null;
+    notifyListeners();
+
+    try {
+      final response = await _authService.login(email, password);
+      _user = response.user;
+      _token = response.accessToken;
+      
+      await _storage.write(key: 'accessToken', value: _token);
+      
+      _isLoading = false;
+      notifyListeners();
+      return true;
+    } catch (e) {
+      _isLoading = false;
+      _errorMessage = e.toString();
+      notifyListeners();
+      return false;
+    }
+  }
+
+  Future<bool> register(String name, String email, String phone, String password) async {
+    _isLoading = true;
+    _errorMessage = null;
+    notifyListeners();
+
+    print("🚀 1. Starting Registration..."); // طباعة 1
+print("📡 Target IP: 192.168.8.15");
+    try {
+      print("⏳ 2. Sending Request to Backend...");
+      final response = await _authService.register(name, email, phone, password);
+      
+      print("✅ 3. Success! Token received: ${response.accessToken}");
+      _user = response.user;
+      _token = response.accessToken;
+
+      await _storage.write(key: 'accessToken', value: _token);
+
+      _isLoading = false;
+      notifyListeners();
+      return true;
+    } catch (e) {
+      print("❌ 4. Error Occurred: $e"); // هنا هنعرف السبب الحقيقي
+      _isLoading = false;
+      _errorMessage = e.toString();
+      notifyListeners();
+      return false;
+    }
+  }
+  
+  void logout() async {
+    _user = null;
+    _token = null;
+    await _storage.delete(key: 'accessToken');
+    notifyListeners();
+  }
+}
+
+==================================================
+FILE END: .\providers\auth_provider.dart
+==================================================
+
+==================================================
+FILE START: .\screens\add_car_screen.dart
+==================================================
+
+import 'package:flutter/material.dart';
+import 'package:flutter/cupertino.dart';
+import 'package:intl/intl.dart';
+import 'package:provider/provider.dart';
+import '../core/constants/app_colors.dart';
+import '../providers/app_provider.dart';
+
+class AddCarScreen extends StatefulWidget {
+  const AddCarScreen({super.key});
+
+  @override
+  State<AddCarScreen> createState() => _AddCarScreenState();
+}
+
+class _AddCarScreenState extends State<AddCarScreen> {
+  final _formKey = GlobalKey<FormState>();
+
+  // القوائم القادمة من الباك إند
+  List<dynamic> _brands = [];
+  List<dynamic> _models = [];
+
+  // الاختيارات (IDs للباك إند)
+  String? _selectedBrandId;
+  String? _selectedModelId;
+
+  // Controllers (نفس مسميات الكود الثاني مع إضافة Color)
+  final _yearController = TextEditingController();
+  final _mileageController = TextEditingController(); // currentKm
+  final _colorController = TextEditingController();
+  final _avgConsController = TextEditingController();
+  final _lastMaintKmController = TextEditingController();
+  DateTime? _selectedDate;
+
+  bool _isLoadingBrands = true;
+  bool _isLoadingModels = false;
+  bool _isSubmitting = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadBrands();
+  }
+
+  // 1. تحميل الماركات عند فتح الشاشة
+  Future<void> _loadBrands() async {
+    try {
+      final brands = await Provider.of<AppProvider>(context, listen: false).fetchBrands();
+      if (mounted) {
+        setState(() {
+          _brands = brands;
+          _isLoadingBrands = false;
+        });
+      }
+    } catch (e) {
+      if (mounted) setState(() => _isLoadingBrands = false);
+    }
+  }
+
+  // 2. تحميل الموديلات لما يختار ماركة
+  Future<void> _loadModels(String brandId) async {
+    setState(() {
+      _isLoadingModels = true;
+      _models = [];
+      _selectedModelId = null; 
+    });
+
+    try {
+      final models = await Provider.of<AppProvider>(context, listen: false).fetchModels(brandId);
+      if (mounted) {
+        setState(() {
+          _models = models;
+          _isLoadingModels = false;
+        });
+      }
+    } catch (e) {
+      if (mounted) setState(() => _isLoadingModels = false);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final appProvider = Provider.of<AppProvider>(context);
+
+    return Scaffold(
+      backgroundColor: AppColors.background,
+      appBar: AppBar(
+        title: const Text("Add New Car", style: TextStyle(fontWeight: FontWeight.bold)),
+        elevation: 0,
+        backgroundColor: Colors.white,
+        foregroundColor: AppColors.textPrimary,
+      ),
+      body: SingleChildScrollView(
+        padding: const EdgeInsets.all(20),
+        child: Form(
+          key: _formKey,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Text("Car Identity", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+              const SizedBox(height: 15),
+
+              // --- 1. Brands Dropdown ---
+              _isLoadingBrands 
+                ? const LinearProgressIndicator()
+                : DropdownButtonFormField<String>(
+                    value: _selectedBrandId,
+                    decoration: _inputDecoration("Car Make / Brand", CupertinoIcons.tag),
+                    hint: const Text("Select Brand"),
+                    items: _brands.map<DropdownMenuItem<String>>((brand) {
+                      return DropdownMenuItem(
+                        value: brand['id'].toString(), 
+                        child: Text(brand['name'] ?? 'Unknown'),
+                      );
+                    }).toList(),
+                    onChanged: (value) {
+                      if (value != null) {
+                        setState(() => _selectedBrandId = value);
+                        _loadModels(value); 
+                      }
+                    },
+                    validator: (v) => v == null ? "Required" : null,
+                  ),
+              
+              const SizedBox(height: 15),
+
+              // --- 2. Models Dropdown ---
+              _isLoadingModels
+                  ? const LinearProgressIndicator()
+                  : DropdownButtonFormField<String>(
+                      value: _selectedModelId,
+                      disabledHint: const Text("Select Brand First"),
+                      decoration: _inputDecoration("Car Model", CupertinoIcons.car_detailed),
+                      hint: const Text("Select Model"),
+                      items: _models.map<DropdownMenuItem<String>>((model) {
+                        return DropdownMenuItem(
+                          value: model['id'].toString(),
+                          child: Text(model['name'] ?? 'Unknown'),
+                        );
+                      }).toList(),
+                      onChanged: _models.isEmpty ? null : (value) {
+                        setState(() => _selectedModelId = value);
+                      },
+                      validator: (v) => v == null ? "Required" : null,
+                    ),
+
+              const SizedBox(height: 15),
+
+              Row(
+                children: [
+                  Expanded(child: _buildTextField(_yearController, "Year", CupertinoIcons.calendar, isNumber: true)),
+                  const SizedBox(width: 10),
+                  Expanded(child: _buildTextField(_colorController, "Color", Icons.color_lens)),
+                ],
+              ),
+
+              _buildTextField(_mileageController, "Current Mileage (KM)", Icons.speed, isNumber: true),
+              _buildTextField(_avgConsController, "Monthly Avg KM", CupertinoIcons.graph_square, isNumber: true),
+
+              const Divider(height: 40),
+              const Text("Last Maintenance", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+              const SizedBox(height: 15),
+
+              _buildDatePicker(),
+              const SizedBox(height: 15),
+              _buildTextField(_lastMaintKmController, "Maintenance KM", CupertinoIcons.wrench, isNumber: true),
+
+              const SizedBox(height: 30),
+
+              // --- Submit Button ---
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: AppColors.primary,
+                    padding: const EdgeInsets.symmetric(vertical: 16),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                  ),
+                  onPressed: _isSubmitting ? null : () => _submitForm(appProvider),
+                  child: _isSubmitting 
+                    ? const SizedBox(height: 20, width: 20, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2))
+                    : const Text("Save Car", style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16)),
+                ),
+              )
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  // --- UI Helper Methods (نفس هيكل الكود الثاني) ---
+
+  InputDecoration _inputDecoration(String label, IconData icon) {
+    return InputDecoration(
+      labelText: label,
+      prefixIcon: Icon(icon, color: AppColors.primary, size: 20),
+      filled: true,
+      fillColor: Colors.white,
+      border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
+      contentPadding: const EdgeInsets.symmetric(horizontal: 15, vertical: 15),
+    );
+  }
+
+  Widget _buildTextField(TextEditingController controller, String label, IconData icon, {bool isNumber = false}) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 15),
+      child: TextFormField(
+        controller: controller,
+        keyboardType: isNumber ? TextInputType.number : TextInputType.text,
+        decoration: _inputDecoration(label, icon),
+        validator: (value) => value!.isEmpty ? "Required" : null,
+      ),
+    );
+  }
+
+  Widget _buildDatePicker() {
+    return InkWell(
+      onTap: () async {
+        final picked = await showDatePicker(
+          context: context, 
+          initialDate: DateTime.now(), 
+          firstDate: DateTime(2010), 
+          lastDate: DateTime.now()
+        );
+        if (picked != null) setState(() => _selectedDate = picked);
+      },
+      child: Container(
+        padding: const EdgeInsets.all(15),
+        decoration: BoxDecoration(
+          color: Colors.white, 
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(color: Colors.transparent)
+        ),
+        child: Row(
+          children: [
+            const Icon(CupertinoIcons.calendar, color: AppColors.primary, size: 20),
+            const SizedBox(width: 10),
+            Text(
+              _selectedDate == null 
+                ? "Select Last Maintenance Date" 
+                : DateFormat('yyyy-MM-dd').format(_selectedDate!),
+              style: TextStyle(color: _selectedDate == null ? Colors.grey[600] : Colors.black),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  // --- Logic Helper ---
+
+  Future<void> _submitForm(AppProvider provider) async {
+    if (!_formKey.currentState!.validate()) return;
+    
+    if (_selectedModelId == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Please select a car model')),
+      );
+      return;
+    }
+
+    setState(() => _isSubmitting = true);
+    
+    // تجهيز البيانات للباك إند (دمج الحقول من الكودين)
+    final carData = {
+      'modelId': _selectedModelId, 
+      'year': int.parse(_yearController.text),
+      'color': _colorController.text,
+      'currentKm': int.parse(_mileageController.text),
+      'monthlyAvgKm': double.tryParse(_avgConsController.text) ?? 0.0,
+      'lastMaintenanceDate': _selectedDate?.toIso8601String(),
+      'lastMaintenanceKm': double.tryParse(_lastMaintKmController.text) ?? 0.0,
+    };
+
+    final success = await provider.addNewCarv2(carData);
+
+    if (!mounted) return;
+    setState(() => _isSubmitting = false);
+
+    if (success) {
+      Navigator.pop(context);
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Car added successfully!'), backgroundColor: AppColors.success),
+      );
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Failed to add car'), backgroundColor: AppColors.error),
+      );
+    }
+  }
+}
+
+==================================================
+FILE END: .\screens\add_car_screen.dart
+==================================================
+
+==================================================
+FILE START: .\screens\cart_screen.dart
+==================================================
+
+import 'package:flutter/material.dart';
+import 'package:flutter/cupertino.dart';
+import 'package:provider/provider.dart';
+import '../core/constants/app_colors.dart';
+import '../providers/app_provider.dart';
+import '../data/models/product_model.dart';
+
+class CartScreen extends StatelessWidget {
+  const CartScreen({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: AppColors.background,
+      appBar: AppBar(
+        title: const Text("My Cart", style: TextStyle(fontWeight: FontWeight.bold)),
+        backgroundColor: Colors.white,
+        elevation: 0,
+        centerTitle: true,
+      ),
+      body: Consumer<AppProvider>(
+        builder: (context, provider, child) {
+          final cartItems = provider.cartItems;
+          
+          if (cartItems.isEmpty) {
+            return Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(CupertinoIcons.cart, size: 80, color: Colors.grey[300]),
+                  const SizedBox(height: 20),
+                  const Text("Your cart is empty", style: TextStyle(color: Colors.grey, fontSize: 18)),
+                ],
+              ),
+            );
+          }
+
+          return Column(
+            children: [
+              // 1. قائمة المنتجات
+              Expanded(
+                child: ListView.separated(
+                  padding: const EdgeInsets.all(16),
+                  itemCount: cartItems.length,
+                  separatorBuilder: (_, _) => const SizedBox(height: 10),
+                  itemBuilder: (context, index) {
+                    final item = cartItems[index];
+                    return Dismissible( // عشان نسحب العنصر نمسحه
+                      key: Key(item.id + index.toString()),
+                      direction: DismissDirection.endToStart,
+                      background: Container(
+                        alignment: Alignment.centerRight,
+                        padding: const EdgeInsets.only(right: 20),
+                        color: AppColors.error,
+                        child: const Icon(Icons.delete, color: Colors.white),
+                      ),
+                      onDismissed: (direction) {
+                        provider.removeFromCart(item);
+                      },
+                      child: Container(
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(12),
+                          boxShadow: [BoxShadow(color: Colors.black12, blurRadius: 4)],
+                        ),
+                        child: ListTile(
+                          leading: Container(
+                            width: 50, height: 50,
+                            decoration: BoxDecoration(color: Colors.grey[100], borderRadius: BorderRadius.circular(8)),
+                            child: Icon(item.category == 'Service' ? CupertinoIcons.wrench_fill : CupertinoIcons.cube_box, color: AppColors.primary),
+                          ),
+                          title: Text(item.name, style: const TextStyle(fontWeight: FontWeight.bold)),
+                          subtitle: Text(item.category),
+                          trailing: Text('${item.price.toInt()} EGP', style: const TextStyle(fontWeight: FontWeight.bold)),
+                        ),
+                      ),
+                    );
+                  },
+                ),
+              ),
+
+              // 2. الجزء السفلي (زرار المراكز + الدفع)
+              Container(
+                padding: const EdgeInsets.all(20),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: const BorderRadius.vertical(top: Radius.circular(30)),
+                  boxShadow: [BoxShadow(color: Colors.black.withAlpha(1), blurRadius: 10, offset: const Offset(0, -5))],
+                ),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    // --- زرار مراكز الخدمة (المطلوب) ---
+                    SizedBox(
+                      width: double.infinity,
+                      child: OutlinedButton.icon(
+                        style: OutlinedButton.styleFrom(
+                          padding: const EdgeInsets.symmetric(vertical: 15),
+                          side: const BorderSide(color: AppColors.primary, width: 2),
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                        ),
+                        icon: const Icon(CupertinoIcons.wrench, color: AppColors.primary),
+                        label: const Text("Book Installation at Service Center", style: TextStyle(color: AppColors.primary, fontWeight: FontWeight.bold)),
+                        onPressed: () => _showServiceCentersSheet(context),
+                      ),
+                    ),
+                    
+                    const SizedBox(height: 20),
+
+                    // تفاصيل السعر
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        const Text("Total Amount:", style: TextStyle(fontSize: 16, color: Colors.grey)),
+                        Text(
+                          '${provider.cartTotal.toInt()} EGP',
+                          style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: AppColors.textPrimary),
+                        ),
+                      ],
+                    ),
+
+                    const SizedBox(height: 20),
+
+                    // زرار الدفع (Checkout)
+                    SizedBox(
+                      width: double.infinity,
+                      child: ElevatedButton(
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: AppColors.primary,
+                          padding: const EdgeInsets.symmetric(vertical: 16),
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                        ),
+                        onPressed: () {
+                          // هنا هنربط ببوابة الدفع (Paymob/Stripe) مستقبلاً
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(content: Text("Proceeding to Payment..."), backgroundColor: AppColors.success),
+                          );
+                        },
+                        child: const Text("Checkout Now", style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold)),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          );
+        },
+      ),
+    );
+  }
+
+  // --- دالة عرض مراكز الخدمة (Sheet) ---
+  void _showServiceCentersSheet(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(20))),
+      builder: (context) {
+        final provider = Provider.of<AppProvider>(context, listen: false);
+        final centers = provider.serviceCenters;
+
+        return Padding(
+          padding: const EdgeInsets.all(20),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Text("Select Service Center", style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+              const SizedBox(height: 10),
+              const Text("Choose a center to install your parts. Labor cost will be added to cart.", style: TextStyle(color: Colors.grey)),
+              const SizedBox(height: 20),
+              
+              Expanded(
+                child: ListView.builder(
+                  itemCount: centers.length,
+                  itemBuilder: (context, index) {
+                    final center = centers[index];
+                    return Card(
+                      margin: const EdgeInsets.only(bottom: 10),
+                      elevation: 0,
+                      color: Colors.grey[50],
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                        side: BorderSide(color: Colors.grey.shade200),
+                      ),
+                      child: ListTile(
+                        leading: const CircleAvatar(backgroundColor: Colors.white, child: Icon(CupertinoIcons.location_solid, color: AppColors.primary)),
+                        title: Text(center['name'], style: const TextStyle(fontWeight: FontWeight.bold)),
+                        subtitle: Text(center['location']),
+                        trailing: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          crossAxisAlignment: CrossAxisAlignment.end,
+                          children: [
+                            Text('+${center['labor_cost']} EGP', style: const TextStyle(fontWeight: FontWeight.bold, color: AppColors.secondary)),
+                            const SizedBox(height: 4),
+                            const Icon(CupertinoIcons.add_circled_solid, color: AppColors.primary, size: 20),
+                          ],
+                        ),
+                        onTap: () {
+                          // إضافة تكلفة التركيب كمنتج في السلة
+                          provider.addToCart([
+                            ProductModel(
+                              id: 'SVC-${DateTime.now().millisecondsSinceEpoch}',
+                              name: 'Installation: ${center['name']}',
+                              price: center['labor_cost'],
+                              category: 'Service', // تصنيف خاص
+                            )
+                          ]);
+                          Navigator.pop(context); // قفل الشيت
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(content: Text("Installation at ${center['name']} added!"), backgroundColor: AppColors.success),
+                          );
+                        },
+                      ),
+                    );
+                  },
+                ),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+}
+
+==================================================
+FILE END: .\screens\cart_screen.dart
+==================================================
+
+==================================================
+FILE START: .\screens\car_details_screen.dart
+==================================================
+
+import 'package:flutter/material.dart';
+import 'package:flutter/cupertino.dart';
+import 'package:provider/provider.dart';
+import '../core/constants/app_colors.dart';
+import '../providers/app_provider.dart';
+import '../widgets/textured_background.dart';
+import 'tabs/emergency_tab.dart';
+import 'tabs/history_tab.dart';
+import 'tabs/maintenance_tab.dart';
+
+class CarDetailsScreen extends StatefulWidget {
+  const CarDetailsScreen({super.key});
+
+  @override
+  State<CarDetailsScreen> createState() => _CarDetailsScreenState();
+}
+
+class _CarDetailsScreenState extends State<CarDetailsScreen> with SingleTickerProviderStateMixin {
+  late TabController _tabController;
+
+  @override
+  void initState() {
+    super.initState();
+    // تم استخدام 3 تابات كما في الكود الأصلي ولكن بتصميم الكود الجديد
+    _tabController = TabController(length: 3, vsync: this, initialIndex: 1);
+  }
+
+  @override
+  void dispose() {
+    _tabController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Consumer<AppProvider>(
+      builder: (context, provider, child) {
+        final selectedCar = provider.selectedCar;
+
+        // حالة عدم اختيار سيارة
+        if (selectedCar == null) {
+          return const Scaffold(
+            backgroundColor: AppColors.background,
+            body: Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(CupertinoIcons.car_detailed, size: 80, color: Colors.grey),
+                  SizedBox(height: 20),
+                  Text("Please select a car from Home first", style: TextStyle(color: Colors.grey)),
+                ],
+              ),
+            ),
+          );
+        }
+
+        return Scaffold(
+          extendBodyBehindAppBar: true,
+          appBar: AppBar(
+            backgroundColor: Colors.transparent,
+            elevation: 0,
+            leading: const BackButton(color: AppColors.textMain),
+            actions: [
+              IconButton(
+                onPressed: () {},
+                icon: const Icon(Icons.settings_outlined, color: AppColors.textMain),
+              )
+            ],
+          ),
+          body: TexturedBackground(
+            child: Column(
+              children: [
+                const SizedBox(height: 60), // مساحة للأب بار
+
+                // 1. لوجو البراند (HERO) - ستايل الكود الجديد
+                Hero(
+                  tag: 'brand_logo_${selectedCar.id}',
+                  child: Container(
+                    height: 90,
+                    width: 90,
+                    padding: const EdgeInsets.all(12),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      shape: BoxShape.circle,
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withOpacity(0.05),
+                          blurRadius: 10,
+                          offset: const Offset(0, 5),
+                        )
+                      ],
+                      border: Border.all(color: AppColors.primary.withOpacity(0.3), width: 2),
+                    ),
+                    child: Image.asset(
+                      'assets/images/brands/${selectedCar.make.toLowerCase()}_logo.png',
+                      fit: BoxFit.contain,
+                      errorBuilder: (c, e, s) => Center(
+                        child: Text(
+                          selectedCar.make[0],
+                          style: const TextStyle(fontSize: 35, fontWeight: FontWeight.bold, color: AppColors.textMain),
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+
+                const SizedBox(height: 12),
+                Text(
+                  '${selectedCar.make} ${selectedCar.model}',
+                  style: const TextStyle(fontSize: 22, fontWeight: FontWeight.w900, letterSpacing: 0.5),
+                ),
+                Text(
+                  selectedCar.licensePlate ?? 'No Plate',
+                  style: const TextStyle(fontSize: 14, color: AppColors.textSub, fontWeight: FontWeight.bold),
+                ),
+
+                const SizedBox(height: 20),
+
+                // 2. شريط الحالة (Stats Strip) - الأسود الصناعي
+                Container(
+                  margin: const EdgeInsets.symmetric(horizontal: 20),
+                  padding: const EdgeInsets.symmetric(vertical: 15),
+                  decoration: BoxDecoration(
+                    color: AppColors.textMain, // الأسود الأسفلتي
+                    borderRadius: BorderRadius.circular(20),
+                    boxShadow: [
+                      BoxShadow(
+                        color: AppColors.primary.withOpacity(0.2),
+                        blurRadius: 15,
+                        offset: const Offset(0, 8),
+                      )
+                    ],
+                  ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceAround,
+                    children: [
+                      _buildStatItem('Current KM', '${selectedCar.currentKm.toInt()} k', CupertinoIcons.speedometer),
+                      Container(width: 1, height: 30, color: Colors.white24),
+                      _buildStatItem('Next Service', 'Oct 24', CupertinoIcons.calendar),
+                      Container(width: 1, height: 30, color: Colors.white24),
+                      _buildStatItem('Status', 'Healthy', CupertinoIcons.checkmark_shield_fill),
+                    ],
+                  ),
+                ),
+
+                const SizedBox(height: 15),
+
+                // 3. التابات (TabBar) - الستايل المطور
+                TabBar(
+                  controller: _tabController,
+                  labelColor: AppColors.textMain,
+                  unselectedLabelColor: Colors.grey,
+                  indicatorColor: AppColors.primary,
+                  indicatorWeight: 4,
+                  indicatorSize: TabBarIndicatorSize.label,
+                  labelStyle: const TextStyle(fontWeight: FontWeight.w900, fontSize: 14, letterSpacing: 0.5),
+                  tabs: const [
+                    Tab(text: 'HISTORY'),
+                    Tab(text: 'MAINTENANCE'),
+                    Tab(text: 'EMERGENCY'),
+                  ],
+                ),
+
+                // 4. محتوى التابات (TabBarView)
+                Expanded(
+                  child: TabBarView(
+                    controller: _tabController,
+                    children: const [
+                      HistoryTab(),
+                      MaintenanceTab(),
+                      EmergencyTab(),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  // ودجت بناء عناصر شريط الحالة
+  Widget _buildStatItem(String label, String value, IconData icon) {
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Icon(icon, color: AppColors.primary, size: 18),
+        const SizedBox(height: 4),
+        Text(
+          value,
+          style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 15),
+        ),
+        Text(
+          label,
+          style: const TextStyle(color: Colors.grey, fontSize: 10, fontWeight: FontWeight.bold),
+        ),
+      ],
+    );
+  }
+}
+
+==================================================
+FILE END: .\screens\car_details_screen.dart
+==================================================
+
+==================================================
+FILE START: .\screens\home_screen.dart
+==================================================
+
+import 'package:elgarage/core/ui/home_header.dart';
+import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import '../../core/constants/app_colors.dart';
+import '../../providers/app_provider.dart';
+import '../../providers/auth_provider.dart';
+import '../../widgets/textured_background.dart';
+import 'add_car_screen.dart';
+
+class HomeScreen extends StatefulWidget {
+  final VoidCallback? onCarSelected;
+  const HomeScreen({super.key, this.onCarSelected});
+
+  @override
+  State<HomeScreen> createState() => _HomeScreenState();
+}
+
+class _HomeScreenState extends State<HomeScreen> {
+  
+  @override
+  void initState() {
+    super.initState();
+    // جلب البيانات عند فتح الشاشة
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      Provider.of<AppProvider>(context, listen: false).fetchMyCars();
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final auth = Provider.of<AuthProvider>(context);
+    final app = Provider.of<AppProvider>(context);
+
+    return TexturedBackground(
+      child: SafeArea(
+        child: Column(
+          children: [
+            // استدعاء الهيدر الموحد
+            HomeHeader(
+              title: 'Welcome back,',
+              userName: auth.user?.name ?? 'Operator',
+              statsText: '${app.myCars.length} Cars in Garage',
+              actionLabel: 'ADD NEW CAR',
+              onActionPressed: () => Navigator.push(
+                context, 
+                MaterialPageRoute(builder: (_) => const AddCarScreen())
+              ),
+            ),
+
+            Expanded(
+              child: Consumer<AppProvider>(
+                builder: (context, provider, child) {
+                  if (provider.isLoadingCars) {
+                    return const Center(child: CircularProgressIndicator());
+                  }
+                  
+                  // ✅ حل مشكلة الـ EmptyState: استدعاء الدالة هنا لو القائمة فارغة
+                  if (provider.myCars.isEmpty) {
+                    return _buildEmptyState();
+                  }
+
+                  return ListView.builder(
+                    padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                    itemCount: provider.myCars.length,
+                    itemBuilder: (context, index) => _buildIndustrialCarCard(
+                      context, 
+                      provider.myCars[index], 
+                      provider
+                    ),
+                  );
+                },
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  // ✅ نقل هذه الدوال داخل الكلاس لحل مشكلة 'widget' undefined
+  Widget _buildIndustrialCarCard(BuildContext context, dynamic car, AppProvider provider) {
+    return GestureDetector(
+      onTap: () async {
+        provider.setSelectedCar(car);
+        await provider.fetchDueMaintenance(carId: car.id);
+        // الآن 'widget' معروفة لأننا داخل الكلاس
+        if (widget.onCarSelected != null) widget.onCarSelected!();
+      },
+      child: Container(
+        height: 170,
+        margin: const EdgeInsets.only(bottom: 20),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(20),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.05), 
+              blurRadius: 15, 
+              offset: const Offset(0, 8)
+            )
+          ],
+        ),
+        child: Stack(
+          children: [
+            Positioned(
+              right: 15, 
+              bottom: -5, 
+              child: Text(
+                car.make.toString().toUpperCase(), 
+                style: TextStyle(
+                  fontSize: 55, 
+                  fontWeight: FontWeight.w900, 
+                  color: Colors.black.withOpacity(0.04)
+                ),
+              ),
+            ),
+            
+            Padding(
+              padding: const EdgeInsets.all(20),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text('${car.make} ${car.model}', 
+                    style: const TextStyle(fontSize: 19, fontWeight: FontWeight.bold)),
+                  const SizedBox(height: 4),
+                  Text(car.plateNumber ?? 'No Plate', 
+                    style: const TextStyle(color: AppColors.textSub, fontWeight: FontWeight.w600)),
+                  const Spacer(),
+                  Row(
+                    children: [
+                      const Icon(Icons.check_circle, color: AppColors.success, size: 16),
+                      const SizedBox(width: 6),
+                      Text(
+                        'System Ready • ${car.year}', 
+                        style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Colors.grey),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+
+            Positioned(
+              right: -15, 
+              bottom: 10, 
+              child: car.imageUrl != null && car.imageUrl!.isNotEmpty
+                  ? Image.network(
+                      car.imageUrl!, 
+                      height: 110, 
+                      errorBuilder: (c, e, s) => _buildDefaultCarIcon()
+                    )
+                  : _buildDefaultCarIcon(),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildDefaultCarIcon() {
+    return const Padding(
+      padding: EdgeInsets.only(right: 30, bottom: 20),
+      child: Icon(Icons.directions_car_filled, size: 90, color: Colors.black12),
+    );
+  }
+
+  Widget _buildEmptyState() {
+    return const Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(CupertinoIcons.car_detailed, size: 70, color: Colors.black12),
+          SizedBox(height: 15),
+          Text("Garage is empty", 
+            style: TextStyle(color: Colors.grey, fontWeight: FontWeight.bold)),
+        ],
+      ),
+    );
+  }
+}
+
+// الكليبر يظل بالخارج لأنه كلاس مستقل
+class HeroClipper extends CustomClipper<Path> {
+  @override
+  Path getClip(Size size) {
+    Path path = Path();
+    path.lineTo(0, size.height - 60);
+    path.quadraticBezierTo(size.width / 2, size.height, size.width, size.height - 60);
+    path.lineTo(size.width, 0);
+    path.close();
+    return path;
+  }
+  @override
+  bool shouldReclip(CustomClipper<Path> oldClipper) => false;
+}
+
+==================================================
+FILE END: .\screens\home_screen.dart
+==================================================
+
+==================================================
+FILE START: .\screens\login_screen.dart
+==================================================
+
+import 'package:elgarage/providers/app_provider.dart';
+import 'package:elgarage/screens/driver/driver_screen.dart';
+import 'package:elgarage/screens/fleet/fleet_dashboard.dart';
+import 'package:elgarage/screens/register_screen.dart';
+import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import '../core/constants/app_colors.dart';
+import '../providers/auth_provider.dart';
+import '../widgets/textured_background.dart'; // الملف الذي يحتوي على الرسام البوهيمي
+import 'main_layout.dart';
+
+class LoginScreen extends StatefulWidget {
+  const LoginScreen({super.key});
+  @override
+  State<LoginScreen> createState() => _LoginScreenState();
+}
+
+class _LoginScreenState extends State<LoginScreen> {
+  bool isFleetMode = false; // التبديل بين عادي وأسطول
+  final _emailController = TextEditingController();
+  final _passwordController = TextEditingController();
+  final _formKey = GlobalKey<FormState>();
+
+// --- داخل ملف lib/screens/login_screen.dart ---
+
+Future<void> _handleLogin() async {
+    if (!_formKey.currentState!.validate()) return;
+
+    final auth = Provider.of<AuthProvider>(context, listen: false);
+    final app = Provider.of<AppProvider>(context, listen: false);
+    
+    // 1. تنفيذ محاولة تسجيل الدخول
+    bool success = await auth.login(
+      _emailController.text.trim(), 
+      _passwordController.text
+    );
+
+    if (success && mounted) {
+      // 2. جلب بيانات السيارات فوراً لمعرفة حالة المستخدم
+      await app.fetchMyCars();
+
+      final role = auth.user?.role;
+      print("🚀 LOGIN_SYSTEM: Access Granted for Role: $role");
+
+      // 3. التوجيه الديناميكي بناءً على الصلاحيات القادمة من الباك إند
+      if (role == "FLEET_MANAGER") {
+        Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => const FleetDashboard()));
+      } else if (role == "DRIVER") {
+        // إذا كان سواق، نحدد سيارته تلقائياً ليراها في شاشته
+        if (app.myCars.isNotEmpty) {
+          app.setSelectedCar(app.myCars.first);
+        }
+        Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => const DriverScreen()));
+      } else {
+        // المستخدم العادي يذهب للجراج والماركت
+        Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => const MainLayout()));
+      }
+    }
+  }
+  @override
+  Widget build(BuildContext context) {
+    final authStatus = Provider.of<AuthProvider>(context);
+    return TexturedBackground( // تطبيق الخلفية البوهيمية المستخرجة
+      child: Scaffold(
+        backgroundColor: Colors.transparent, // لجعل الخلفية تظهر
+        body: Center(
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.all(30),
+            child: Consumer<AuthProvider>(
+              builder: (context, provider, child) {
+                return Form(
+                  key: _formKey,
+                  child: Column(
+                    children: [
+        // اليمين: اللوجو + الكارت
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.end,
+                            children: [
+                              Image.asset('assets/images/logo.png', height: 180,
+                                errorBuilder: (c,e,s) => const Icon(Icons.garage, color: Colors.white, size: 50)),
+                              const SizedBox(height: 10),
+                              // أيقونة الكارت (Opposite to Points)
+                              const Icon(Icons.shopping_bag_outlined, color: Colors.white, size: 24),
+                            ],
+                          ),
+                                                const Text('CAR SERVICE', style: TextStyle(letterSpacing: 2, color: AppColors.textSub)),
+const SizedBox(height: 50),
+
+                  // --- مفتاح التبديل (Role Toggle) لراحة المستخدم ---
+                  _buildRoleToggle(),
+
+                  const SizedBox(height: 30),
+
+                  // --- حقول الإدخال ---
+                  _buildIndustrialInput(
+                    controller: _emailController, 
+                    label: "TERMINAL_ID / EMAIL", 
+                    icon: Icons.lan_outlined
+                  ),
+                  const SizedBox(height: 15),
+                  _buildIndustrialInput(
+                    controller: _passwordController, 
+                    label: "ACCESS_KEY", 
+                    icon: Icons.vpn_key_outlined, 
+                    isObscure: true
+                  ),
+                      const SizedBox(height: 30),
+                      
+                      SizedBox(
+                        width: double.infinity,
+                        height: 60,
+                        child: ElevatedButton(
+onPressed: authStatus.isLoading ? null : _handleLogin,
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: AppColors.textMain,
+                            shape: const RoundedRectangleBorder(borderRadius: BorderRadius.zero), // زوايا حادة
+                          ),
+                         child: Text('LOGIN', 
+                            style: TextStyle(color: isFleetMode ? Colors.black : AppColors.primary, fontWeight: FontWeight.bold)),
+                        ),
+                      ),
+                       const SizedBox(height: 24),
+
+                      // --- Register Link ---
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Text(
+                            'Don\'t have an account? ',
+                            style: TextStyle(color: Colors.grey[600]),
+                          ),
+                          TextButton(
+                            onPressed: () {
+                               Navigator.of(context).push(
+                                 MaterialPageRoute(builder: (context) => const RegisterScreen()),
+                               );
+                            },
+                            child: Text(
+                              'Register',
+                              style: TextStyle(
+                                color: AppColors.primary,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                );
+                
+              },
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+// ويدجت التبديل بين الأنواع
+  Widget _buildRoleToggle() {
+    return Container(
+      decoration: BoxDecoration(
+        border: Border.all(color: AppColors.secondary, width: 2),
+      ),
+      child: Row(
+        children: [
+          _toggleBtn("INDIVIDUAL", !isFleetMode, () => setState(() => isFleetMode = false)),
+          _toggleBtn("FLEET OWNER", isFleetMode, () => setState(() => isFleetMode = true)),
+        ],
+      ),
+    );
+  }
+
+  Widget _toggleBtn(String label, bool active, VoidCallback onTap) {
+    return Expanded(
+      child: GestureDetector(
+        onTap: onTap,
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 200),
+          padding: const EdgeInsets.symmetric(vertical: 15),
+          color: active ? AppColors.secondary : Colors.white,
+          child: Center(
+            child: Text(label, 
+              style: TextStyle(
+                color: active ? AppColors.primary : AppColors.secondary, 
+                fontWeight: FontWeight.w900, 
+                fontSize: 11
+              )
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  // تصميم حقل الإدخال الصناعي
+  Widget _buildIndustrialInput({
+    required TextEditingController controller, 
+    required String label, 
+    required IconData icon, 
+    bool isObscure = false
+  }) {
+    return TextFormField(
+      controller: controller,
+      obscureText: isObscure,
+      style: const TextStyle(fontWeight: FontWeight.bold),
+      decoration: InputDecoration(
+        labelText: label,
+        labelStyle: const TextStyle(color: AppColors.textSub, fontSize: 12),
+        prefixIcon: Icon(icon, color: AppColors.secondary),
+        filled: true,
+        fillColor: Colors.white,
+        enabledBorder: const OutlineInputBorder(
+          borderSide: BorderSide(color: AppColors.secondary, width: 2),
+          borderRadius: BorderRadius.zero,
+        ),
+        focusedBorder: const OutlineInputBorder(
+          borderSide: BorderSide(color: AppColors.primary, width: 2),
+          borderRadius: BorderRadius.zero,
+        ),
+      ),
+    );
+  }
+}
+
+==================================================
+FILE END: .\screens\login_screen.dart
+==================================================
+
+==================================================
+FILE START: .\screens\main_layout.dart
+==================================================
+
+import 'package:elgarage/core/ui/app_footer.dart';
+import 'package:elgarage/screens/cart_screen.dart';
+import 'package:elgarage/screens/marketplace_screen.dart';
+import 'package:elgarage/screens/more_screen.dart'; 
+import 'package:flutter/material.dart';
+import '../core/constants/app_colors.dart';
+import 'home_screen.dart';
+import 'car_details_screen.dart';
+
+class MainLayout extends StatefulWidget {
+  const MainLayout({super.key});
+
+  @override
+  State<MainLayout> createState() => _MainLayoutState();
+}
+
+class _MainLayoutState extends State<MainLayout> {
+  // رقم الصفحة الحالية
+  int _currentIndex = 0;
+
+  // دالة تغيير التاب
+  void _switchToTab(int index) {
+    setState(() {
+      _currentIndex = index;
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    // تعريف الصفحات وربطها بالـ Index
+    final List<Widget> _screens = [
+      // 0: الجراج (Home)
+      HomeScreen(onCarSelected: () => _switchToTab),
+      
+      // 1: تفاصيل السيارة المختارة
+      const CarDetailsScreen(), 
+      
+      // 2: الماركت (يتم استدعاؤه عبر الزر المركزي)
+      const MarketplaceScreen(),
+      
+      // 3: السلة (Basket)
+      const CartScreen(),
+      
+      // 4: الإعدادات (Terminal)
+      const MoreScreen(),
+    ];
+
+    return Scaffold(
+      // مهم جداً لجعل خلفية الصفحات تظهر خلف تقويسة الفوتر والزر
+      extendBody: true, 
+      
+      body: IndexedStack(
+        index: _currentIndex,
+        children: _screens,
+      ),
+      
+      // زر الماركت بليس في المنتصف (FAB) - ستايل ثابت
+      floatingActionButton: FloatingActionButton(
+        onPressed: () => _switchToTab(2),
+        backgroundColor: AppColors.primary,
+        elevation: 10,
+        shape: const CircleBorder(), 
+        child: const Icon(Icons.storefront, color: Colors.black, size: 28),
+      ),
+      floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
+
+      // ✅ استدعاء الفوتر الموحد الذي يحتوي على الـ BottomAppBar والـ Notch
+      bottomNavigationBar: AppFooter(
+        currentIndex: _currentIndex,
+        onTap: _switchToTab,
+      ),
+    );
+  }
+}
+
+==================================================
+FILE END: .\screens\main_layout.dart
+==================================================
+
+==================================================
+FILE START: .\screens\marketplace_screen.dart
+==================================================
+
+import 'package:flutter/material.dart';
+import 'package:flutter/cupertino.dart';
+import 'package:provider/provider.dart';
+import '../core/constants/app_colors.dart';
+import '../providers/app_provider.dart';
+
+class MarketplaceScreen extends StatelessWidget {
+  const MarketplaceScreen({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: AppColors.background,
+      body: SafeArea(
+        child: Column(
+          children: [
+            // --- 1. الهيرو والبحث (Header) ---
+            Container(
+              padding: const EdgeInsets.all(20),
+              decoration: const BoxDecoration(
+                color: AppColors.cardColor,
+                borderRadius: BorderRadius.vertical(bottom: Radius.circular(30)),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // العنوان وسلة المشتريات
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      const Text(
+                        'Marketplace',
+                        style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: AppColors.textPrimary),
+                      ),
+                      // زرار الكارت الصغير فوق
+                      Stack(
+                        children: [
+                          const Icon(CupertinoIcons.cart, size: 28, color: AppColors.textPrimary),
+                          Positioned(
+                            right: 0,
+                            top: 0,
+                            child: Container(
+                              padding: const EdgeInsets.all(4),
+                              decoration: const BoxDecoration(color: AppColors.error, shape: BoxShape.circle),
+                              child: const SizedBox(width: 4, height: 4), // نقطة حمراء لو فيه حاجات في السلة
+                            ),
+                          )
+                        ],
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 15),
+
+                  // شريط البحث
+                  TextField(
+                    decoration: InputDecoration(
+                      hintText: "Search parts, centers...",
+                      prefixIcon: const Icon(CupertinoIcons.search, color: Colors.grey),
+                      filled: true,
+                      fillColor: AppColors.background,
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(15),
+                        borderSide: BorderSide.none,
+                      ),
+                      contentPadding: const EdgeInsets.symmetric(horizontal: 20),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+
+            const SizedBox(height: 15),
+
+            // --- 2. التصنيفات (Categories) - سكرول بالعرض ---
+            SizedBox(
+              height: 100,
+              child: Consumer<AppProvider>(
+                builder: (context, provider, _) {
+                  return ListView.builder(
+                    scrollDirection: Axis.horizontal,
+                    padding: const EdgeInsets.symmetric(horizontal: 10),
+                    itemCount: provider.categories.length,
+                    itemBuilder: (context, index) {
+                      final cat = provider.categories[index];
+                      return Container(
+                        margin: const EdgeInsets.symmetric(horizontal: 8),
+                        child: Column(
+                          children: [
+                            Container(
+                              padding: const EdgeInsets.all(15),
+                              decoration: BoxDecoration(
+                                color: Colors.white,
+                                shape: BoxShape.circle,
+                                boxShadow: [
+                                  BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 5, offset: const Offset(0, 2))
+                                ],
+                              ),
+                              child: Icon(cat['icon'], color: AppColors.primary),
+                            ),
+                            const SizedBox(height: 8),
+                            Text(
+                              cat['name'],
+                              style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600),
+                            ),
+                          ],
+                        ),
+                      );
+                    },
+                  );
+                },
+              ),
+            ),
+
+            // --- 3. شبكة المنتجات (Products Grid) ---
+            Expanded(
+              child: Consumer<AppProvider>(
+                builder: (context, provider, _) {
+                  final products = provider.marketProducts;
+                  return GridView.builder(
+                    padding: const EdgeInsets.all(16),
+                    gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                      crossAxisCount: 2, // عمودين
+                      childAspectRatio: 0.75, // نسبة الطول للعرض (عشان الكارت يبقى طويل شوية)
+                      crossAxisSpacing: 15,
+                      mainAxisSpacing: 15,
+                    ),
+                    itemCount: products.length,
+                    itemBuilder: (context, index) {
+                      final product = products[index];
+                      return Container(
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(16),
+                          boxShadow: [
+                            BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 5)
+                          ],
+                        ),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            // صورة المنتج
+                            Expanded(
+                              child: Container(
+                                decoration: BoxDecoration(
+                                  color: Colors.grey[100],
+                                  borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
+                                ),
+                                child: Center(
+                                  child: Icon(CupertinoIcons.cube_box, size: 50, color: Colors.grey[400]),
+                                  // لما تربط صور حقيقية استخدم Image.network هنا
+                                ),
+                              ),
+                            ),
+                            
+                            // التفاصيل
+                            Padding(
+                              padding: const EdgeInsets.all(12.0),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    product.category,
+                                    style: TextStyle(fontSize: 10, color: AppColors.primary.withOpacity(0.8), fontWeight: FontWeight.bold),
+                                  ),
+                                  const SizedBox(height: 4),
+                                  Text(
+                                    product.name,
+                                    maxLines: 2,
+                                    overflow: TextOverflow.ellipsis,
+                                    style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
+                                  ),
+                                  const SizedBox(height: 8),
+                                  Row(
+                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      Text(
+                                        '${product.price.toInt()} EGP',
+                                        style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14, color: AppColors.primary),
+                                      ),
+                                      // زرار الإضافة السريع
+                                      InkWell(
+                                        onTap: () {
+                                          provider.addToCart([product]);
+                                          ScaffoldMessenger.of(context).showSnackBar(
+                                            const SnackBar(content: Text("Added to Cart"), duration: Duration(milliseconds: 500)),
+                                          );
+                                        },
+                                        child: Container(
+                                          padding: const EdgeInsets.all(6),
+                                          decoration: BoxDecoration(color: AppColors.primary, borderRadius: BorderRadius.circular(8)),
+                                          child: const Icon(CupertinoIcons.add, color: Colors.white, size: 16),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
+                      );
+                    },
+                  );
+                },
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+==================================================
+FILE END: .\screens\marketplace_screen.dart
+==================================================
+
+==================================================
+FILE START: .\screens\more_screen.dart
+==================================================
+
+import 'package:flutter/material.dart';
+import '../../widgets/textured_background.dart';
+import '../../core/constants/app_colors.dart';
+
+class MoreScreen extends StatelessWidget {
+  const MoreScreen({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return TexturedBackground(
+      child: SafeArea(
+        child: Column(
+          children: [
+            const Padding(
+              padding: EdgeInsets.all(25.0),
+              child: Text('SETTINGS TERMINAL', 
+                style: TextStyle(fontSize: 22, fontWeight: FontWeight.w900, letterSpacing: 2)),
+            ),
+            Expanded(
+              child: ListView(
+                padding: const EdgeInsets.symmetric(horizontal: 20),
+                children: [
+                  _buildItem(Icons.person_outline, 'Profile Settings', 'Personal data & preferences'),
+                  _buildItem(Icons.language, 'App Language', 'English / العربية'),
+                  _buildItem(Icons.notifications_none, 'Notifications', 'Manage alerts'),
+                  _buildItem(Icons.security, 'Privacy Policy', 'Data security details'),
+                  _buildItem(Icons.info_outline, 'About ElGarage', 'Version 2.0.4'),
+                  const SizedBox(height: 30),
+                  ElevatedButton(
+                    onPressed: () {},
+                    style: ElevatedButton.styleFrom(backgroundColor: Colors.red.shade50, foregroundColor: Colors.red, elevation: 0),
+                    child: const Text('LOGOUT', style: TextStyle(fontWeight: FontWeight.bold)),
+                  ),
+                  const SizedBox(height: 100),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildItem(IconData icon, String title, String sub) {
+    return Container(
+      margin: const EdgeInsets.only(bottom: 12),
+      decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(12), boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.02), blurRadius: 5)]),
+      child: ListTile(
+        leading: Icon(icon, color: AppColors.primary),
+        title: Text(title, style: const TextStyle(fontWeight: FontWeight.bold)),
+        subtitle: Text(sub, style: const TextStyle(fontSize: 12, color: Colors.grey)),
+        trailing: const Icon(Icons.arrow_forward_ios, size: 14),
+      ),
+    );
+  }
+}
+
+==================================================
+FILE END: .\screens\more_screen.dart
+==================================================
+
+==================================================
+FILE START: .\screens\register_screen.dart
+==================================================
+
+import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import '../core/constants/app_colors.dart';
+import '../providers/auth_provider.dart';
+import 'main_layout.dart';
+
+class RegisterScreen extends StatefulWidget {
+  const RegisterScreen({super.key});
+
+  @override
+  State<RegisterScreen> createState() => _RegisterScreenState();
+}
+
+class _RegisterScreenState extends State<RegisterScreen> {
+  // الكنترولرز عشان نمسك الداتا من الحقول
+  final _nameController = TextEditingController();
+  final _emailController = TextEditingController();
+  final _phoneController = TextEditingController();
+  final _passwordController = TextEditingController();
+  final _confirmPasswordController = TextEditingController();
+  
+  final _formKey = GlobalKey<FormState>();
+
+  // دالة التسجيل
+  Future<void> _submit() async {
+    if (!_formKey.currentState!.validate()) return;
+
+    FocusScope.of(context).unfocus();
+
+    final authProvider = Provider.of<AuthProvider>(context, listen: false);
+
+    // استدعاء دالة التسجيل من البروفايدر
+    final success = await authProvider.register(
+      _nameController.text.trim(),
+      _emailController.text.trim(),
+      _phoneController.text.trim(),
+      _passwordController.text,
+    );
+
+    if (!mounted) return;
+
+    if (success) {
+      // لو نجح، يدخل على التطبيق علطول
+      Navigator.of(context).pushAndRemoveUntil(
+        MaterialPageRoute(builder: (context) => const MainLayout()),
+        (route) => false, // يمسح كل الصفحات اللي قبله عشان ميرجعش للتسجيل
+      );
+    } else {
+      // لو فشل، يظهر رسالة الخطأ
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(authProvider.errorMessage ?? 'Registration failed'),
+          backgroundColor: Colors.red,
+        ),
+      );
+    }
+  }
+
+  @override
+  void dispose() {
+    _nameController.dispose();
+    _emailController.dispose();
+    _phoneController.dispose();
+    _passwordController.dispose();
+    _confirmPasswordController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back, color: Colors.black),
+          onPressed: () => Navigator.of(context).pop(),
+        ),
+      ),
+      body: SafeArea(
+        child: Center(
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.all(24.0),
+            child: Form(
+              key: _formKey,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  Text(
+                    'Create Account',
+                    textAlign: TextAlign.center,
+                    style: Theme.of(context).textTheme.headlineMedium?.copyWith(
+                          fontWeight: FontWeight.bold,
+                          color: Colors.black87,
+                        ),
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    'Join us to take care of your car',
+                    textAlign: TextAlign.center,
+                    style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                          color: Colors.grey[600],
+                        ),
+                  ),
+                  const SizedBox(height: 32),
+
+                  // --- Name Field ---
+                  TextFormField(
+                    controller: _nameController,
+                    decoration: InputDecoration(
+                      labelText: 'Full Name',
+                      prefixIcon: const Icon(Icons.person_outline),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                    ),
+                    validator: (value) {
+                      if (value == null || value.isEmpty) return 'Please enter your name';
+                      return null;
+                    },
+                  ),
+                  const SizedBox(height: 16),
+
+                  // --- Email Field ---
+                  TextFormField(
+                    controller: _emailController,
+                    keyboardType: TextInputType.emailAddress,
+                    decoration: InputDecoration(
+                      labelText: 'Email',
+                      prefixIcon: const Icon(Icons.email_outlined),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                    ),
+                    validator: (value) {
+                      if (value == null || value.isEmpty) return 'Please enter email';
+                      if (!value.contains('@')) return 'Invalid email';
+                      return null;
+                    },
+                  ),
+                  const SizedBox(height: 16),
+
+                  // --- Phone Field ---
+                  TextFormField(
+                    controller: _phoneController,
+                    keyboardType: TextInputType.phone,
+                    decoration: InputDecoration(
+                      labelText: 'Phone Number',
+                      prefixIcon: const Icon(Icons.phone_android),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                    ),
+                    validator: (value) {
+                      if (value == null || value.isEmpty) return 'Please enter phone';
+                      return null;
+                    },
+                  ),
+                  const SizedBox(height: 16),
+
+                  // --- Password Field ---
+                  TextFormField(
+                    controller: _passwordController,
+                    obscureText: true,
+                    decoration: InputDecoration(
+                      labelText: 'Password',
+                      prefixIcon: const Icon(Icons.lock_outline),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                    ),
+                    validator: (value) {
+                      if (value == null || value.length < 6) return 'Min 6 characters';
+                      return null;
+                    },
+                  ),
+                  const SizedBox(height: 16),
+
+                  // --- Confirm Password Field ---
+                  TextFormField(
+                    controller: _confirmPasswordController,
+                    obscureText: true,
+                    decoration: InputDecoration(
+                      labelText: 'Confirm Password',
+                      prefixIcon: const Icon(Icons.lock_clock),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                    ),
+                    validator: (value) {
+                      if (value != _passwordController.text) return 'Passwords do not match';
+                      return null;
+                    },
+                  ),
+                  const SizedBox(height: 32),
+
+                  // --- Register Button ---
+                  Consumer<AuthProvider>(
+                    builder: (context, provider, child) {
+                      return ElevatedButton(
+                        onPressed: provider.isLoading ? null : _submit,
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: AppColors.primary,
+                          padding: const EdgeInsets.symmetric(vertical: 16),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                        ),
+                        child: provider.isLoading
+                            ? const SizedBox(
+                                height: 20,
+                                width: 20,
+                                child: CircularProgressIndicator(color: Colors.white),
+                              )
+                            : const Text(
+                                'Sign Up',
+                                style: TextStyle(
+                                  fontSize: 16, 
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.white,
+                                ),
+                              ),
+                      );
+                    },
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+==================================================
+FILE END: .\screens\register_screen.dart
+==================================================
+
+==================================================
+FILE START: .\screens\driver\driver_screen.dart
+==================================================
+
+import 'package:elgarage/core/ui/home_header.dart';
+import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import '../../core/constants/app_colors.dart';
+import '../../providers/app_provider.dart';
+import '../../providers/auth_provider.dart';
+import '../../widgets/textured_background.dart';
+import '../../widgets/car_header.dart';
+
+class DriverScreen extends StatefulWidget {
+  const DriverScreen({super.key});
+  @override
+  State<DriverScreen> createState() => _DriverScreenState();
+}
+
+class _DriverScreenState extends State<DriverScreen> {
+  final TextEditingController _odoController = TextEditingController();
+
+  @override
+  Widget build(BuildContext context) {
+    final provider = Provider.of<AppProvider>(context);
+    final auth = Provider.of<AuthProvider>(context);
+    
+    // للسائق نأخذ أول سيارة في القائمة (لأن الباك إند يرجع له سيارته المخصصة فقط)
+    final myCar = provider.myCars.isNotEmpty ? provider.myCars.first : null;
+
+    if (myCar == null) {
+      return const Scaffold(body: Center(child: Text("NO ASSIGNED UNIT FOUND")));
+    }
+
+    // منطق التنبيه: صيانة كل 10 آلاف، التنبيه يبدأ من الـ 9000
+    bool isMaintenanceNear = (myCar.currentKm % 10000) >= 9000;
+
+    return TexturedBackground(
+      child: Scaffold(
+        backgroundColor: Colors.transparent,
+        appBar: AppBar(
+          backgroundColor: AppColors.secondary,
+          elevation: 0,
+          title: Text("TERMINAL ID: ${auth.user?.name.toUpperCase()}", 
+            style: const TextStyle(color: AppColors.primary, fontSize: 14, fontWeight: FontWeight.w900)),
+          actions: [
+            IconButton(icon: const Icon(Icons.power_settings_new, color: AppColors.error), onPressed: () => auth.logout())
+          ],
+        ),
+        body: Column(
+          children: [
+            // الهيرو الخاص بالسائق
+            _buildDriverHero(myCar.plateNumber ?? "UNIT_UNIDENTIFIED"),
+
+            Expanded(
+              child: SingleChildScrollView(
+                padding: const EdgeInsets.all(20),
+                child: Column(
+                  children: [
+                    // عرض بيانات السيارة (الـ Header الأصلي)
+                    CarHeader(car: myCar),
+                    
+                    const SizedBox(height: 40),
+
+                    // خانة تحديث العداد الصناعية
+                    const Text("LOG CURRENT KILOMETERS", 
+                      style: TextStyle(fontWeight: FontWeight.w900, letterSpacing: 2, fontSize: 12)),
+                    const SizedBox(height: 15),
+                    _buildMileageInput(myCar.currentKm.toString()),
+
+                    const SizedBox(height: 30),
+
+                    // بوابة دفع الصيانة تظهر عند اقتراب الـ 1000 كم
+                    if (isMaintenanceNear) 
+                      _buildPaymentPort(myCar),
+                  ],
+                ),
+              ),
+            ),
+            
+            // زر الحفظ النهائي في أسفل الشاشة
+            _buildSubmitButton(provider, myCar.id),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildDriverHero(String plate) {
+    return ClipPath(
+      clipper: HeroClipper(),
+      child: Container(
+        height: 140, width: double.infinity, color: AppColors.secondary,
+        child: Column(
+          children: [
+            const SizedBox(height: 5),
+            const Icon(Icons.account_box, color: Colors.white30, size: 30),
+            const SizedBox(height: 5),
+            Text("ACTIVE UNIT: $plate", 
+              style: const TextStyle(color: AppColors.primary, fontWeight: FontWeight.w900, fontSize: 20, letterSpacing: 2)),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildMileageInput(String current) {
+    return Container(
+      decoration: BoxDecoration(color: Colors.white, border: Border.all(color: AppColors.secondary, width: 2)),
+      child: TextField(
+        controller: _odoController,
+        keyboardType: TextInputType.number,
+        textAlign: TextAlign.center,
+        style: const TextStyle(fontSize: 45, fontWeight: FontWeight.w900, color: AppColors.secondary, letterSpacing: 5),
+        decoration: InputDecoration(
+          hintText: current,
+          hintStyle: TextStyle(color: AppColors.secondary.withOpacity(0.2)),
+          suffixIcon: const Padding(padding: EdgeInsets.all(15), child: Text("KM", style: TextStyle(fontWeight: FontWeight.bold))),
+          border: InputBorder.none,
+        ),
+      ),
+    );
+  }
+
+  Widget _buildPaymentPort(car) {
+    return Container(
+      padding: const EdgeInsets.all(20),
+      width: double.infinity,
+      decoration: BoxDecoration(
+        color: AppColors.warning.withOpacity(0.15), 
+        border: Border.all(color: AppColors.warning, width: 2),
+      ),
+      child: Column(
+        children: [
+          const Icon(Icons.warning_amber_rounded, color: AppColors.error, size: 50),
+          const SizedBox(height: 10),
+          const Text("MAINTENANCE PORT OPEN", style: TextStyle(fontWeight: FontWeight.w900, color: AppColors.error, fontSize: 16)),
+          const Text("Unit is within 1000km of service milestone.", textAlign: TextAlign.center, style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold)),
+          const SizedBox(height: 20),
+          ElevatedButton(
+            onPressed: () {
+              // توجيه لصفحة دفع المكونات
+            }, 
+            style: ElevatedButton.styleFrom(
+              backgroundColor: AppColors.primary,
+              minimumSize: const Size(double.infinity, 50),
+              elevation: 5,
+            ),
+            child: const Text("INITIALIZE MAINTENANCE PAYMENT", 
+              style: TextStyle(color: Colors.black, fontWeight: FontWeight.w900, fontSize: 12)),
+          )
+        ],
+      ),
+    );
+  }
+
+  Widget _buildSubmitButton(AppProvider provider, String carId) {
+    return Padding(
+      padding: const EdgeInsets.all(20),
+      child: ElevatedButton(
+        onPressed: () async {
+          int? val = int.tryParse(_odoController.text);
+          if (val != null) {
+            bool success = await provider.updateDriverMileage(carId, val);
+            if (success) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(content: Text("LOG SUBMITTED SUCCESSFULLY"), backgroundColor: AppColors.success)
+              );
+            }
+          }
+        },
+        style: ElevatedButton.styleFrom(
+          backgroundColor: AppColors.secondary, 
+          minimumSize: const Size(double.infinity, 70),
+          shape: const RoundedRectangleBorder(borderRadius: BorderRadius.zero),
+        ),
+        child: const Text("SUBMIT TERMINAL LOG", 
+          style: TextStyle(color: AppColors.primary, fontWeight: FontWeight.w900, fontSize: 18, letterSpacing: 2)),
+      ),
+    );
+  }
+}
+
+==================================================
+FILE END: .\screens\driver\driver_screen.dart
+==================================================
+
+==================================================
+FILE START: .\screens\fleet\fleet_dashboard.dart
+==================================================
+
+import 'package:elgarage/core/ui/app_footer.dart'; // الفوتر الأساسي بتاعك
+import 'package:elgarage/core/ui/fleet_header.dart'; 
+import 'package:elgarage/screens/add_car_screen.dart';
+import 'package:elgarage/screens/marketplace_screen.dart'; // استدعاء الماركت الأساسي
+import 'package:elgarage/screens/cart_screen.dart';        // استدعاء السلة الأساسية
+import 'package:elgarage/screens/more_screen.dart';        // استدعاء المزيد الأساسية
+import 'package:elgarage/screens/tabs/emergency_tab.dart';
+import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import '../../core/constants/app_colors.dart';
+import '../../providers/app_provider.dart';
+import '../../providers/auth_provider.dart';
+import '../../widgets/textured_background.dart';
+import '../car_details_screen.dart';
+
+class FleetDashboard extends StatefulWidget {
+  const FleetDashboard({super.key});
+  @override
+  State<FleetDashboard> createState() => _FleetDashboardState();
+}
+
+class _FleetDashboardState extends State<FleetDashboard> {
+  String searchQuery = "";
+  int _currentIndex = 0;
+
+  // دالة تغيير التاب الموحدة
+  void _switchToTab(int index) {
+    setState(() {
+      _currentIndex = index;
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final provider = Provider.of<AppProvider>(context);
+    final auth = Provider.of<AuthProvider>(context);
+
+    // 1. قائمة الصفحات (استدعاء نفس الشاشات الأساسية للتطبيق)
+    final List<Widget> _fleetScreens = [
+      _buildDashboardHome(provider, auth), // 0: لوحة التحكم (الرئيسية)
+      const CarDetailsScreen(),             // 1: تفاصيل السيارة
+      const MarketplaceScreen(),           // 2: الماركت (للزور المركزي)
+      const EmergencyTab(),                  // 3: السلة (SOS في الفوتر بتاعك)
+      const MoreScreen(),                  // 4: المزيد
+    ];
+
+    return Scaffold(
+      backgroundColor: Colors.transparent,
+      extendBody: true, // مهم جداً عشان الفوتر بتاعك "CircularNotchedRectangle" يبان صح
+      
+      // 2. استخدام IndexedStack عشان الفوتر "يشتغل" فعلياً ويبدل بين الصفحات
+      body: IndexedStack(
+        index: _currentIndex,
+        children: _fleetScreens,
+      ),
+      
+      // 3. استدعاء الفوتر الأساسي (نفس الفايل اللي بعتهولي بالظبط)
+      bottomNavigationBar: AppFooter(
+        currentIndex: _currentIndex,
+        onTap: _switchToTab,
+      ),
+
+      // 4. الزر المركزي (FAB) اللي الفوتر بتاعك سايب له مكان (SizedBox 40)
+      floatingActionButton: FloatingActionButton(
+        onPressed: () => _switchToTab(2), // يفتح الماركت
+        backgroundColor: AppColors.primary,
+        shape: const CircleBorder(),
+        child: const Icon(Icons.local_shipping, color: Colors.black),
+      ),
+      floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
+    );
+  }
+
+  // --- محتوى التاب رقم 0 (الداش بورد) ---
+  Widget _buildDashboardHome(AppProvider provider, AuthProvider auth) {
+    final allCars = provider.myCars;
+    Map<String, List> groupedCars = {};
+    for (var car in allCars) {
+      if ((car.plateNumber ?? "").toLowerCase().contains(searchQuery.toLowerCase())) {
+        String brand = (car.make).toUpperCase();
+        groupedCars.putIfAbsent(brand, () => []).add(car);
+      }
+    }
+
+    return TexturedBackground(
+      child: Column(
+        children: [
+          // الهيدر المخصص للـ Fleet (اللي عملناه سوا)
+          FleetHeader(
+            userName: auth.user?.name ?? 'Commander',
+            points: "1,250",
+            onGrowFleet: () => Navigator.push(
+              context, 
+              MaterialPageRoute(builder: (_) => const AddCarScreen())
+            ),
+          ),
+          Expanded(
+            child: ListView(
+              padding: const EdgeInsets.only(bottom: 100),
+              children: [
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 20),
+                  child: _buildSearchField(),
+                ),
+                const SizedBox(height: 25),
+                _buildAnalyticsCharts(provider.fleetAnalytics),
+                const SizedBox(height: 30),
+                ...groupedCars.entries.map((entry) => 
+                  _buildBrandSlideshow(entry.key, entry.value)
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // --- باقي الدوال المساعدة (Analytics, Slideshow, Search) تظل بداخل الكلاس ---
+  
+  Widget _buildAnalyticsCharts(Map data) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 20),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Text("OPERATIONAL PERFORMANCE", style: TextStyle(fontWeight: FontWeight.w900, letterSpacing: 1.5, fontSize: 13)),
+          const SizedBox(height: 15),
+          Container(
+            padding: const EdgeInsets.all(20),
+            color: AppColors.textMain,
+            child: Column(
+              children: [
+                _buildBar("FLEET HEALTH", 0.92, Colors.green),
+                _buildBar("MAINTENANCE LOAD", 0.45, AppColors.warning),
+                _buildBar("AVG EFFICIENCY", 0.76, AppColors.primary),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildBar(String label, double val, Color col) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 8),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(label, style: const TextStyle(color: Colors.white70, fontSize: 10)),
+              Text("${(val * 100).toInt()}%", style: TextStyle(color: col, fontSize: 10, fontWeight: FontWeight.bold)),
+            ],
+          ),
+          const SizedBox(height: 5),
+          LinearProgressIndicator(value: val, backgroundColor: Colors.white10, color: col, minHeight: 4),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildBrandSlideshow(String brand, List cars) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Padding(
+          padding: const EdgeInsets.fromLTRB(20, 20, 20, 10), 
+          child: Text("$brand UNITS", style: const TextStyle(fontWeight: FontWeight.w900, fontSize: 14)),
+        ),
+        SizedBox(
+          height: 180,
+          child: ListView.builder(
+            scrollDirection: Axis.horizontal,
+            padding: const EdgeInsets.only(left: 15),
+            itemCount: cars.length,
+            itemBuilder: (context, index) => _buildCarCard(cars[index]),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildCarCard(dynamic car) {
+    return GestureDetector(
+      onTap: () {
+        Provider.of<AppProvider>(context, listen: false).setSelectedCar(car);
+        _switchToTab(1); // يفتح صفحة الـ My Car (التاب 1)
+      },
+      child: Container(
+        width: 160, 
+        margin: const EdgeInsets.only(right: 15),
+        decoration: BoxDecoration(
+          color: Colors.white, 
+          border: Border.all(color: AppColors.textMain.withOpacity(0.1)),
+          boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 10)],
+        ),
+        child: Column(
+          children: [
+            Expanded(child: car.imageUrl != null ? Image.network(car.imageUrl!) : const Icon(Icons.directions_car)),
+            Container(
+              width: double.infinity, padding: const EdgeInsets.all(10), color: AppColors.textMain,
+              child: Text(car.plateNumber ?? "N/A", 
+                textAlign: TextAlign.center, 
+                style: const TextStyle(color: AppColors.primary, fontWeight: FontWeight.bold)),
+            )
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildSearchField() {
+    return TextField(
+      onChanged: (v) => setState(() => searchQuery = v),
+      decoration: const InputDecoration(
+        hintText: "SEARCH_BY_PLATE_LOG...", 
+        prefixIcon: Icon(Icons.search), 
+        filled: true, 
+        fillColor: Colors.white, 
+        border: OutlineInputBorder()
+      ),
+    );
+  }
+}
+
+==================================================
+FILE END: .\screens\fleet\fleet_dashboard.dart
+==================================================
+
+==================================================
+FILE START: .\screens\tabs\emergency_tab.dart
+==================================================
+
+import 'package:flutter/material.dart';
+import 'package:flutter/cupertino.dart';
+import 'package:provider/provider.dart';
+import 'package:url_launcher/url_launcher.dart'; // عشان الاتصال
+import '../../core/constants/app_colors.dart';
+import '../../providers/app_provider.dart';
+
+class EmergencyTab extends StatelessWidget {
+  const EmergencyTab({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return SingleChildScrollView(
+      padding: const EdgeInsets.all(16),
+      child: Column(
+        children: [
+          // تحذير أو نصيحة سريعة في الأول
+          Container(
+            padding: const EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              color: AppColors.error.withAlpha(1),
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(color: AppColors.error.withAlpha(3)),
+            ),
+            child: Row(
+              children: [
+                const Icon(CupertinoIcons.exclamationmark_triangle_fill, color: AppColors.error),
+                const SizedBox(width: 10),
+                const Expanded(
+                  child: Text(
+                    "In case of severe accidents, please call 123 immediately.",
+                    style: TextStyle(color: AppColors.error, fontWeight: FontWeight.bold),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 20),
+
+          // 1. قسم الأوناش
+          _buildSectionHeader("Towing Services (Winches)", CupertinoIcons.car_fill),
+          _buildContactList(context, 'Winch'),
+
+          // 2. قسم البطاريات
+          _buildSectionHeader("Battery Jumpstart & Replace", CupertinoIcons.battery_100),
+          _buildContactList(context, 'Battery'),
+
+          // 3. قسم الكاوتش
+          _buildSectionHeader("Tire Services", CupertinoIcons.circle_grid_hex),
+          _buildContactList(context, 'Tire'),
+        ],
+      ),
+    );
+  }
+
+  // ويدجت لعنوان القسم
+  Widget _buildSectionHeader(String title, IconData icon) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 10),
+      child: Row(
+        children: [
+          Icon(icon, color: AppColors.primary, size: 24),
+          const SizedBox(width: 8),
+          Text(
+            title,
+            style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: AppColors.textPrimary),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // ويدجت لبناء قائمة الكروت
+  Widget _buildContactList(BuildContext context, String type) {
+    final provider = Provider.of<AppProvider>(context, listen: false);
+    final contacts = provider.getEmergencyByType(type);
+
+    return ListView.builder(
+      shrinkWrap: true, // مهم عشان الـ ListView جوه ScrollView
+      physics: const NeverScrollableScrollPhysics(), // عشان ما يعملش سكرول لوحده
+      itemCount: contacts.length,
+      itemBuilder: (context, index) {
+        final contact = contacts[index];
+        return Card(
+          margin: const EdgeInsets.only(bottom: 10),
+          elevation: 2,
+          shadowColor: Colors.black12,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+          child: ListTile(
+            contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            // الأيقونة الجانبية
+            leading: CircleAvatar(
+              backgroundColor: Colors.grey[100],
+              child: Icon(
+                type == 'Winch' ? CupertinoIcons.arrow_up_bin_fill : 
+                type == 'Battery' ? CupertinoIcons.bolt_fill : CupertinoIcons.settings,
+                color: AppColors.textSecondary,
+              ),
+            ),
+            // الاسم والمكان
+            title: Text(contact.name, style: const TextStyle(fontWeight: FontWeight.bold)),
+            subtitle: Row(
+              children: [
+                const Icon(CupertinoIcons.location_solid, size: 12, color: Colors.grey),
+                const SizedBox(width: 4),
+                Text(contact.location, style: const TextStyle(fontSize: 12)),
+                const SizedBox(width: 10),
+                const Icon(CupertinoIcons.star_fill, size: 12, color: Colors.amber),
+                const SizedBox(width: 4),
+                Text(contact.rating, style: const TextStyle(fontSize: 12)),
+              ],
+            ),
+            // زرار الاتصال الأخضر
+            trailing: IconButton(
+              onPressed: () => _makePhoneCall(contact.phoneNumber),
+              style: IconButton.styleFrom(
+                backgroundColor: AppColors.success,
+                shape: const CircleBorder(),
+              ),
+              icon: const Icon(CupertinoIcons.phone_fill, color: Colors.white),
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  // فنكشن الاتصال الفعلي
+  Future<void> _makePhoneCall(String phoneNumber) async {
+    final Uri launchUri = Uri(
+      scheme: 'tel',
+      path: phoneNumber,
+    );
+    if (await canLaunchUrl(launchUri)) {
+      await launchUrl(launchUri);
+    } else {
+      // لو فشل (مثلا سيميلاتور)
+      print("Could not launch $phoneNumber");
+    }
+  }
+}
+
+==================================================
+FILE END: .\screens\tabs\emergency_tab.dart
+==================================================
+
+==================================================
+FILE START: .\screens\tabs\history_tab.dart
+==================================================
+
+import 'package:flutter/material.dart';
+import 'package:flutter/cupertino.dart';
+import 'package:provider/provider.dart';
+import 'package:intl/intl.dart';
+import '../../core/constants/app_colors.dart';
+import '../../providers/app_provider.dart';
+
+class HistoryTab extends StatelessWidget {
+  const HistoryTab({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Stack(
+      children: [
+        // 1. القائمة (Service Logs List)
+        Consumer<AppProvider>(
+          builder: (context, provider, child) {
+            final logs = provider.historyLogs;
+            
+            if (logs.isEmpty) {
+              return Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(CupertinoIcons.doc_text_search, size: 60, color: Colors.grey[300]),
+                    const SizedBox(height: 10),
+                    const Text(
+                      "No records found.",
+                      style: TextStyle(color: Colors.grey, fontSize: 16),
+                    ),
+                  ],
+                ),
+              );
+            }
+
+            return ListView.builder(
+              padding: const EdgeInsets.fromLTRB(16, 15, 16, 100), // مسافة إضافية للـ FAB
+              itemCount: logs.length,
+              itemBuilder: (context, index) {
+                final log = logs[index];
+                return Container(
+                  margin: const EdgeInsets.only(bottom: 15),
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    color: Colors.white, // بوكس أبيض صلب
+                    borderRadius: BorderRadius.circular(15), // حواف الكود الثاني
+                    border: Border.all(color: Colors.grey.shade100), // برواز الكود الثاني
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withOpacity(0.04), 
+                        blurRadius: 10, 
+                        offset: const Offset(0, 4)
+                      )
+                    ],
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: [
+                          // أيقونة المفك (Wrench) من الكود الثاني
+                          Container(
+                            padding: const EdgeInsets.all(10),
+                            decoration: BoxDecoration(
+                              color: AppColors.primary.withOpacity(0.1), 
+                              shape: BoxShape.circle
+                            ),
+                            child: const Icon(CupertinoIcons.wrench, color: AppColors.primary, size: 20),
+                          ),
+                          const SizedBox(width: 15),
+                          
+                          // تفاصيل السجل
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  log.serviceName,
+                                  style: const TextStyle(
+                                    fontWeight: FontWeight.w900, // الوزن العريض من الكود الثاني
+                                    fontSize: 16
+                                  ),
+                                ),
+                                const SizedBox(height: 4),
+                                Row(
+                                  children: [
+                                    Text(
+                                      DateFormat('dd MMM yyyy').format(log.date),
+                                      style: const TextStyle(color: Colors.grey, fontSize: 12),
+                                    ),
+                                    if (log.mileage > 0) ...[
+                                      const SizedBox(width: 8),
+                                      const Icon(Icons.circle, size: 4, color: Colors.grey),
+                                      const SizedBox(width: 8),
+                                      Text(
+                                        '${log.mileage.toInt()} km',
+                                        style: const TextStyle(color: Colors.grey, fontSize: 12),
+                                      ),
+                                    ],
+                                  ],
+                                ),
+                              ],
+                            ),
+                          ),
+                          // أيقونة النجاح (Check Circle)
+                          const Icon(Icons.check_circle, color: Colors.green, size: 20),
+                        ],
+                      ),
+                      
+                      // عرض التاجات (Parts Replaced) - منطق الكود الأول
+                      if (log.partsReplaced.isNotEmpty) ...[
+                        const SizedBox(height: 12),
+                        const Divider(height: 1),
+                        const SizedBox(height: 8),
+                        Wrap(
+                          spacing: 6,
+                          runSpacing: 4,
+                          children: log.partsReplaced.map((part) => Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                            decoration: BoxDecoration(
+                              color: Colors.grey[50],
+                              borderRadius: BorderRadius.circular(6),
+                              border: Border.all(color: Colors.grey.shade200),
+                            ),
+                            child: Text(
+                              part, 
+                              style: TextStyle(fontSize: 10, color: Colors.grey[700], fontWeight: FontWeight.bold)
+                            ),
+                          )).toList(),
+                        )
+                      ]
+                    ],
+                  ),
+                );
+              },
+            );
+          },
+        ),
+
+        // 2. زر الإضافة (FAB) - ستايل الكود الثاني (الألوان والمكان)
+        Positioned(
+          bottom: 20,
+          right: 20,
+          child: FloatingActionButton(
+            backgroundColor: AppColors.textMain, // اللون الداكن من الكود الثاني
+            onPressed: () => _showAddLogSheet(context),
+            child: const Icon(Icons.add, color: AppColors.primary, size: 30), // أيقونة بلون المانجا
+          ),
+        ),
+      ],
+    );
+  }
+
+  // --- شيت إضافة السجل (Add Service Sheet) - منطق الكود الأول مع تحسين الستايل ---
+  void _showAddLogSheet(BuildContext context) {
+    final nameController = TextEditingController();
+    final mileageController = TextEditingController();
+    DateTime selectedDate = DateTime.now();
+    List<String> selectedParts = [];
+    
+    final List<String> availableParts = [
+      'Engine Oil', 'Oil Filter', 'Air Filter', 'Cabin Filter', 
+      'Spark Plugs', 'Brake Pads', 'Tires', 'Battery', 
+      'Coolant', 'Wipers', 'Timing Belt', 'Gearbox Oil'
+    ];
+
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.white,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(25)),
+      ),
+      builder: (context) {
+        return StatefulBuilder(
+          builder: (context, setState) {
+            return Padding(
+              padding: EdgeInsets.only(
+                bottom: MediaQuery.of(context).viewInsets.bottom + 20,
+                left: 20, right: 20, top: 20,
+              ),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Center(
+                    child: Text(
+                      "Add Service Record", 
+                      style: TextStyle(fontSize: 20, fontWeight: FontWeight.w900)
+                    ),
+                  ),
+                  const SizedBox(height: 25),
+                  
+                  // 1. اسم الخدمة
+                  TextField(
+                    controller: nameController,
+                    decoration: InputDecoration(
+                      labelText: "Service Name",
+                      prefixIcon: const Icon(CupertinoIcons.wrench),
+                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(15)),
+                    ),
+                  ),
+                  const SizedBox(height: 15),
+
+                  // 2. العداد
+                  TextField(
+                    controller: mileageController,
+                    keyboardType: TextInputType.number,
+                    decoration: InputDecoration(
+                      labelText: "Mileage (km)",
+                      prefixIcon: const Icon(CupertinoIcons.speedometer),
+                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(15)),
+                    ),
+                  ),
+                  const SizedBox(height: 15),
+
+                  // 3. اختيار التاريخ
+                  InkWell(
+                    onTap: () async {
+                      final picked = await showDatePicker(
+                        context: context,
+                        initialDate: selectedDate,
+                        firstDate: DateTime(2000),
+                        lastDate: DateTime.now(),
+                      );
+                      if (picked != null) setState(() => selectedDate = picked);
+                    },
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 15),
+                      decoration: BoxDecoration(
+                        border: Border.all(color: Colors.grey.shade300),
+                        borderRadius: BorderRadius.circular(15),
+                      ),
+                      child: Row(
+                        children: [
+                          const Icon(CupertinoIcons.calendar, color: Colors.grey),
+                          const SizedBox(width: 10),
+                          Text(DateFormat('dd/MM/yyyy').format(selectedDate)),
+                          const Spacer(),
+                          const Icon(Icons.arrow_drop_down, color: Colors.grey),
+                        ],
+                      ),
+                    ),
+                  ),
+                  
+                  const SizedBox(height: 20),
+
+                  // 4. اختيار قطع الغيار (Chips Selector)
+                  const Text("Parts Replaced:", style: TextStyle(fontWeight: FontWeight.bold)),
+                  const SizedBox(height: 10),
+                  
+                  Wrap(
+                    spacing: 8,
+                    children: availableParts.map((part) {
+                      final isSelected = selectedParts.contains(part);
+                      return FilterChip(
+                        label: Text(part, style: TextStyle(fontSize: 12, color: isSelected ? Colors.white : Colors.black87)),
+                        selected: isSelected,
+                        selectedColor: AppColors.primary,
+                        checkmarkColor: Colors.white,
+                        onSelected: (bool value) {
+                          setState(() {
+                            if (value) selectedParts.add(part);
+                            else selectedParts.remove(part);
+                          });
+                        },
+                      );
+                    }).toList(),
+                  ),
+
+                  const SizedBox(height: 30),
+
+                  // 5. زر الحفظ
+                  SizedBox(
+                    width: double.infinity,
+                    child: ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: AppColors.primary,
+                        padding: const EdgeInsets.symmetric(vertical: 16),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+                        elevation: 0,
+                      ),
+                      onPressed: () {
+                        if (nameController.text.isNotEmpty) {
+                          double mileage = double.tryParse(mileageController.text) ?? 0.0;
+                          
+                          Provider.of<AppProvider>(context, listen: false).addServiceLog({
+                            'name': nameController.text,
+                            'date': selectedDate,
+                            'mileage': mileage,
+                            'parts': selectedParts,
+                          });
+                          
+                          Navigator.pop(context);
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(content: Text("Service Log Saved!"), backgroundColor: AppColors.success)
+                          );
+                        }
+                      },
+                      child: const Text(
+                        "SAVE RECORD", 
+                        style: TextStyle(color: Colors.white, fontWeight: FontWeight.w900)
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            );
+          },
+        );
+      },
+    );
+  }
+}
+
+==================================================
+FILE END: .\screens\tabs\history_tab.dart
+==================================================
+
+==================================================
+FILE START: .\screens\tabs\maintenance_tab.dart
+==================================================
+
+import 'package:flutter/material.dart';
+import 'package:flutter/cupertino.dart';
+import 'package:provider/provider.dart';
+import '../../core/constants/app_colors.dart';
+import '../../providers/app_provider.dart';
+
+class MaintenanceTab extends StatefulWidget {
+  const MaintenanceTab({super.key});
+
+  @override
+  State<MaintenanceTab> createState() => _MaintenanceTabState();
+}
+
+class _MaintenanceTabState extends State<MaintenanceTab> {
+  int? _selectedMilestone;
+
+  @override
+  Widget build(BuildContext context) {
+    // استخدام listen: true (الافتراضي) لأننا نحتاج لتحديث الواجهة عند تغيير أي داتا في البروفايدر
+    final provider = Provider.of<AppProvider>(context);
+    
+    // 1. حساب المسافات بناءً على قراءة العداد الحالية من البروفايدر
+    final current = provider.currentMilestone;
+    final prev = current - 10000;
+    final next = current + 10000;
+
+    // تعيين المسافة المختارة افتراضياً لتكون المسافة الموصى بها
+    _selectedMilestone ??= current;
+
+    // 2. جلب العناصر بناءً على المسافة المختارة (المنطق ده موجود داخل البروفايدر)
+    final items = provider.getMaintenanceItemsFor(_selectedMilestone!);
+
+    return Column(
+      children: [
+        // --- القسم الأول: شريط اختيار المسافة (Milestone Selector) ---
+        Container(
+          height: 100,
+          padding: const EdgeInsets.symmetric(vertical: 15),
+          child: ListView(
+            scrollDirection: Axis.horizontal,
+            padding: const EdgeInsets.symmetric(horizontal: 15),
+            children: [
+              if (prev > 0) 
+                _milestoneCard(prev, "Previous", _selectedMilestone == prev),
+              _milestoneCard(current, "Recommended", _selectedMilestone == current),
+              _milestoneCard(next, "Upcoming", _selectedMilestone == next),
+            ],
+          ),
+        ),
+
+        // --- القسم الثاني: قائمة قطع الصيانة ---
+        Expanded(
+          child: items.isEmpty 
+          ? const Center(child: Text("No items defined for this milestone."))
+          : ListView.builder(
+              padding: const EdgeInsets.fromLTRB(16, 5, 16, 16),
+              itemCount: items.length,
+              itemBuilder: (context, index) {
+                final item = items[index];
+                
+                // أعلام مساعدة لتحديد الحالة البصرية (Flags)
+                bool isPastView = _selectedMilestone! < current;
+                bool isDone = isPastView && !item.isMissed;
+
+                return Container(
+                  margin: const EdgeInsets.only(bottom: 12),
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    // تحويل اللون للكهرماني (Amber) في حالة الـ Missed لتعزيز الهوية التحذيرية
+                    color: item.isMissed ? Colors.amber.withOpacity(0.08) : Colors.white,
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(
+                      color: item.isMissed ? Colors.amber.withOpacity(0.5) : Colors.grey.shade200,
+                      width: item.isMissed ? 1.5 : 1,
+                    ),
+                    boxShadow: [
+                      if (!item.isMissed)
+                        BoxShadow(color: Colors.black.withOpacity(0.02), blurRadius: 4, offset: const Offset(0, 2))
+                    ],
+                  ),
+                  child: Row(
+                    children: [
+                      // أيقونة الحالة (Status Icon)
+                      Container(
+                        padding: const EdgeInsets.all(8),
+                        decoration: BoxDecoration(
+                          color: item.isMissed 
+                              ? Colors.amber.withOpacity(0.2) 
+                              : AppColors.primary.withOpacity(0.1),
+                          shape: BoxShape.circle,
+                        ),
+                        child: Icon(
+                          item.isMissed 
+                              ? CupertinoIcons.exclamationmark_triangle_fill 
+                              : CupertinoIcons.settings,
+                          color: item.isMissed ? Colors.amber[700] : AppColors.primary,
+                          size: 20,
+                        ),
+                      ),
+                      const SizedBox(width: 15),
+                      
+                      // تفاصيل القطعة
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              item.name,
+                              style: TextStyle(
+                                fontWeight: FontWeight.bold,
+                                fontSize: 15,
+                                color: item.isMissed ? Colors.brown[700] : AppColors.textPrimary,
+                              ),
+                            ),
+                            const SizedBox(height: 2),
+                            if (item.isMissed)
+                              const Text(
+                                "Missed in previous service!", 
+                                style: TextStyle(fontSize: 11, color: Colors.amber, fontWeight: FontWeight.bold)
+                              )
+                            else if (isDone)
+                               const Text(
+                                "Completed", 
+                                style: TextStyle(fontSize: 11, color: AppColors.success, fontWeight: FontWeight.bold)
+                              )
+                            else
+                              Text(
+                                item.category, 
+                                style: const TextStyle(fontSize: 11, color: Colors.grey)
+                              ),
+                          ],
+                        ),
+                      ),
+
+                      // الأكشن (Action)
+                      if (isDone)
+                        const Icon(CupertinoIcons.check_mark_circled_solid, color: AppColors.success)
+                      else 
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.end,
+                          children: [
+                            Text(
+                              '${item.price.toInt()} EGP', 
+                              style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13)
+                            ),
+                            const SizedBox(height: 5),
+                            InkWell(
+                              onTap: () {
+                                provider.addToCart([item]);
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(content: Text("${item.name} added to cart"), duration: const Duration(seconds: 1))
+                                );
+                              },
+                              child: const Icon(CupertinoIcons.add_circled_solid, color: AppColors.primary, size: 28),
+                            )
+                          ],
+                        ),
+                    ],
+                  ),
+                );
+              },
+            ),
+        ),
+
+        // --- القسم الثالث: زر "إضافة الكل" (يظهر فقط في المسافة الموصى بها) ---
+        if (_selectedMilestone == current && items.isNotEmpty)
+          Padding(
+            padding: const EdgeInsets.all(20),
+            child: ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: AppColors.primary,
+                minimumSize: const Size(double.infinity, 50),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                elevation: 2,
+              ),
+              onPressed: () {
+                provider.addToCart(items);
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text("All recommended items added to cart"))
+                );
+              },
+              child: const Text(
+                "Add All to Cart", 
+                style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16)
+              ),
+            ),
+          )
+      ],
+    );
+  }
+
+  // ودجت كارت المسافة (Helper)
+  Widget _milestoneCard(int km, String label, bool isSelected) {
+    return GestureDetector(
+      onTap: () => setState(() => _selectedMilestone = km),
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 300),
+        width: 110,
+        margin: const EdgeInsets.only(right: 12),
+        decoration: BoxDecoration(
+          color: isSelected ? AppColors.primary : Colors.white,
+          borderRadius: BorderRadius.circular(16),
+          border: isSelected ? null : Border.all(color: Colors.grey.shade300),
+          boxShadow: [
+            if(isSelected)
+              BoxShadow(color: AppColors.primary.withOpacity(0.3), blurRadius: 8, offset: const Offset(0, 4))
+          ],
+        ),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Text(
+              label, 
+              style: TextStyle(
+                fontSize: 11, 
+                fontWeight: FontWeight.w500,
+                color: isSelected ? Colors.white70 : Colors.grey
+              )
+            ),
+            const SizedBox(height: 4),
+            Text(
+              "${km ~/ 1000}k", 
+              style: TextStyle(
+                fontSize: 22, 
+                fontWeight: FontWeight.bold, 
+                color: isSelected ? Colors.white : AppColors.textPrimary
+              )
+            ),
+            Text(
+              "km", 
+              style: TextStyle(fontSize: 12, color: isSelected ? Colors.white : AppColors.textPrimary)
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+==================================================
+FILE END: .\screens\tabs\maintenance_tab.dart
+==================================================
+
+==================================================
+FILE START: .\widgets\car_card.dart
+==================================================
+
+import 'package:flutter/material.dart';
+import 'package:flutter/cupertino.dart';
+import '../core/constants/app_colors.dart';
+import '../data/models/car_model.dart'; // الموديل الجديد (Car)
+
+class CarCard extends StatelessWidget {
+  final Car car; // استخدام موديل Car الحقيقي
+  final VoidCallback? onTap;
+  final bool isSelected;
+
+  const CarCard({
+    super.key,
+    required this.car,
+    required this.onTap,
+    this.isSelected = false,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+        decoration: BoxDecoration(
+          // دمج منطق اللون من الكود الأول مع الهيكل من الثاني
+          color: isSelected ? AppColors.primary.withAlpha(5) : AppColors.cardColor,
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(
+            color: isSelected ? AppColors.primary : Colors.grey.shade100, 
+            width: 2
+          ),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.05),
+              blurRadius: 10,
+              offset: const Offset(0, 4),
+            ),
+          ],
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // 1. صورة العربية (Full Width Top) - منطق الكود الأول في الصور
+            ClipRRect(
+              borderRadius: const BorderRadius.vertical(top: Radius.circular(18)),
+              child: car.imageUrl != null && car.imageUrl!.isNotEmpty
+                  ? Image.network(
+                      car.imageUrl!,
+                      height: 150,
+                      width: double.infinity,
+                      fit: BoxFit.cover,
+                      // حماية من الأخطاء في الصور القادمة من السيرفر
+                      errorBuilder: (context, error, stackTrace) => _buildPlaceholder(),
+                    )
+                  : _buildPlaceholder(),
+            ),
+            
+            // 2. بيانات العربية (Padding & Info)
+            Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      // اسم وماركة العربية
+                      Text(
+                        '${car.make} ${car.model}',
+                        style: const TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                          color: AppColors.textPrimary,
+                        ),
+                      ),
+                      // سنة الصنع
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                        decoration: BoxDecoration(
+                          color: AppColors.primary.withOpacity(0.1),
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: Text(
+                          car.year.toString(),
+                          style: const TextStyle(
+                            color: AppColors.primary,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 8),
+                  
+                  // تفاصيل إضافية (اللون - من الكود الأول)
+                  Text(
+                    'Color: ${car.color ?? "Standard"}',
+                    style: TextStyle(color: Colors.grey[600], fontSize: 13),
+                  ),
+                  
+                  const SizedBox(height: 12),
+                  const Divider(height: 1),
+                  const SizedBox(height: 12),
+
+                  Row(
+                    children: [
+                      // العداد الحالي
+                      const Icon(CupertinoIcons.speedometer, size: 16, color: AppColors.textSecondary),
+                      const SizedBox(width: 4),
+                      Text(
+                        '${car.currentKm} KM',
+                        style: const TextStyle(color: AppColors.textSecondary, fontWeight: FontWeight.w600),
+                      ),
+                      const Spacer(),
+                      
+                      // رقم اللوحة (من الكود الأول)
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                        decoration: BoxDecoration(
+                          color: AppColors.background,
+                          borderRadius: BorderRadius.circular(6),
+                          border: Border.all(color: Colors.grey.shade200)
+                        ),
+                        child: Text(
+                          car.licensePlate ?? 'No Plate',
+                          style: const TextStyle(
+                            fontSize: 11,
+                            fontWeight: FontWeight.bold,
+                            letterSpacing: 0.5,
+                            color: AppColors.textPrimary
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  // ودجتPlaceholder في حالة عدم وجود صورة
+  Widget _buildPlaceholder() {
+    return Container(
+      height: 150,
+      width: double.infinity,
+      color: Colors.grey[100],
+      child: Icon(CupertinoIcons.car_detailed, size: 50, color: Colors.grey[300]),
+    );
+  }
+}
+
+==================================================
+FILE END: .\widgets\car_card.dart
+==================================================
+
+==================================================
+FILE START: .\widgets\car_header.dart
+==================================================
+
+import 'package:flutter/material.dart';
+import 'package:flutter/cupertino.dart';
+import '../core/constants/app_colors.dart';
+import '../data/models/car_model.dart'; // تأكد إنه بيشاور على الموديل الجديد
+
+class CarHeader extends StatelessWidget {
+  final Car car; // 1. استخدام الكلاس الجديد
+
+  const CarHeader({super.key, required this.car});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.all(20),
+      decoration: const BoxDecoration(
+        color: AppColors.cardColor,
+        borderRadius: BorderRadius.vertical(bottom: Radius.circular(30)),
+      ),
+      child: Column(
+        children: [
+          Row(
+            children: [
+              // 1. صورة العربية
+              Container(
+                width: 70,
+                height: 70,
+                decoration: BoxDecoration(
+                  color: AppColors.primary.withAlpha(20),
+                  borderRadius: BorderRadius.circular(15),
+                  image: car.imageUrl != null && car.imageUrl!.isNotEmpty
+                      ? DecorationImage(
+                          image: NetworkImage(car.imageUrl!), // استخدام NetworkImage
+                          fit: BoxFit.cover,
+                          onError: (_, __) {}, 
+                        )
+                      : null,
+                ),
+                child: car.imageUrl == null || car.imageUrl!.isEmpty
+                    ? const Icon(CupertinoIcons.car_detailed, size: 30, color: AppColors.primary)
+                    : null,
+              ),
+              const SizedBox(width: 15),
+
+              // 2. الاسم والموديل
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      '${car.make} ${car.model}',
+                      style: const TextStyle(
+                        fontSize: 22,
+                        fontWeight: FontWeight.bold,
+                        color: AppColors.textPrimary,
+                      ),
+                    ),
+                    Text(
+                      'Year: ${car.year} | ${car.licensePlate ?? "No Plate"}', // استخدام licensePlate
+                      style: const TextStyle(color: AppColors.textSecondary),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 20),
+
+          // 3. شريط المعلومات (Placeholders مؤقتاً)
+          Container(
+            padding: const EdgeInsets.all(15),
+            decoration: BoxDecoration(
+              color: AppColors.background,
+              borderRadius: BorderRadius.circular(15),
+            ),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                _buildInfoItem(
+                  icon: CupertinoIcons.speedometer,
+                  title: 'Current KM',
+                  value: 'N/A', // العربية لسه مفهاش عداد في الموديل الحالي
+                  color: AppColors.primary,
+                ),
+                Container(width: 1, height: 40, color: Colors.grey[300]),
+                _buildInfoItem(
+                  icon: CupertinoIcons.wrench_fill,
+                  title: 'Next Service',
+                  value: 'Soon',
+                  color: AppColors.warning,
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildInfoItem({
+    required IconData icon,
+    required String title,
+    required String value,
+    required Color color,
+  }) {
+    return Expanded(
+      child: Column(
+        children: [
+          Icon(icon, color: color, size: 20),
+          const SizedBox(height: 5),
+          Text(title, style: const TextStyle(fontSize: 12, color: Colors.grey)),
+          Text(
+            value,
+            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+==================================================
+FILE END: .\widgets\car_header.dart
+==================================================
+
+==================================================
+FILE START: .\widgets\caution_tape.dart
+==================================================
+
+import 'package:flutter/material.dart';
+import '../core/constants/app_colors.dart';
+
+class CautionTapeDecoration extends StatelessWidget {
+  final double height;
+  const CautionTapeDecoration({super.key, this.height = 12});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      height: height,
+      width: double.infinity,
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [AppColors.primary, AppColors.primary, AppColors.textMain, AppColors.textMain],
+          stops: const [0.0, 0.5, 0.5, 1.0],
+          tileMode: TileMode.repeated,
+        ),
+      ),
+    );
+  }
+}
+
+==================================================
+FILE END: .\widgets\caution_tape.dart
+==================================================
+
+==================================================
+FILE START: .\widgets\textured_background.dart
+==================================================
+
+import 'dart:math';
+import 'package:flutter/material.dart';
+import '../core/constants/app_colors.dart';
+
+class TexturedBackground extends StatelessWidget {
+  final Widget child;
+  const TexturedBackground({super.key, required this.child});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: const Color(0xFFF9F9F9), // أوف وايت بوهيمي
+      body: Stack(
+        children: [
+          // 1. طبقة الرسوم الفنية (Bohemian Painter)
+          Positioned.fill(
+            child: CustomPaint(
+              painter: EnhancedBohemianPainter(),
+            ),
+          ),
+          
+          // 2. طبقة تركيز الضوء (Vignette)
+          Positioned.fill(
+            child: Container(
+              decoration: BoxDecoration(
+                gradient: RadialGradient(
+                  center: Alignment.center,
+                  radius: 1.0,
+                  colors: [
+                    Colors.transparent,
+                    AppColors.textMain.withOpacity(0.03),
+                  ],
+                  stops: const [0.6, 1.0]
+                ),
+              ),
+            ),
+          ),
+          
+          child,
+        ],
+      ),
+    );
+  }
+}
+
+class EnhancedBohemianPainter extends CustomPainter {
+  @override
+  void paint(Canvas canvas, Size size) {
+    final paint = Paint()
+      ..color = Colors.black.withOpacity(0.08)
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 1.2
+      ..strokeCap = StrokeCap.round;
+
+    final random = Random(101); // لضمان ثبات الشكل
+
+    // رسم الخطوط الانسيابية (Flows)
+    for (int i = 0; i < 8; i++) {
+      final path = Path();
+      path.moveTo(random.nextDouble() * size.width, random.nextDouble() * size.height);
+      path.cubicTo(
+        random.nextDouble() * size.width, random.nextDouble() * size.height,
+        random.nextDouble() * size.width * 1.2, random.nextDouble() * size.height * 1.2,
+        random.nextDouble() * size.width, random.nextDouble() * size.height,
+      );
+      canvas.drawPath(path, paint);
+    }
+
+    // رسم علامات X التقنية
+    for(int i=0; i<12; i++) {
+      double dx = random.nextDouble() * size.width;
+      double dy = random.nextDouble() * size.height;
+       canvas.drawLine(Offset(dx-5, dy-5), Offset(dx+5, dy+5), paint);
+       canvas.drawLine(Offset(dx+5, dy-5), Offset(dx-5, dy+5), paint);
+    }
+  }
+
+  @override
+  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
+}
+
+==================================================
+FILE END: .\widgets\textured_background.dart
+==================================================

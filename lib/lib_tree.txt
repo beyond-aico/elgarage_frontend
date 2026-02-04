@@ -1,7 +1,7 @@
 Folder PATH listing
 Volume serial number is CE4B-4E4F
 C:.
-|   frontend.lib.txt
+|   lib_tree.txt
 |   main.dart
 |   secrets.dart
 |   
@@ -10,10 +10,14 @@ C:.
 |   |       app_colors.dart
 |   |       maintenance_constants.dart
 |   |       
-|   +---theme
-|   \---utils
+|   \---ui
+|           app_footer.dart
+|           fleet_header.dart
+|           home_header.dart
+|           
 +---data
-|   +---dummy_data
+|   |   dummy_data.dart
+|   |   
 |   +---models
 |   |       auth_response_model.dart
 |   |       car_model.dart
@@ -34,14 +38,19 @@ C:.
 |   |   add_car_screen.dart
 |   |   cart_screen.dart
 |   |   car_details_screen.dart
-|   |   emergency_screen.dart
-|   |   history_screen.dart
 |   |   home_screen.dart
 |   |   login_screen.dart
 |   |   main_layout.dart
 |   |   marketplace_screen.dart
+|   |   more_screen.dart
 |   |   register_screen.dart
 |   |   
+|   +---driver
+|   |       driver_screen.dart
+|   |       
+|   +---fleet
+|   |       fleet_dashboard.dart
+|   |       
 |   \---tabs
 |           emergency_tab.dart
 |           history_tab.dart
@@ -50,6 +59,6 @@ C:.
 \---widgets
         car_card.dart
         car_header.dart
-        custom_hero.dart
-        custom_nav_bar.dart
+        caution_tape.dart
+        textured_background.dart
         

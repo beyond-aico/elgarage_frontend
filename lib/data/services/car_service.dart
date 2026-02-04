@@ -4,13 +4,43 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import '../models/car_model.dart';
 
 class CarService {
-  final String baseUrl = 'http://192.168.8.15/api/v1'; 
+  final String baseUrl = 'http://192.168.8.17:3000/api/v1'; 
   final _storage = const FlutterSecureStorage();
 
   Future<String?> _getToken() async => await _storage.read(key: 'accessToken');
+Future<List<Car>> getFleetCars() async {
+    final token = await _getToken();
+    final response = await http.get(
+      Uri.parse('$baseUrl/cars/fleet'),
+      headers: {
+        'Authorization': 'Bearer $token',
+        'Content-Type': 'application/json',
+      },
+    );
 
+    if (response.statusCode == 200) {
+      final List<dynamic> data = json.decode(response.body);
+      return data.map((json) => Car.fromJson(json)).toList();
+    }
+    return [];
+  }
  // ... داخل CarService
+Future<Map<String, dynamic>?> updateMileage(String carId, int mileage) async {
+    final token = await _getToken();
+    final response = await http.patch(
+      Uri.parse('$baseUrl/cars/$carId/mileage'),
+      headers: {
+        'Authorization': 'Bearer $token',
+        'Content-Type': 'application/json',
+      },
+      body: jsonEncode({'mileage': mileage}),
+    );
 
+    if (response.statusCode == 200) {
+      return json.decode(response.body); // سيعيد داتا تحتوي على needsMaintenancePayment
+    }
+    return null;
+  }
   Future<List<Car>> getMyCars() async {
     final token = await _getToken();
     final response = await http.get(
@@ -37,9 +67,6 @@ class CarService {
       throw Exception('Failed to load cars');
     }
   }
-  // ... (باقي الدوال القديمة زي ما هي)
-
-  // ... داخل CarService
 
   Future<List<dynamic>> getMaintenanceDue(String carId) async {
     final token = await _getToken();
