@@ -3,8 +3,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:provider/provider.dart';
 import '../core/constants/app_colors.dart';
 import '../providers/app_provider.dart';
-import '../widgets/textured_background.dart';
-import 'tabs/emergency_tab.dart';
+import '../core/ui/textured_background.dart';
 import 'tabs/history_tab.dart';
 import 'tabs/maintenance_tab.dart';
 
@@ -21,8 +20,15 @@ class _CarDetailsScreenState extends State<CarDetailsScreen> with SingleTickerPr
   @override
   void initState() {
     super.initState();
-    // تم استخدام 3 تابات كما في الكود الأصلي ولكن بتصميم الكود الجديد
-    _tabController = TabController(length: 3, vsync: this, initialIndex: 1);
+    _tabController = TabController(length: 2, vsync: this, initialIndex: 1);
+
+    // ✅ التعديلات الأساسية: جلب بيانات الصيانة بمجرد فتح الصفحة
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final provider = Provider.of<AppProvider>(context, listen: false);
+      if (provider.selectedCar != null) {
+        provider.fetchDueMaintenance(carId: provider.selectedCar!.id);
+      }
+    });
   }
 
   @override
@@ -37,7 +43,6 @@ class _CarDetailsScreenState extends State<CarDetailsScreen> with SingleTickerPr
       builder: (context, provider, child) {
         final selectedCar = provider.selectedCar;
 
-        // حالة عدم اختيار سيارة
         if (selectedCar == null) {
           return const Scaffold(
             backgroundColor: AppColors.background,
@@ -61,83 +66,74 @@ class _CarDetailsScreenState extends State<CarDetailsScreen> with SingleTickerPr
             elevation: 0,
             leading: const BackButton(color: AppColors.textMain),
             actions: [
-              IconButton(
-                onPressed: () {},
-                icon: const Icon(Icons.settings_outlined, color: AppColors.textMain),
-              )
-            ],
+  PopupMenuButton<String>(
+    icon: const Icon(Icons.settings_outlined, color: AppColors.textMain),
+    onSelected: (value) {
+      if (value == 'delete') _showDeleteConfirmation(context, provider, selectedCar.id);
+    },
+    itemBuilder: (BuildContext context) => [
+      const PopupMenuItem<String>(
+        value: 'delete',
+        child: Row(
+          children: [
+            Icon(Icons.delete_outline, color: Colors.red, size: 20),
+            SizedBox(width: 10),
+            Text('Delete Car', style: TextStyle(color: Colors.red, fontWeight: FontWeight.bold)),
+          ],
+        ),
+      ),
+    ],
+  ),
+],
           ),
           body: TexturedBackground(
             child: Column(
               children: [
-                const SizedBox(height: 60), // مساحة للأب بار
+                const SizedBox(height: 80), 
 
-                // 1. لوجو البراند (HERO) - ستايل الكود الجديد
+                // ✅ تعديل رقم 1: اللوجو مباشرة على الخلفية بدون دوائر أو حدود
                 Hero(
                   tag: 'brand_logo_${selectedCar.id}',
-                  child: Container(
-                    height: 90,
-                    width: 90,
-                    padding: const EdgeInsets.all(12),
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      shape: BoxShape.circle,
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black.withOpacity(0.05),
-                          blurRadius: 10,
-                          offset: const Offset(0, 5),
-                        )
-                      ],
-                      border: Border.all(color: AppColors.primary.withOpacity(0.3), width: 2),
-                    ),
+                  child: SizedBox(
+                    height: 120, // حجم مناسب للظهور بوضوح
                     child: Image.asset(
-                      'assets/images/brands/${selectedCar.make.toLowerCase()}_logo.png',
+                      'assets/images/car_logo.png',
                       fit: BoxFit.contain,
-                      errorBuilder: (c, e, s) => Center(
-                        child: Text(
-                          selectedCar.make[0],
-                          style: const TextStyle(fontSize: 35, fontWeight: FontWeight.bold, color: AppColors.textMain),
-                        ),
-                      ),
+                      errorBuilder: (c, e, s) => const Icon(Icons.directions_car, size: 80, color: AppColors.textMain),
                     ),
                   ),
                 ),
 
-                const SizedBox(height: 12),
+                const SizedBox(height: 15),
                 Text(
-                  '${selectedCar.make} ${selectedCar.model}',
-                  style: const TextStyle(fontSize: 22, fontWeight: FontWeight.w900, letterSpacing: 0.5),
+                  '${selectedCar.make} ${selectedCar.model}'.toUpperCase(),
+                  style: const TextStyle(fontSize: 24, fontWeight: FontWeight.w900, letterSpacing: 0.8),
                 ),
                 Text(
                   selectedCar.licensePlate ?? 'No Plate',
-                  style: const TextStyle(fontSize: 14, color: AppColors.textSub, fontWeight: FontWeight.bold),
+                  style: const TextStyle(fontSize: 14, color: AppColors.textSub, fontWeight: FontWeight.bold, letterSpacing: 1),
                 ),
 
-                const SizedBox(height: 20),
+                const SizedBox(height: 25),
 
-                // 2. شريط الحالة (Stats Strip) - الأسود الصناعي
+                // شريط الحالة (Stats Strip) - حماية ضد الـ Overflow
                 Container(
                   margin: const EdgeInsets.symmetric(horizontal: 20),
-                  padding: const EdgeInsets.symmetric(vertical: 15),
+                  padding: const EdgeInsets.all(15),
                   decoration: BoxDecoration(
-                    color: AppColors.textMain, // الأسود الأسفلتي
+                    color: AppColors.textMain, 
                     borderRadius: BorderRadius.circular(20),
                     boxShadow: [
-                      BoxShadow(
-                        color: AppColors.primary.withOpacity(0.2),
-                        blurRadius: 15,
-                        offset: const Offset(0, 8),
-                      )
+                      BoxShadow(color: Colors.black26, blurRadius: 10, offset: const Offset(0, 5))
                     ],
                   ),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceAround,
                     children: [
                       _buildStatItem('Current KM', '${selectedCar.currentKm.toInt()} k', CupertinoIcons.speedometer),
-                      Container(width: 1, height: 30, color: Colors.white24),
-                      _buildStatItem('Next Service', 'Oct 24', CupertinoIcons.calendar),
-                      Container(width: 1, height: 30, color: Colors.white24),
+                      _divider(),
+                      _buildStatItem('Next Service', 'Soon', CupertinoIcons.wrench_fill),
+                      _divider(),
                       _buildStatItem('Status', 'Healthy', CupertinoIcons.checkmark_shield_fill),
                     ],
                   ),
@@ -145,7 +141,6 @@ class _CarDetailsScreenState extends State<CarDetailsScreen> with SingleTickerPr
 
                 const SizedBox(height: 15),
 
-                // 3. التابات (TabBar) - الستايل المطور
                 TabBar(
                   controller: _tabController,
                   labelColor: AppColors.textMain,
@@ -153,23 +148,14 @@ class _CarDetailsScreenState extends State<CarDetailsScreen> with SingleTickerPr
                   indicatorColor: AppColors.primary,
                   indicatorWeight: 4,
                   indicatorSize: TabBarIndicatorSize.label,
-                  labelStyle: const TextStyle(fontWeight: FontWeight.w900, fontSize: 14, letterSpacing: 0.5),
-                  tabs: const [
-                    Tab(text: 'HISTORY'),
-                    Tab(text: 'MAINTENANCE'),
-                    Tab(text: 'EMERGENCY'),
-                  ],
+                  labelStyle: const TextStyle(fontWeight: FontWeight.w900, fontSize: 13),
+                  tabs: const [Tab(text: 'HISTORY'), Tab(text: 'MAINTENANCE')],
                 ),
 
-                // 4. محتوى التابات (TabBarView)
                 Expanded(
                   child: TabBarView(
                     controller: _tabController,
-                    children: const [
-                      HistoryTab(),
-                      MaintenanceTab(),
-                      EmergencyTab(),
-                    ],
+                    children: const [HistoryTab(), MaintenanceTab()],
                   ),
                 ),
               ],
@@ -180,22 +166,62 @@ class _CarDetailsScreenState extends State<CarDetailsScreen> with SingleTickerPr
     );
   }
 
-  // ودجت بناء عناصر شريط الحالة
-  Widget _buildStatItem(String label, String value, IconData icon) {
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Icon(icon, color: AppColors.primary, size: 18),
-        const SizedBox(height: 4),
-        Text(
-          value,
-          style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 15),
+  Widget _divider() => Container(width: 1, height: 30, color: Colors.white24);
+
+// ✅ الإصلاح النهائي لدالة الحذف داخل car_details_screen.dart
+
+void _showDeleteConfirmation(BuildContext context, AppProvider provider, String carId) {
+  showCupertinoDialog(
+    context: context,
+    builder: (context) => CupertinoAlertDialog(
+      title: const Text("Delete Vehicle?"),
+      content: const Text("This action cannot be undone. All history logs for this car will be removed."),
+      actions: [
+        CupertinoDialogAction(
+          child: const Text("Cancel"),
+          onPressed: () => Navigator.pop(context),
         ),
-        Text(
-          label,
-          style: const TextStyle(color: Colors.grey, fontSize: 10, fontWeight: FontWeight.bold),
+        CupertinoDialogAction(
+          isDestructiveAction: true,
+          child: const Text("Delete"),
+         onPressed: () async {
+            final success = await provider.removeCar(carId); 
+            
+            if (context.mounted) {
+              Navigator.pop(context); // 1. قفل الديالوج (هذا pop صحيح لأنه حوار)
+              
+              if (success) {
+                // ✅ 2. التعديل الجوهري: العودة للتبويب الأول بدلاً من إغلاق التطبيق
+                provider.setTabIndex(0); 
+                
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                    content: Text("Vehicle removed from your garage"),
+                    backgroundColor: Colors.redAccent,
+                  ),
+                );
+              } else {
+                Navigator.pop(context); // قفل الديالوج في حالة الفشل أيضاً
+              }
+            }
+          },
         ),
       ],
+    ),
+  );
+}
+
+  Widget _buildStatItem(String label, String value, IconData icon) {
+    return Flexible( // ✅ حماية ضد الـ Overflow لو الرقم كبير
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(icon, color: AppColors.primary, size: 18),
+          const SizedBox(height: 4),
+          Text(value, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 14), overflow: TextOverflow.ellipsis),
+          Text(label, style: const TextStyle(color: Colors.grey, fontSize: 8, fontWeight: FontWeight.bold)),
+        ],
+      ),
     );
   }
 }

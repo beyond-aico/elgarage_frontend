@@ -1,18 +1,19 @@
-import 'package:flutter/material.dart'; // تم تغيير cupertino إلى material لدعم ChangeNotifier بشكل أفضل
+// --- FILE: lib/providers/app_provider.dart ---
+
+import 'package:elgarage/core/services/car_service.dart';
 import 'package:flutter/cupertino.dart';
 // استيراد الموديلات بناءً على شجرة الملفات
-import '../data/models/car_model.dart';
-import '../data/models/maintenance_item_model.dart';
-import '../data/models/product_model.dart';
-import '../data/models/service_log_model.dart';
-import '../data/models/emergency_model.dart';
-import '../data/services/car_service.dart';
+import '../core/models/car_model.dart';
+import '../core/models/maintenance_item_model.dart';
+import '../core/models/product_model.dart';
+import '../core/models/service_log_model.dart';
+import '../core/models/emergency_model.dart';
 
 class AppProvider with ChangeNotifier {
   final CarService _carService = CarService();
   
   // ==========================================================
-  // --- 1. CAR SECTION (Backend Integrated) ---
+  // --- 1. CAR SECTION (Backend Integrated with Role Logic) ---
   // ==========================================================
   List<Car> _myCars = [];
   bool _isLoadingCars = false;
@@ -24,58 +25,132 @@ class AppProvider with ChangeNotifier {
   String? get carError => _carError;
   Car? get selectedCar => _selectedCar;
 
-  // Fleet Logic
-  List<Car> get fleetCars => _myCars;
-  Car? get assignedDriverCar => _selectedCar; // للسواق
+ // 1. إضافة متغيرات جديدة للبيانات الشخصية والمنظمة
+  Map<String, dynamic>? _dashboardStats; 
+  String? _organizationName;
+  bool _isLoadingDashboard = false;
+String? _customOrgName;
+  String get organizationName => _organizationName ?? "Personal Garage";
+  bool get isLoadingDashboard => _isLoadingDashboard;
+Future<void> syncUserContext(dynamic user) async {
+    if (user == null) return;
+    
+    // 1. سحب اسم الشركة من موديل اليوزر
+    _organizationName = user.organizationName; 
+    
+    // 2. جلب العربيات فوراً بناءً على دور اليوزر (مدير أو سواق)
+    await fetchMyCars(role: user.role);
+    
+    notifyListeners(); // تحديث الهيدر والداشبورد بالبيانات الجديدة
+  }
+  // 2. تحديث الـ Analytics لتكون ديناميكية 100%
+ Map<String, dynamic> get fleetAnalytics {
+    if (_myCars.isEmpty) {
+      return {
+        "total_units": 0, "active_now": 0, "maintenance_due": 0,
+        "monthly_cost": "0 EGP", "efficiency": "0%"
+      };
+    }
 
-  // إحصائيات وهمية للأدمن (Analytics)
-  Map<String, dynamic> get fleetAnalytics => {
-    "total_units": _myCars.length,
-    "active_now": (_myCars.length * 0.8).floor(),
-    "maintenance_due": _myCars.where((c) => (c.currentKm % 10000) > 9000).length,
-    "monthly_cost": "45,000 EGP",
-    "efficiency": "94%"
-  };
+    int total = _myCars.length;
+    // بنحسب كام عربية محتاجة صيانة (اللي قربت من الـ 10000 كم)
+    int due = _myCars.where((c) => (c.currentKm % 10000) > 9000).length;
+    
+    return {
+      "total_units": total,
+      "active_now": total, 
+      "maintenance_due": due,
+      "monthly_cost": "${total * 2500} EGP", 
+      "efficiency": "${due == 0 ? 100 : (100 - (due / total * 100)).floor()}%"
+    };
+  }
+
+// --- داخل AppProvider في ملف app_provider.dart ---
 
   void setSelectedCar(Car car) {
     _selectedCar = car;
-    _dueMaintenance = []; // تصفير الصيانة القديمة
+    _dueMaintenance = []; // تصفير القائمة القديمة
     notifyListeners();
+    
+    // ✅ بمجرد اختيار سيارة، اطلب بيانات الصيانة الخاصة بها فوراً من SQL
+    fetchDueMaintenance(carId: car.id);
   }
 
-  // دعم المسمى القديم لتجنب الأخطاء في الواجهات
-  void selectCar(Car car) => setSelectedCar(car);
+  Future<void> fetchDueMaintenance({required String carId}) async {
+    _isLoadingMaintenance = true;
+    notifyListeners();
+    
+    try {
+      final List<dynamic> rawData = await _carService.getMaintenanceDue(carId);
+      debugPrint("📡 SQL Maintenance Data Received: ${rawData.length} items");
 
-  // تم إصلاح الخطأ هنا: تعريف متغير التحميل كخاصية في الكلاس وليس متغير محلي
+      _dueMaintenance = rawData.map((json) {
+        return MaintenanceItem(
+          // استخدام serviceName لأن هذا ما يرسله الباك إند في اللوج الخاص بك
+          id: json['serviceName'] ?? DateTime.now().toString(),
+          name: json['serviceName'] ?? 'Unknown Part',
+          category: json['category'] ?? 'General',
+          // حساب السعر تقديرياً لو الباك إند مبعتوش (لأن اللوج مظهرش فيه سعر)
+          price: (json['estimatedPrice'] ?? json['price'] ?? _getPriceForPart(json['serviceName'] ?? '')).toDouble(),
+          status: json['status'] ?? 'OK', 
+          isMissed: json['status'] == 'OVERDUE',
+        );
+      }).toList();
+
+    } catch (e) {
+      debugPrint("❌ Provider Mapping Error: $e");
+    } finally {
+      _isLoadingMaintenance = false;
+      notifyListeners(); // تحديث الـ UI بعد جلب البيانات
+    }
+  }
+
   bool _isUpdatingMileage = false;
   bool get isUpdatingMileage => _isUpdatingMileage;
 
+
   Future<bool> updateDriverMileage(String carId, int newMileage) async {
-    _isUpdatingMileage = true; // تغيير الحالة العامة للتحميل
+    _isUpdatingMileage = true; 
     notifyListeners();
     try {
-      // تفعيل مناداة الـ API (تأكد من وجود الدالة في car_service)
       await _carService.updateMileage(carId, newMileage);
-      
-      // تحديث البيانات محلياً بعد نجاح العملية
+      // تحديث البيانات محلياً بعد نجاح العملية في الباك إند
       await fetchMyCars(); 
-      
       return true;
     } catch (e) {
-      print("Error updating mileage: $e");
+debugPrint("Error updating mileage: $e"); // ✅ تم التعديل لـ debugPrint
       return false;
     } finally {
       _isUpdatingMileage = false;
       notifyListeners();
     }
   }
-
-  Future<void> fetchMyCars() async {
+String getImageForPart(String partName) {
+    String name = partName.toLowerCase();
+    if (name.contains('oil')) return 'assets/images/engine_oil.png';
+    if (name.contains('spark')) return 'assets/images/spark_plug.png';
+    if (name.contains('brake')) return 'assets/images/brake_pad.png';
+    return 'assets/images/engine_oil.png'; // صورة افتراضية
+  }
+ // داخل كلاس AppProvider في ملف app_provider.dart
+// --- جلب السيارات من السيرفر ---
+ // 4. تحديث دالة fetchMyCars لضمان اختيار أول سيارة كـ Selected تلقائياً
+  Future<void> fetchMyCars({String? role}) async {
     _isLoadingCars = true;
     _carError = null;
     notifyListeners();
+
     try {
-      _myCars = await _carService.getMyCars();
+      List<Car> fetchedCars;
+      if (role == 'ACCOUNT_MANAGER' || role == 'ADMIN') {
+        fetchedCars = await _carService.getFleetCars();
+      } else {
+        fetchedCars = await _carService.getMyCars();
+      }
+      
+      _myCars = fetchedCars;
+      
+      // تأكيد اختيار سيارة افتراضية للعرض في الهيدر والتفاصيل
       if (_myCars.isNotEmpty && _selectedCar == null) {
         _selectedCar = _myCars.first;
       }
@@ -86,10 +161,7 @@ class AppProvider with ChangeNotifier {
       notifyListeners();
     }
   }
-
-  // ==========================================================
-  // --- 2. MAINTENANCE LOGIC (Matrix & Intelligent Check) ---
-  // ==========================================================
+  
   List<MaintenanceItem> _dueMaintenance = [];
   bool _isLoadingMaintenance = false;
   List<MaintenanceItem> get dueMaintenance => _dueMaintenance;
@@ -105,28 +177,14 @@ class AppProvider with ChangeNotifier {
     60000: ['Engine Oil', 'Oil Filter', 'Air Filter', 'Spark Plugs', 'Drive Belt (Kit)'],
   };
 
-  // جلب الصيانات من الباك إند
-  Future<void> fetchDueMaintenance({required String carId}) async {
-    if (_selectedCar == null && _myCars.isNotEmpty) {
-       _selectedCar = _myCars.firstWhere((element) => element.id == carId, orElse: () => _myCars.first);
-    }
-    _isLoadingMaintenance = true;
-    notifyListeners();
-    try {
-      final rawData = await _carService.getMaintenanceDue(carId);
-      _dueMaintenance = rawData.map((item) => MaintenanceItem.fromJson(item)).toList();
-    } catch (e) {
-      print("Error loading maintenance: $e");
-    } finally {
-      _isLoadingMaintenance = false;
-      notifyListeners();
-    }
-  }
+  // --- في ملف lib/providers/app_provider.dart ---
+
+// --- في ملف lib/providers/app_provider.dart ---
 
   // حساب الكيلومتر القادم (Milestone)
   int get currentMilestone {
     if (_selectedCar == null) return 10000;
-    int km = _selectedCar!.currentKm;
+    int km = _selectedCar!.currentKm.toInt(); // تحويل لـ int لضمان الحساب الصحيح
     return ((km / 10000).floor() + 1) * 10000;
   }
 
@@ -154,6 +212,7 @@ class AppProvider with ChangeNotifier {
         name: part,
         price: _getPriceForPart(part),
         category: 'Maintenance',
+        imagePath: getImageForPart(part), // إضافة المسار هنا
         isMissed: missed,
       );
     }).toList();
@@ -201,6 +260,24 @@ class AppProvider with ChangeNotifier {
     _cartItems.remove(item);
     notifyListeners();
   }
+  // داخل كلاس AppProvider في ملف app_provider.dart
+// داخل كلاس AppProvider في ملف app_provider.dart
+
+Future<bool> removeCar(String carId) async {
+  try {
+    await _carService.deleteCar(carId); // 1. الحذف من السيرفر
+    
+    // 2. التحديث المحلي فوراً
+    _myCars.removeWhere((c) => c.id == carId); 
+    if (_selectedCar?.id == carId) _selectedCar = null;
+    
+    notifyListeners(); // 3. إشعار الهوم بالترتيب الجديد
+    return true;
+  } catch (e) {
+    debugPrint("❌ Delete Error: $e");
+    return false;
+  }
+}
 
   final List<EmergencyModel> _emergencyContacts = [
     EmergencyModel(name: 'Al-Inqaz Towing', phoneNumber: '0100000001', location: 'Nasr City', type: 'Winch', rating: '4.9'),
@@ -218,11 +295,71 @@ class AppProvider with ChangeNotifier {
   ];
   List<Map<String, dynamic>> get categories => _categories;
 
-  final List<ProductModel> _marketProducts = [
-    ProductModel(id: '201', name: 'Shell Helix Ultra', price: 950, category: 'Oils'),
-    ProductModel(id: '202', name: 'Michelin Tire 16"', price: 4500, category: 'Tires'),
-  ];
-  List<ProductModel> get marketProducts => _marketProducts;
+// في ملف app_provider.dart داخل كلاس AppProvider
+final List<ProductModel> _marketProducts = [
+  // --- قطع غيار (Spare Parts) ---
+  ProductModel(
+    id: 'p1', 
+    name: 'Total Quartz 9000 5W-40 (4L)', 
+    price: 1450, 
+    category: 'Oils',
+    imagePath: 'assets/images/1.jpg',
+  ),
+  ProductModel(
+    id: 'p2', 
+    name: 'Brembo Brake Pads Set (Front)', 
+    price: 2800, 
+    category: 'Brakes',
+    imagePath: 'assets/images/2.png',
+  ),
+  ProductModel(
+    id: 'p3', 
+    name: 'NGK Iridium Spark Plugs (4pcs)', 
+    price: 1100, 
+    category: 'Engine',
+    imagePath: 'assets/images/3.jfif',
+  ),
+  ProductModel(
+    id: 'p4', 
+    name: 'Bosch Premium Oil Filter', 
+    price: 450, 
+    category: 'Filters',
+    imagePath: 'assets/images/1.jpg',
+  ),
+  
+  // --- كماليات (Accessories) ---
+  ProductModel(
+    id: 'a1', 
+    name: '70ai Dash Cam Pro Plus+', 
+    price: 3200, 
+    category: 'Electronics',
+    imagePath: 'assets/images/2.png',
+  ),
+  ProductModel(
+    id: 'a2', 
+    name: 'Baseus Portable Air Pump', 
+    price: 1950, 
+    category: 'Accessories',
+    imagePath: 'assets/images/2.png',
+  ),
+  ProductModel(
+    id: 'a3', 
+    name: 'Philips LED Headlight H7 Kit', 
+    price: 1800, 
+    category: 'Lighting',
+    imagePath: 'assets/images/2.png',
+  ),
+  ProductModel(
+    id: 'a4', 
+    name: 'Premium Leather Seat Covers', 
+    price: 5500, 
+    category: 'Interior',
+    imagePath: 'assets/images/2.png',
+  ),
+];
+
+// ابحث عن تعريف _marketProducts في السطر 256 تقريباً وأضف تحته:
+List<ProductModel> get marketProducts => _marketProducts; // هذا السطر سيحل خطأ marketplace_screen
 
   final List<Map<String, dynamic>> _serviceCenters = [
     {'name': 'Auto Fix Center', 'location': 'Nasr City', 'labor_cost': 200.0},
@@ -233,18 +370,62 @@ class AppProvider with ChangeNotifier {
   // ==========================================================
   // --- 4. HELPERS (Dropdowns & Navigation) ---
   // ==========================================================
+  // ==========================================================
+  // --- 4. HELPERS (Dropdowns & Navigation) ---
+  // ==========================================================
   int _currentTabIndex = 0;
   int get currentTabIndex => _currentTabIndex;
-  void setTabIndex(int index) { _currentTabIndex = index; notifyListeners(); }
-
-  Future<List<dynamic>> fetchBrands() async => await _carService.getBrands();
-  Future<List<dynamic>> fetchModels(String brandId) async => await _carService.getModels(brandId);
   
+  void setTabIndex(int index) { 
+    _currentTabIndex = index; 
+    notifyListeners(); 
+  }
+
+  // جلب الماركات مع معالجة الخطأ
+  Future<List<dynamic>> fetchBrands() async {
+    try {
+      return await _carService.getBrands();
+    } catch (e) {
+      debugPrint("❌ Provider Brands Error: $e");
+      return [];
+    }
+  }
+
+  // جلب الموديلات بناءً على الماركة المختارة
+  Future<List<dynamic>> fetchModels(String brandId) async {
+    try {
+      return await _carService.getModels(brandId);
+    } catch (e) {
+      debugPrint("❌ Provider Models Error: $e");
+      return [];
+    }
+  }
+
+  // دالة إعادة ترتيب السيارات (للتنظيم المحلي)
+  void reorderMyCars(int oldIndex, int newIndex) {
+    if (newIndex > oldIndex) newIndex -= 1;
+    final Car item = _myCars.removeAt(oldIndex);
+    _myCars.insert(newIndex, item);
+    notifyListeners();
+  }
+
+  // دالة إضافة سيارة جديدة (النسخة النهائية المطابقة للباك إند)
   Future<bool> addNewCarv2(Map<String, dynamic> carData) async {
     try {
-      await _carService.addCar(carData);
-      await fetchMyCars();
+      // التأكد من إرسال currentKm كما يتوقعها السيرفر في Prisma
+      final Map<String, dynamic> formattedData = {
+        ...carData,
+        'currentKm': carData['mileageKm'], 
+      };
+
+      await _carService.addCar(formattedData);
+      
+      // تحديث قائمة السيارات فوراً من السيرفر لظهورها في الهوم
+      await fetchMyCars(); 
       return true;
-    } catch (e) { return false; }
+    } catch (e) {
+      debugPrint("❌ Add Car Flow Error: $e");
+      return false;
+    }
   }
 }

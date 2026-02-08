@@ -1,154 +1,549 @@
-Folder PATH listing
-Volume serial number is CE4B-4E4F
-C:.
-|   .gitignore
-|   android.txt
-|   ElGarage_android.iml
-|   build.gradle.kts
-|   gradle.properties
-|   gradlew
-|   gradlew.bat
-|   key.properties
-|   local.properties
-|   settings.gradle.kts
-|   
-+---.gradle
-|   |   file-system.probe
-|   |   
-|   +---8.14
-|   |   |   gc.properties
-|   |   |   
-|   |   +---checksums
-|   |   |       checksums.lock
-|   |   |       md5-checksums.bin
-|   |   |       sha1-checksums.bin
-|   |   |       
-|   |   +---executionHistory
-|   |   |       executionHistory.bin
-|   |   |       executionHistory.lock
-|   |   |       
-|   |   +---expanded
-|   |   +---fileChanges
-|   |   |       last-build.bin
-|   |   |       
-|   |   +---fileHashes
-|   |   |       fileHashes.bin
-|   |   |       fileHashes.lock
-|   |   |       resourceHashesCache.bin
-|   |   |       
-|   |   \---vcsMetadata
-|   +---buildOutputCleanup
-|   |       buildOutputCleanup.lock
-|   |       cache.properties
-|   |       outputFiles.bin
-|   |       
-|   +---kotlin
-|   |   \---errors
-|   |           errors-1765159762442.log
-|   |           errors-1765159762505.log
-|   |           errors-1765537037378.log
-|   |           errors-1765537037405.log
-|   |           errors-1765541545277.log
-|   |           errors-1765541545287.log
-|   |           errors-1765541545294.log
-|   |           errors-1765545433871.log
-|   |           errors-1765545433900.log
-|   |           errors-1765545433915.log
-|   |           errors-1765559851803.log
-|   |           errors-1765559851830.log
-|   |           errors-1765559851844.log
-|   |           errors-1765564003627.log
-|   |           errors-1765564003666.log
-|   |           errors-1765564003682.log
-|   |           
-|   +---noVersion
-|   |       buildLogic.lock
-|   |       
-|   \---vcs-1
-|           gc.properties
-|           
-+---.kotlin
-|   +---errors
-|   |       errors-1765159762442.log
-|   |       errors-1765159762505.log
-|   |       errors-1765537037378.log
-|   |       errors-1765537037405.log
-|   |       errors-1765541545277.log
-|   |       errors-1765541545286.log
-|   |       errors-1765541545294.log
-|   |       errors-1765545433871.log
-|   |       errors-1765545433900.log
-|   |       errors-1765545433915.log
-|   |       errors-1765559851803.log
-|   |       errors-1765559851830.log
-|   |       errors-1765559851843.log
-|   |       errors-1765564003627.log
-|   |       errors-1765564003666.log
-|   |       errors-1765564003682.log
-|   |       
-|   \---sessions
-+---app
-|   |   build.gradle.kts
-|   |   google-services.json
-|   |   upload-keystore.jks
-|   |   
-|   \---src
-|       +---debug
-|       |       AndroidManifest.xml
-|       |       
-|       +---main
-|       |   |   AndroidManifest.xml
-|       |   |   
-|       |   +---java
-|       |   |   \---io
-|       |   |       \---flutter
-|       |   |           \---plugins
-|       |   |                   GeneratedPluginRegistrant.java
-|       |   |                   
-|       |   +---kotlin
-|       |   |   \---com
-|       |   |       \---beyondaico
-|       |   |           \---elgarage
-|       |   |                   MainActivity.kt
-|       |   |                   
-|       |   \---res
-|       |       +---drawable
-|       |       |       launch_background.xml
-|       |       |       
-|       |       +---drawable-v21
-|       |       |       launch_background.xml
-|       |       |       
-|       |       +---mipmap-hdpi
-|       |       |       ic_launcher.png
-|       |       |       
-|       |       +---mipmap-mdpi
-|       |       |       ic_launcher.png
-|       |       |       
-|       |       +---mipmap-xhdpi
-|       |       |       ic_launcher.png
-|       |       |       
-|       |       +---mipmap-xxhdpi
-|       |       |       ic_launcher.png
-|       |       |       
-|       |       +---mipmap-xxxhdpi
-|       |       |       ic_launcher.png
-|       |       |       
-|       |       +---values
-|       |       |       styles.xml
-|       |       |       
-|       |       \---values-night
-|       |               styles.xml
-|       |               
-|       \---profile
-|               AndroidManifest.xml
-|               
-+---build
-|   \---reports
-|       \---problems
-|               problems-report.html
-|               
-\---gradle
-    \---wrapper
-            gradle-wrapper.jar
-            gradle-wrapper.properties
+--- FLUTTER FULL PROJECT DUMP ---
+Generated on: 2026-02-07
+============================================================
+
+
+############################################################
+PATH: .\.gitignore
+############################################################
+
+gradle-wrapper.jar
+/.gradle
+/captures/
+/gradlew
+/gradlew.bat
+/local.properties
+GeneratedPluginRegistrant.java
+.cxx/
+
+# Remember to never publicly share your keystore.
+# See https://flutter.dev/to/reference-keystore
+key.properties
+**/*.keystore
+**/*.jks
+
+
+****************************** END OF FILE ******************************
+
+############################################################
+PATH: .\build.gradle.kts
+############################################################
+
+allprojects {
+    repositories {
+        google()
+        mavenCentral()
+    }
+}
+
+val newBuildDir: Directory =
+    rootProject.layout.buildDirectory
+        .dir("../../build")
+        .get()
+rootProject.layout.buildDirectory.value(newBuildDir)
+
+subprojects {
+    val newSubprojectBuildDir: Directory = newBuildDir.dir(project.name)
+    project.layout.buildDirectory.value(newSubprojectBuildDir)
+}
+subprojects {
+    project.evaluationDependsOn(":app")
+}
+
+tasks.register<Delete>("clean") {
+    delete(rootProject.layout.buildDirectory)
+}
+
+
+****************************** END OF FILE ******************************
+
+############################################################
+PATH: .\gradle.properties
+############################################################
+
+org.gradle.jvmargs=-Xmx8G -XX:MaxMetaspaceSize=4G -XX:ReservedCodeCacheSize=512m -XX:+HeapDumpOnOutOfMemoryError
+android.useAndroidX=true
+
+
+****************************** END OF FILE ******************************
+
+############################################################
+PATH: .\key.properties
+############################################################
+
+storePassword=015816
+keyPassword=015816
+keyAlias=upload
+storeFile=upload-keystore.jks
+
+****************************** END OF FILE ******************************
+
+############################################################
+PATH: .\local.properties
+############################################################
+
+sdk.dir=C:\\Users\\Dell\\AppData\\Local\\Android\\Sdk
+flutter.sdk=C:\\src\\flutter
+flutter.buildMode=debug
+flutter.versionName=1.0.4
+flutter.versionCode=1
+
+****************************** END OF FILE ******************************
+
+############################################################
+PATH: .\settings.gradle.kts
+############################################################
+
+pluginManagement {
+    val flutterSdkPath =
+        run {
+            val properties = java.util.Properties()
+            file("local.properties").inputStream().use { properties.load(it) }
+            val flutterSdkPath = properties.getProperty("flutter.sdk")
+            require(flutterSdkPath != null) { "flutter.sdk not set in local.properties" }
+            flutterSdkPath
+        }
+
+    includeBuild("$flutterSdkPath/packages/flutter_tools/gradle")
+
+    repositories {
+        google()
+        mavenCentral()
+        gradlePluginPortal()
+    }
+}
+
+plugins {
+    id("dev.flutter.flutter-plugin-loader") version "1.0.4"
+    id("com.android.application") version "8.11.1" apply false
+    // START: FlutterFire Configuration
+    id("com.google.gms.google-services") version("4.3.15") apply false
+    // END: FlutterFire Configuration
+    id("org.jetbrains.kotlin.android") version "2.2.20" apply false
+}
+
+include(":app")
+
+
+****************************** END OF FILE ******************************
+
+############################################################
+PATH: .\app\build.gradle.kts
+############################################################
+
+import java.util.Properties
+import java.io.FileInputStream
+
+plugins {
+    id("com.android.application")
+    id("com.google.gms.google-services")
+    id("kotlin-android")
+    id("dev.flutter.flutter-gradle-plugin")
+}
+
+val keystoreProperties = Properties()
+val keystorePropertiesFile = rootProject.file("key.properties")
+if (keystorePropertiesFile.exists()) {
+    keystoreProperties.load(FileInputStream(keystorePropertiesFile))
+}
+
+android {
+    namespace = "com.beyondaico.elgarage"
+    compileSdk = flutter.compileSdkVersion
+    ndkVersion = flutter.ndkVersion
+
+    compileOptions {
+        sourceCompatibility = JavaVersion.VERSION_17
+        targetCompatibility = JavaVersion.VERSION_17
+    }
+
+    kotlinOptions {
+        jvmTarget = "17"
+    }
+
+    defaultConfig {
+        applicationId = "com.beyondaico.elgarage"
+        minSdk = flutter.minSdkVersion
+        targetSdk = flutter.targetSdkVersion
+        versionCode = 4
+        versionName = "1.0.4"
+    }
+
+    signingConfigs {
+        create("release") {
+            // Using "getProperty" and the Elvis operator (?:) to provide a fallback
+            keyAlias = keystoreProperties.getProperty("keyAlias") ?: ""
+            keyPassword = keystoreProperties.getProperty("keyPassword") ?: ""
+            val storePath = keystoreProperties.getProperty("storeFile") ?: ""
+            storeFile = if (storePath.isNotEmpty()) file(storePath) else null
+            storePassword = keystoreProperties.getProperty("storePassword") ?: ""
+        }
+    }
+
+    buildTypes {
+        release {
+            // التعديل المهم هنا: استخدام الـ release config
+            signingConfig = signingConfigs.getByName("release")
+            isMinifyEnabled = false
+            isShrinkResources = false
+            ndk {
+                debugSymbolLevel = "FULL"
+            }
+        }
+    }
+}
+
+flutter {
+    source = "../.."
+}
+
+****************************** END OF FILE ******************************
+
+############################################################
+PATH: .\app\google-services.json
+############################################################
+
+{
+  "project_info": {
+    "project_number": "602286841824",
+    "project_id": "elgarage-beyond",
+    "storage_bucket": "elgarage-beyond.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:602286841824:android:9a1875fde2ad22aeb31585",
+        "android_client_info": {
+          "package_name": "com.beyondaico.elgarage"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "602286841824-j0aavp2s0u70k7uk8ag2f3g0irkcf8ln.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.beyondaico.elgarage",
+            "certificate_hash": "7cee5eb46208ddd164dff81f19d06e87f537f5dc"
+          }
+        },
+        {
+          "client_id": "602286841824-j8e55rjmjcm9smr05tg23g61j3a40mca.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBPtf4rBwVh6DaCAotzraPBk81XYI6e8Mg"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "602286841824-j8e55rjmjcm9smr05tg23g61j3a40mca.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "602286841824-442k0hd8is0m1shkefqtvj5d65kchsbd.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.beyondaico.elgarage"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
+
+****************************** END OF FILE ******************************
+
+############################################################
+PATH: .\app\src\debug\AndroidManifest.xml
+############################################################
+
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- The INTERNET permission is required for development. Specifically,
+         the Flutter tool needs it to communicate with the running application
+         to allow setting breakpoints, to provide hot reload, etc.
+    -->
+    <uses-permission android:name="android.permission.INTERNET"/>
+</manifest>
+
+
+****************************** END OF FILE ******************************
+
+############################################################
+PATH: .\app\src\main\AndroidManifest.xml
+############################################################
+
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <uses-permission android:name="android.permission.INTERNET"/>
+    <uses-permission android:name="com.google.android.gms.permission.AD_ID"/>
+    
+    <application
+        android:label="El Garage"
+        android:name="${applicationName}"
+        android:icon="@mipmap/ic_launcher"
+        android:enableOnBackInvokedCallback="true">
+        
+        <activity
+            android:name=".MainActivity"
+            android:exported="true"
+            android:launchMode="singleTop"
+            android:taskAffinity=""
+            android:theme="@style/LaunchTheme"
+            android:configChanges="orientation|keyboardHidden|keyboard|screenSize|smallestScreenSize|locale|layoutDirection|fontScale|screenLayout|density|uiMode"
+            android:hardwareAccelerated="true"
+            android:windowSoftInputMode="adjustResize">
             
+            <meta-data
+              android:name="io.flutter.embedding.android.NormalTheme"
+              android:resource="@style/NormalTheme"
+              />
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+                <category android:name="android.intent.category.LAUNCHER"/>
+            </intent-filter>
+        </activity>
+        
+        <meta-data
+            android:name="flutterEmbedding"
+            android:value="2" />
+    </application>
+
+    <queries>
+        <intent>
+            <action android:name="android.intent.action.VIEW" />
+            <data android:scheme="https" />
+        </intent>
+        <intent>
+            <action android:name="android.intent.action.DIAL" />
+            <data android:scheme="tel" />
+        </intent>
+        <intent>
+            <action android:name="android.intent.action.SENDTO" />
+            <data android:scheme="smsto" />
+        </intent>
+        <intent>
+            <action android:name="android.intent.action.VIEW" />
+            <data android:scheme="geo" />
+        </intent>
+        <intent>
+            <action android:name="android.intent.action.PROCESS_TEXT"/>
+            <data android:mimeType="text/plain"/>
+        </intent>
+    </queries>
+</manifest>
+
+****************************** END OF FILE ******************************
+
+############################################################
+PATH: .\app\src\main\java\io\flutter\plugins\GeneratedPluginRegistrant.java
+############################################################
+
+package io.flutter.plugins;
+
+import androidx.annotation.Keep;
+import androidx.annotation.NonNull;
+import io.flutter.Log;
+
+import io.flutter.embedding.engine.FlutterEngine;
+
+/**
+ * Generated file. Do not edit.
+ * This file is generated by the Flutter tool based on the
+ * plugins that support the Android platform.
+ */
+@Keep
+public final class GeneratedPluginRegistrant {
+  private static final String TAG = "GeneratedPluginRegistrant";
+  public static void registerWith(@NonNull FlutterEngine flutterEngine) {
+    try {
+      flutterEngine.getPlugins().add(new xyz.luan.audioplayers.AudioplayersPlugin());
+    } catch (Exception e) {
+      Log.e(TAG, "Error registering plugin audioplayers_android, xyz.luan.audioplayers.AudioplayersPlugin", e);
+    }
+    try {
+      flutterEngine.getPlugins().add(new io.flutter.plugins.firebase.firestore.FlutterFirebaseFirestorePlugin());
+    } catch (Exception e) {
+      Log.e(TAG, "Error registering plugin cloud_firestore, io.flutter.plugins.firebase.firestore.FlutterFirebaseFirestorePlugin", e);
+    }
+    try {
+      flutterEngine.getPlugins().add(new io.flutter.plugins.firebase.auth.FlutterFirebaseAuthPlugin());
+    } catch (Exception e) {
+      Log.e(TAG, "Error registering plugin firebase_auth, io.flutter.plugins.firebase.auth.FlutterFirebaseAuthPlugin", e);
+    }
+    try {
+      flutterEngine.getPlugins().add(new io.flutter.plugins.firebase.core.FlutterFirebaseCorePlugin());
+    } catch (Exception e) {
+      Log.e(TAG, "Error registering plugin firebase_core, io.flutter.plugins.firebase.core.FlutterFirebaseCorePlugin", e);
+    }
+    try {
+      flutterEngine.getPlugins().add(new com.it_nomads.fluttersecurestorage.FlutterSecureStoragePlugin());
+    } catch (Exception e) {
+      Log.e(TAG, "Error registering plugin flutter_secure_storage, com.it_nomads.fluttersecurestorage.FlutterSecureStoragePlugin", e);
+    }
+    try {
+      flutterEngine.getPlugins().add(new io.flutter.plugins.googlesignin.GoogleSignInPlugin());
+    } catch (Exception e) {
+      Log.e(TAG, "Error registering plugin google_sign_in_android, io.flutter.plugins.googlesignin.GoogleSignInPlugin", e);
+    }
+    try {
+      flutterEngine.getPlugins().add(new io.flutter.plugins.pathprovider.PathProviderPlugin());
+    } catch (Exception e) {
+      Log.e(TAG, "Error registering plugin path_provider_android, io.flutter.plugins.pathprovider.PathProviderPlugin", e);
+    }
+    try {
+      flutterEngine.getPlugins().add(new com.baseflow.permissionhandler.PermissionHandlerPlugin());
+    } catch (Exception e) {
+      Log.e(TAG, "Error registering plugin permission_handler_android, com.baseflow.permissionhandler.PermissionHandlerPlugin", e);
+    }
+    try {
+      flutterEngine.getPlugins().add(new io.flutter.plugins.sharedpreferences.SharedPreferencesPlugin());
+    } catch (Exception e) {
+      Log.e(TAG, "Error registering plugin shared_preferences_android, io.flutter.plugins.sharedpreferences.SharedPreferencesPlugin", e);
+    }
+    try {
+      flutterEngine.getPlugins().add(new com.csdcorp.speech_to_text.SpeechToTextPlugin());
+    } catch (Exception e) {
+      Log.e(TAG, "Error registering plugin speech_to_text, com.csdcorp.speech_to_text.SpeechToTextPlugin", e);
+    }
+    try {
+      flutterEngine.getPlugins().add(new com.tekartik.sqflite.SqflitePlugin());
+    } catch (Exception e) {
+      Log.e(TAG, "Error registering plugin sqflite_android, com.tekartik.sqflite.SqflitePlugin", e);
+    }
+    try {
+      flutterEngine.getPlugins().add(new io.flutter.plugins.urllauncher.UrlLauncherPlugin());
+    } catch (Exception e) {
+      Log.e(TAG, "Error registering plugin url_launcher_android, io.flutter.plugins.urllauncher.UrlLauncherPlugin", e);
+    }
+  }
+}
+
+
+****************************** END OF FILE ******************************
+
+############################################################
+PATH: .\app\src\main\res\drawable\launch_background.xml
+############################################################
+
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Modify this file to customize your launch splash screen -->
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:drawable="@android:color/white" />
+
+    <!-- You can insert your own image assets here -->
+    <!-- <item>
+        <bitmap
+            android:gravity="center"
+            android:src="@mipmap/launch_image" />
+    </item> -->
+</layer-list>
+
+
+****************************** END OF FILE ******************************
+
+############################################################
+PATH: .\app\src\main\res\drawable-v21\launch_background.xml
+############################################################
+
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Modify this file to customize your launch splash screen -->
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:drawable="?android:colorBackground" />
+
+    <!-- You can insert your own image assets here -->
+    <!-- <item>
+        <bitmap
+            android:gravity="center"
+            android:src="@mipmap/launch_image" />
+    </item> -->
+</layer-list>
+
+
+****************************** END OF FILE ******************************
+
+############################################################
+PATH: .\app\src\main\res\values\styles.xml
+############################################################
+
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Theme applied to the Android Window while the process is starting when the OS's Dark Mode setting is off -->
+    <style name="LaunchTheme" parent="@android:style/Theme.Light.NoTitleBar">
+        <!-- Show a splash screen on the activity. Automatically removed when
+             the Flutter engine draws its first frame -->
+        <item name="android:windowBackground">@drawable/launch_background</item>
+    </style>
+    <!-- Theme applied to the Android Window as soon as the process has started.
+         This theme determines the color of the Android Window while your
+         Flutter UI initializes, as well as behind your Flutter UI while its
+         running.
+
+         This Theme is only used starting with V2 of Flutter's Android embedding. -->
+    <style name="NormalTheme" parent="@android:style/Theme.Light.NoTitleBar">
+        <item name="android:windowBackground">?android:colorBackground</item>
+    </style>
+</resources>
+
+
+****************************** END OF FILE ******************************
+
+############################################################
+PATH: .\app\src\main\res\values-night\styles.xml
+############################################################
+
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Theme applied to the Android Window while the process is starting when the OS's Dark Mode setting is on -->
+    <style name="LaunchTheme" parent="@android:style/Theme.Black.NoTitleBar">
+        <!-- Show a splash screen on the activity. Automatically removed when
+             the Flutter engine draws its first frame -->
+        <item name="android:windowBackground">@drawable/launch_background</item>
+    </style>
+    <!-- Theme applied to the Android Window as soon as the process has started.
+         This theme determines the color of the Android Window while your
+         Flutter UI initializes, as well as behind your Flutter UI while its
+         running.
+
+         This Theme is only used starting with V2 of Flutter's Android embedding. -->
+    <style name="NormalTheme" parent="@android:style/Theme.Black.NoTitleBar">
+        <item name="android:windowBackground">?android:colorBackground</item>
+    </style>
+</resources>
+
+
+****************************** END OF FILE ******************************
+
+############################################################
+PATH: .\app\src\profile\AndroidManifest.xml
+############################################################
+
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- The INTERNET permission is required for development. Specifically,
+         the Flutter tool needs it to communicate with the running application
+         to allow setting breakpoints, to provide hot reload, etc.
+    -->
+    <uses-permission android:name="android.permission.INTERNET"/>
+</manifest>
+
+
+****************************** END OF FILE ******************************
+
+############################################################
+PATH: .\gradle\wrapper\gradle-wrapper.properties
+############################################################
+
+distributionBase=GRADLE_USER_HOME
+distributionPath=wrapper/dists
+zipStoreBase=GRADLE_USER_HOME
+zipStorePath=wrapper/dists
+distributionUrl=https\://services.gradle.org/distributions/gradle-8.14-all.zip
+
+
+****************************** END OF FILE ******************************

@@ -1,9 +1,11 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
+import '../constants/app_config.dart'; // ✅ استيراد الإعدادات
 import '../models/auth_response_model.dart';
 
 class AuthService {
-final String baseUrl = 'http://192.168.8.17:3000/api/v1/auth';
+  // ✅ استخدام الرابط المركزي
+  final String baseUrl = AppConfig.auth;
 
   Future<AuthResponse> register(String name, String email, String phone, String password) async {
     final response = await http.post(

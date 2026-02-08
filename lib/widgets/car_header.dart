@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import '../core/constants/app_colors.dart';
-import '../data/models/car_model.dart'; // تأكد إنه بيشاور على الموديل الجديد
+import '../core/models/car_model.dart';
 
 class CarHeader extends StatelessWidget {
-  final Car car; // 1. استخدام الكلاس الجديد
+  final Car car;
 
   const CarHeader({super.key, required this.car});
 
@@ -13,50 +13,44 @@ class CarHeader extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: const BoxDecoration(
-        color: AppColors.cardColor,
+        color: AppColors.textMain, // Asphalt Dark لإعطاء طابع صناعي
         borderRadius: BorderRadius.vertical(bottom: Radius.circular(30)),
       ),
       child: Column(
         children: [
           Row(
             children: [
-              // 1. صورة العربية
+              // 1. صورة العربية أو اللوجو
               Container(
                 width: 70,
                 height: 70,
                 decoration: BoxDecoration(
-                  color: AppColors.primary.withAlpha(20),
+                  color: Colors.white.withAlpha(05),
                   borderRadius: BorderRadius.circular(15),
-                  image: car.imageUrl != null && car.imageUrl!.isNotEmpty
-                      ? DecorationImage(
-                          image: NetworkImage(car.imageUrl!), // استخدام NetworkImage
-                          fit: BoxFit.cover,
-                          onError: (_, __) {}, 
-                        )
-                      : null,
                 ),
-                child: car.imageUrl == null || car.imageUrl!.isEmpty
-                    ? const Icon(CupertinoIcons.car_detailed, size: 30, color: AppColors.primary)
-                    : null,
+                child: car.imageUrl != null && car.imageUrl!.isNotEmpty
+                    ? ClipRRect(
+                        borderRadius: BorderRadius.circular(15),
+                        child: Image.network(car.imageUrl!, fit: BoxFit.cover, errorBuilder: (_, _, _) => _defaultIcon()),
+                      )
+                    : _defaultIcon(),
               ),
               const SizedBox(width: 15),
 
-              // 2. الاسم والموديل
+              // 2. الاسم والموديل مع حماية الـ Overflow
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      '${car.make} ${car.model}',
-                      style: const TextStyle(
-                        fontSize: 22,
-                        fontWeight: FontWeight.bold,
-                        color: AppColors.textPrimary,
-                      ),
+                      '${car.make} ${car.model}'.toUpperCase(),
+                      style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w900, color: Colors.white),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
                     ),
                     Text(
-                      'Year: ${car.year} | ${car.licensePlate ?? "No Plate"}', // استخدام licensePlate
-                      style: const TextStyle(color: AppColors.textSecondary),
+                      'Year: ${car.year} | ${car.licensePlate ?? "No Plate"}',
+                      style: const TextStyle(color: Colors.grey, fontSize: 12, fontWeight: FontWeight.bold),
                     ),
                   ],
                 ),
@@ -65,11 +59,11 @@ class CarHeader extends StatelessWidget {
           ),
           const SizedBox(height: 20),
 
-          // 3. شريط المعلومات (Placeholders مؤقتاً)
+          // 3. شريط المعلومات الحقيقي
           Container(
             padding: const EdgeInsets.all(15),
             decoration: BoxDecoration(
-              color: AppColors.background,
+              color: Colors.white.withAlpha(03),
               borderRadius: BorderRadius.circular(15),
             ),
             child: Row(
@@ -78,10 +72,10 @@ class CarHeader extends StatelessWidget {
                 _buildInfoItem(
                   icon: CupertinoIcons.speedometer,
                   title: 'Current KM',
-                  value: 'N/A', // العربية لسه مفهاش عداد في الموديل الحالي
+                  value: '${car.currentKm.toInt()} km',
                   color: AppColors.primary,
                 ),
-                Container(width: 1, height: 40, color: Colors.grey[300]),
+                Container(width: 1, height: 30, color: Colors.white10),
                 _buildInfoItem(
                   icon: CupertinoIcons.wrench_fill,
                   title: 'Next Service',
@@ -96,22 +90,16 @@ class CarHeader extends StatelessWidget {
     );
   }
 
-  Widget _buildInfoItem({
-    required IconData icon,
-    required String title,
-    required String value,
-    required Color color,
-  }) {
+  Widget _defaultIcon() => const Icon(CupertinoIcons.car_detailed, size: 30, color: AppColors.primary);
+
+  Widget _buildInfoItem({required IconData icon, required String title, required String value, required Color color}) {
     return Expanded(
       child: Column(
         children: [
-          Icon(icon, color: color, size: 20),
+          Icon(icon, color: color, size: 18),
           const SizedBox(height: 5),
-          Text(title, style: const TextStyle(fontSize: 12, color: Colors.grey)),
-          Text(
-            value,
-            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
-          ),
+          Text(title, style: const TextStyle(fontSize: 10, color: Colors.grey, fontWeight: FontWeight.bold)),
+          Text(value, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: Colors.white)),
         ],
       ),
     );

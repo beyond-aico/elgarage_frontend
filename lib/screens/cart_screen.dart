@@ -1,214 +1,311 @@
+import 'package:elgarage/core/models/product_model.dart';
+import 'package:elgarage/core/ui/textured_background.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import '../core/constants/app_colors.dart';
 import '../providers/app_provider.dart';
-import '../data/models/product_model.dart';
 
 class CartScreen extends StatelessWidget {
   const CartScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: AppColors.background,
-      appBar: AppBar(
-        title: const Text("My Cart", style: TextStyle(fontWeight: FontWeight.bold)),
-        backgroundColor: Colors.white,
-        elevation: 0,
-        centerTitle: true,
-      ),
-      body: Consumer<AppProvider>(
-        builder: (context, provider, child) {
-          final cartItems = provider.cartItems;
-          
-          if (cartItems.isEmpty) {
-            return Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(CupertinoIcons.cart, size: 80, color: Colors.grey[300]),
-                  const SizedBox(height: 20),
-                  const Text("Your cart is empty", style: TextStyle(color: Colors.grey, fontSize: 18)),
-                ],
-              ),
-            );
-          }
+    final double screenWidth = MediaQuery.of(context).size.width;
 
-          return Column(
+    return AnnotatedRegion<SystemUiOverlayStyle>(
+      value: const SystemUiOverlayStyle(
+        statusBarColor: Colors.transparent,
+        statusBarIconBrightness: Brightness.dark, // أيقونات غامقة لتناسب الخلفية الفاتحة
+      ),
+      child: Scaffold(
+        backgroundColor: AppColors.background,
+        body: TexturedBackground(
+          child: Column(
             children: [
-              // 1. قائمة المنتجات
+              // --- 1. الهيدر الموحد (Back Button + Title) ---
+              SafeArea(
+                child: Padding(
+                  padding: EdgeInsets.symmetric(horizontal: screenWidth * 0.02, vertical: 5),
+                  child: Row(
+                    children: [
+                      IconButton(
+                        icon: const Icon(Icons.arrow_back_ios_new, color: AppColors.textMain),
+                        onPressed: () => Navigator.pop(context),
+                      ),
+                      // العنوان بجانب زر الرجوع مباشرة كما في Policy/About
+                      Text(
+                        'MY CART',
+                        style: TextStyle(
+                          fontSize: screenWidth * 0.06,
+                          fontWeight: FontWeight.w900,
+                          color: AppColors.textMain, 
+                          letterSpacing: 1,
+                        ),
+                      ),
+                      const Spacer(),
+                      // أيقونة خفيفة في النهاية للتوازن البصري
+                      Padding(
+                        padding: const EdgeInsets.only(right: 15),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+
+              // --- 2. محتوى السلة (Scrollable List) ---
               Expanded(
-                child: ListView.separated(
-                  padding: const EdgeInsets.all(16),
-                  itemCount: cartItems.length,
-                  separatorBuilder: (_, _) => const SizedBox(height: 10),
-                  itemBuilder: (context, index) {
-                    final item = cartItems[index];
-                    return Dismissible( // عشان نسحب العنصر نمسحه
-                      key: Key(item.id + index.toString()),
-                      direction: DismissDirection.endToStart,
-                      background: Container(
-                        alignment: Alignment.centerRight,
-                        padding: const EdgeInsets.only(right: 20),
-                        color: AppColors.error,
-                        child: const Icon(Icons.delete, color: Colors.white),
-                      ),
-                      onDismissed: (direction) {
-                        provider.removeFromCart(item);
+                child: Consumer<AppProvider>(
+                  builder: (context, provider, _) {
+                    final cartItems = provider.cartItems;
+
+                    if (cartItems.isEmpty) {
+                      return _buildEmptyCart(screenWidth);
+                    }
+
+                    return ListView.separated(
+                      physics: const BouncingScrollPhysics(),
+                      padding: EdgeInsets.symmetric(horizontal: screenWidth * 0.05, vertical: 10),
+                      itemCount: cartItems.length,
+                      separatorBuilder: (_, __) => const SizedBox(height: 12),
+                      itemBuilder: (context, index) {
+                        return _buildCartItem(context, cartItems[index], provider, screenWidth, index);
                       },
-                      child: Container(
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(12),
-                          boxShadow: [BoxShadow(color: Colors.black12, blurRadius: 4)],
-                        ),
-                        child: ListTile(
-                          leading: Container(
-                            width: 50, height: 50,
-                            decoration: BoxDecoration(color: Colors.grey[100], borderRadius: BorderRadius.circular(8)),
-                            child: Icon(item.category == 'Service' ? CupertinoIcons.wrench_fill : CupertinoIcons.cube_box, color: AppColors.primary),
-                          ),
-                          title: Text(item.name, style: const TextStyle(fontWeight: FontWeight.bold)),
-                          subtitle: Text(item.category),
-                          trailing: Text('${item.price.toInt()} EGP', style: const TextStyle(fontWeight: FontWeight.bold)),
-                        ),
-                      ),
                     );
                   },
                 ),
               ),
 
-              // 2. الجزء السفلي (زرار المراكز + الدفع)
-              Container(
-                padding: const EdgeInsets.all(20),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: const BorderRadius.vertical(top: Radius.circular(30)),
-                  boxShadow: [BoxShadow(color: Colors.black.withAlpha(1), blurRadius: 10, offset: const Offset(0, -5))],
-                ),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    // --- زرار مراكز الخدمة (المطلوب) ---
-                    SizedBox(
-                      width: double.infinity,
-                      child: OutlinedButton.icon(
-                        style: OutlinedButton.styleFrom(
-                          padding: const EdgeInsets.symmetric(vertical: 15),
-                          side: const BorderSide(color: AppColors.primary, width: 2),
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                        ),
-                        icon: const Icon(CupertinoIcons.wrench, color: AppColors.primary),
-                        label: const Text("Book Installation at Service Center", style: TextStyle(color: AppColors.primary, fontWeight: FontWeight.bold)),
-                        onPressed: () => _showServiceCentersSheet(context),
-                      ),
-                    ),
-                    
-                    const SizedBox(height: 20),
-
-                    // تفاصيل السعر
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        const Text("Total Amount:", style: TextStyle(fontSize: 16, color: Colors.grey)),
-                        Text(
-                          '${provider.cartTotal.toInt()} EGP',
-                          style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: AppColors.textPrimary),
-                        ),
-                      ],
-                    ),
-
-                    const SizedBox(height: 20),
-
-                    // زرار الدفع (Checkout)
-                    SizedBox(
-                      width: double.infinity,
-                      child: ElevatedButton(
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: AppColors.primary,
-                          padding: const EdgeInsets.symmetric(vertical: 16),
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                        ),
-                        onPressed: () {
-                          // هنا هنربط ببوابة الدفع (Paymob/Stripe) مستقبلاً
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(content: Text("Proceeding to Payment..."), backgroundColor: AppColors.success),
-                          );
-                        },
-                        child: const Text("Checkout Now", style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold)),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
+              // --- 3. قسم الدفع والمراكز (Bottom Panel) ---
+              _buildBottomSummary(context, screenWidth),
             ],
-          );
-        },
+          ),
+        ),
       ),
     );
   }
 
-  // --- دالة عرض مراكز الخدمة (Sheet) ---
+  // --- دوال بناء الـ UI الصناعية (Industrial Style) ---
+
+  Widget _buildCartItem(BuildContext context, ProductModel item, AppProvider provider, double screenWidth, int index) {
+    return Dismissible(
+      key: Key(item.id + index.toString()),
+      direction: DismissDirection.endToStart,
+      background: Container(
+        alignment: Alignment.centerRight,
+        padding: const EdgeInsets.only(right: 25),
+        decoration: BoxDecoration(color: AppColors.error, borderRadius: BorderRadius.circular(20)),
+        child: const Icon(CupertinoIcons.delete, color: Colors.white, size: 28),
+      ),
+      onDismissed: (_) => provider.removeFromCart(item),
+      child: Container(
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(20),
+          boxShadow: [BoxShadow(color: Colors.black.withAlpha(10), blurRadius: 10, offset: const Offset(0, 5))],
+        ),
+        child: IntrinsicHeight(
+          child: Row(
+            children: [
+              Container(
+                width: 80,
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: Colors.grey[100],
+                  borderRadius: const BorderRadius.horizontal(left: Radius.circular(20)),
+                ),
+                child: Center(
+                  child: Icon(
+                    item.category == 'Service' ? CupertinoIcons.wrench_fill : CupertinoIcons.cube_box_fill,
+                    color: AppColors.textMain.withAlpha(100),
+                    size: 30,
+                  ),
+                ),
+              ),
+              Expanded(
+                child: Container(
+                  padding: const EdgeInsets.all(15),
+                  decoration: const BoxDecoration(
+                    color: AppColors.textMain,
+                    borderRadius: BorderRadius.horizontal(right: Radius.circular(20)),
+                  ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Flexible(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Text(
+                              item.name.toUpperCase(),
+                              style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w900, fontSize: 13),
+                              maxLines: 1, overflow: TextOverflow.ellipsis,
+                            ),
+                            const SizedBox(height: 5),
+                            Text(
+                              item.category,
+                              style: const TextStyle(color: AppColors.primary, fontSize: 10, fontWeight: FontWeight.bold),
+                            ),
+                          ],
+                        ),
+                      ),
+                      Text(
+                        '${item.price.toInt()} EGP',
+                        style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w900, fontSize: 14),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildBottomSummary(BuildContext context, double screenWidth) {
+    return Consumer<AppProvider>(
+      builder: (context, provider, _) {
+        if (provider.cartItems.isEmpty) return const SizedBox.shrink();
+
+        return Container(
+          padding: EdgeInsets.fromLTRB(25, 20, 25, MediaQuery.of(context).padding.bottom + 20),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: const BorderRadius.vertical(top: Radius.circular(35)),
+            boxShadow: [BoxShadow(color: Colors.black.withAlpha(15), blurRadius: 20, offset: const Offset(0, -5))],
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              SizedBox(
+                width: double.infinity,
+                child: OutlinedButton.icon(
+                  style: OutlinedButton.styleFrom(
+                    padding: const EdgeInsets.symmetric(vertical: 14),
+                    side: const BorderSide(color: AppColors.textMain, width: 2),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+                  ),
+                  icon: const Icon(CupertinoIcons.wrench, color: AppColors.textMain, size: 18),
+                  label: const Text("Book Installation Center", style: TextStyle(color: AppColors.textMain, fontWeight: FontWeight.w900, fontSize: 13)),
+                  onPressed: () => _showServiceCentersSheet(context),
+                ),
+              ),
+              const SizedBox(height: 20),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  const Text("TOTAL AMOUNT", style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Colors.grey, letterSpacing: 1)),
+                  Text(
+                    '${provider.cartTotal.toInt()} EGP',
+                    style: const TextStyle(fontSize: 26, fontWeight: FontWeight.w900, color: AppColors.textMain),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 20),
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: AppColors.textMain,
+                    padding: const EdgeInsets.symmetric(vertical: 16),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+                    elevation: 5,
+                    shadowColor: AppColors.textMain.withAlpha(100),
+                  ),
+                  onPressed: () {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text("Connecting to Payment Gateway..."), backgroundColor: AppColors.success, behavior: SnackBarBehavior.floating),
+                    );
+                  },
+                  child: const Text("PROCEED TO CHECKOUT", style: TextStyle(color: AppColors.primary, fontSize: 16, fontWeight: FontWeight.w900, letterSpacing: 1)),
+                ),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildEmptyCart(double screenWidth) {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(CupertinoIcons.cart, size: screenWidth * 0.25, color: Colors.grey.withAlpha(50)),
+          const SizedBox(height: 20),
+          const Text("Your cart is empty", style: TextStyle(color: Colors.grey, fontSize: 18, fontWeight: FontWeight.bold)),
+          const SizedBox(height: 10),
+          const Text("Add some premium parts to get started", style: TextStyle(color: Colors.grey, fontSize: 12)),
+        ],
+      ),
+    );
+  }
+
   void _showServiceCentersSheet(BuildContext context) {
     showModalBottomSheet(
       context: context,
-      shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(20))),
+      backgroundColor: Colors.white,
+      shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(30))),
       builder: (context) {
         final provider = Provider.of<AppProvider>(context, listen: false);
         final centers = provider.serviceCenters;
 
         return Padding(
-          padding: const EdgeInsets.all(20),
+          padding: const EdgeInsets.all(25),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Text("Select Service Center", style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
-              const SizedBox(height: 10),
-              const Text("Choose a center to install your parts. Labor cost will be added to cart.", style: TextStyle(color: Colors.grey)),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  const Text("SELECT CENTER", style: TextStyle(fontSize: 18, fontWeight: FontWeight.w900, letterSpacing: 1)),
+                  IconButton(onPressed: () => Navigator.pop(context), icon: const Icon(CupertinoIcons.xmark_circle_fill, color: Colors.grey)),
+                ],
+              ),
+              const Text("Installation cost will be added automatically.", style: TextStyle(color: Colors.grey, fontSize: 12)),
               const SizedBox(height: 20),
-              
-              Expanded(
+              Flexible(
                 child: ListView.builder(
+                  shrinkWrap: true,
                   itemCount: centers.length,
                   itemBuilder: (context, index) {
                     final center = centers[index];
-                    return Card(
-                      margin: const EdgeInsets.only(bottom: 10),
-                      elevation: 0,
-                      color: Colors.grey[50],
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
-                        side: BorderSide(color: Colors.grey.shade200),
+                    return Container(
+                      margin: const EdgeInsets.only(bottom: 12),
+                      decoration: BoxDecoration(
+                        color: AppColors.background,
+                        borderRadius: BorderRadius.circular(15),
+                        border: Border.all(color: Colors.black.withAlpha(5)),
                       ),
                       child: ListTile(
-                        leading: const CircleAvatar(backgroundColor: Colors.white, child: Icon(CupertinoIcons.location_solid, color: AppColors.primary)),
-                        title: Text(center['name'], style: const TextStyle(fontWeight: FontWeight.bold)),
+                        leading: const CircleAvatar(backgroundColor: Colors.white, child: Icon(CupertinoIcons.location_solid, color: AppColors.primary, size: 20)),
+                        title: Text(center['name'], style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
                         subtitle: Text(center['location']),
                         trailing: Column(
                           mainAxisAlignment: MainAxisAlignment.center,
                           crossAxisAlignment: CrossAxisAlignment.end,
                           children: [
-                            Text('+${center['labor_cost']} EGP', style: const TextStyle(fontWeight: FontWeight.bold, color: AppColors.secondary)),
-                            const SizedBox(height: 4),
-                            const Icon(CupertinoIcons.add_circled_solid, color: AppColors.primary, size: 20),
+                            Text('+${center['labor_cost']} EGP', style: const TextStyle(fontWeight: FontWeight.w900, color: AppColors.textMain, fontSize: 12)),
+                            const Icon(CupertinoIcons.add_circled_solid, color: AppColors.primary, size: 22),
                           ],
                         ),
                         onTap: () {
-                          // إضافة تكلفة التركيب كمنتج في السلة
                           provider.addToCart([
                             ProductModel(
                               id: 'SVC-${DateTime.now().millisecondsSinceEpoch}',
                               name: 'Installation: ${center['name']}',
                               price: center['labor_cost'],
-                              category: 'Service', // تصنيف خاص
+                              category: 'Service', 
+                              imagePath: provider.getImageForPart('Service'), 
                             )
                           ]);
-                          Navigator.pop(context); // قفل الشيت
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(content: Text("Installation at ${center['name']} added!"), backgroundColor: AppColors.success),
-                          );
+                          Navigator.pop(context);
                         },
                       ),
                     );

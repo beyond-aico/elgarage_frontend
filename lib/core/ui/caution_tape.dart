@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../core/constants/app_colors.dart';
+import '../constants/app_colors.dart';
 
 class CautionTapeDecoration extends StatelessWidget {
   final double height;

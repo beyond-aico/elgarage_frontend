@@ -1,6 +1,6 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
-import '../core/constants/app_colors.dart';
+import '../constants/app_colors.dart';
 
 class TexturedBackground extends StatelessWidget {
   final Widget child;
@@ -28,7 +28,7 @@ class TexturedBackground extends StatelessWidget {
                   radius: 1.0,
                   colors: [
                     Colors.transparent,
-                    AppColors.textMain.withOpacity(0.03),
+                    AppColors.textMain.withAlpha(03),
                   ],
                   stops: const [0.6, 1.0]
                 ),
@@ -47,7 +47,7 @@ class EnhancedBohemianPainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
     final paint = Paint()
-      ..color = Colors.black.withOpacity(0.08)
+      ..color = Colors.black.withAlpha(08)
       ..style = PaintingStyle.stroke
       ..strokeWidth = 1.2
       ..strokeCap = StrokeCap.round;

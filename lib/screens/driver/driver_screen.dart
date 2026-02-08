@@ -1,10 +1,10 @@
-import 'package:elgarage/core/ui/home_header.dart';
+import 'package:elgarage/screens/home_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../core/constants/app_colors.dart';
 import '../../providers/app_provider.dart';
 import '../../providers/auth_provider.dart';
-import '../../widgets/textured_background.dart';
+import '../../core/ui/textured_background.dart';
 import '../../widgets/car_header.dart';
 
 class DriverScreen extends StatefulWidget {
@@ -28,7 +28,6 @@ class _DriverScreenState extends State<DriverScreen> {
       return const Scaffold(body: Center(child: Text("NO ASSIGNED UNIT FOUND")));
     }
 
-    // منطق التنبيه: صيانة كل 10 آلاف، التنبيه يبدأ من الـ 9000
     bool isMaintenanceNear = (myCar.currentKm % 10000) >= 9000;
 
     return TexturedBackground(
@@ -110,7 +109,7 @@ class _DriverScreenState extends State<DriverScreen> {
         style: const TextStyle(fontSize: 45, fontWeight: FontWeight.w900, color: AppColors.secondary, letterSpacing: 5),
         decoration: InputDecoration(
           hintText: current,
-          hintStyle: TextStyle(color: AppColors.secondary.withOpacity(0.2)),
+          hintStyle: TextStyle(color: AppColors.secondary.withAlpha(2)),
           suffixIcon: const Padding(padding: EdgeInsets.all(15), child: Text("KM", style: TextStyle(fontWeight: FontWeight.bold))),
           border: InputBorder.none,
         ),
@@ -123,7 +122,7 @@ class _DriverScreenState extends State<DriverScreen> {
       padding: const EdgeInsets.all(20),
       width: double.infinity,
       decoration: BoxDecoration(
-        color: AppColors.warning.withOpacity(0.15), 
+        color: AppColors.warning.withAlpha(15), 
         border: Border.all(color: AppColors.warning, width: 2),
       ),
       child: Column(
@@ -159,9 +158,10 @@ class _DriverScreenState extends State<DriverScreen> {
           if (val != null) {
             bool success = await provider.updateDriverMileage(carId, val);
             if (success) {
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text("LOG SUBMITTED SUCCESSFULLY"), backgroundColor: AppColors.success)
-              );
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+  const SnackBar(content: Text("LOG SUBMITTED SUCCESSFULLY"), backgroundColor: AppColors.success)
+);
             }
           }
         },

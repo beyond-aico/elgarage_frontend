@@ -7,17 +7,13 @@ import 'package:firebase_core/firebase_core.dart';
 import 'core/constants/app_colors.dart';
 import 'providers/app_provider.dart';
 import 'providers/auth_provider.dart';
-import 'screens/main_layout.dart'; // للمستخدم العادي
-import 'screens/fleet/fleet_dashboard.dart'; // لمدير الأسطول
-import 'screens/driver/driver_screen.dart'; // للسائق
+import 'core/ui/main_layout.dart'; 
+import 'screens/fleet/fleet_dashboard.dart'; 
+import 'screens/driver/driver_screen.dart'; 
 
 void main() async {
-  // 1. تهيئة الـ Widgets وضمان عمل الكود الـ Async
   WidgetsFlutterBinding.ensureInitialized();
-  
-  // 2. تشغيل فايربيز (تأكد من وجود ملفات الإعداد في مجلد android/ios)
   await Firebase.initializeApp();
-
   runApp(const AutoMentorApp());
 }
 
@@ -35,18 +31,14 @@ class AutoMentorApp extends StatelessWidget {
         title: 'Auto Mentor Fleet',
         debugShowCheckedModeBanner: false,
         theme: ThemeData(
-          // --- الهوية الصناعية الجديدة (Asphalt & Mango) ---
           primaryColor: AppColors.primary,
           scaffoldBackgroundColor: AppColors.background,
-          fontFamily: 'Roboto', // الخط التقني المعتمد
-          
+          fontFamily: 'Roboto', 
           colorScheme: const ColorScheme.light(
             primary: AppColors.primary,
             secondary: AppColors.warning,
             surface: AppColors.cardColor,
           ),
-          
-          // ستايل الأزرار الموحد (Industrial Style)
           elevatedButtonTheme: ElevatedButtonThemeData(
             style: ElevatedButton.styleFrom(
               elevation: 4,
@@ -56,39 +48,63 @@ class AutoMentorApp extends StatelessWidget {
           ),
           useMaterial3: true,
         ),
-        
-        // --- منطق التوجيه الذكي عند فتح التطبيق ---
+        // ✅ إضافة الـ Builder لحماية التصميم من تكبير الخطوط المفاجئ
+        builder: (context, child) {
+          return MediaQuery(
+            data: MediaQuery.of(context).copyWith(
+              textScaler: TextScaler.linear(MediaQuery.of(context).textScaleFactor.clamp(1.0, 1.2)),
+            ),
+            child: child!,
+          );
+        },
         home: const InitialRouter(), 
       ),
     );
   }
 }
 
-// --- الملف: lib/main.dart ---
-// ... الاستيرادات ...
-
-class InitialRouter extends StatelessWidget {
+// ✅ تحويل الـ InitialRouter ليكون StatefulWidget لفحص الـ Session
+// ✅ التعديل الاحترافي للـ InitialRouter في ملف main.dart
+class InitialRouter extends StatefulWidget {
   const InitialRouter({super.key});
 
   @override
+  State<InitialRouter> createState() => _InitialRouterState();
+}
+// داخل main.dart الجزء الخاص بـ InitialRouter
+
+class _InitialRouterState extends State<InitialRouter> {
+  late Future<bool> _authFuture;
+
+  @override
+  void initState() {
+    super.initState();
+    // ✅ تشغيل الفحص لمرة واحدة لضمان ثبات البيانات
+    _authFuture = Provider.of<AuthProvider>(context, listen: false).tryAutoLogin();
+  }
+
+  @override
   Widget build(BuildContext context) {
-    final auth = Provider.of<AuthProvider>(context);
+    return FutureBuilder<bool>(
+      future: _authFuture,
+      builder: (context, snapshot) {
+        // أثناء الفحص، اظهر شاشة لودينج (Splash)
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const Scaffold(body: Center(child: CircularProgressIndicator(color: Colors.amber)));
+        }
 
-    // 1. إذا لم يكن مسجلاً، اذهب للوج إن
-    if (!auth.isAuthenticated) {
-      return const LoginScreen();
-    }
+        return Consumer<AuthProvider>(
+          builder: (context, auth, _) {
+            if (!auth.isAuthenticated) return const LoginScreen();
 
-    // 2. التوجيه الصارم بناءً على الدور (Role)
-    final role = auth.user?.role;
-    print("🚦 Current User Role: $role");
-
-    if (role == "FLEET_MANAGER") {
-      return const FleetDashboard(); // واجهة المدير فقط
-    } else if (role == "DRIVER") {
-      return const DriverScreen(); // واجهة السائق فقط
-    } else {
-      return const MainLayout(); // واجهة المستخدم العادي (الماركت والجراج)
-    }
+            // التوجيه الذكي بناءً على الـ Role المؤكد من السيرفر
+            final role = auth.user?.role;
+            if (role == "FLEET_MANAGER") return const FleetDashboard();
+            if (role == "DRIVER") return const DriverScreen();
+            return const MainLayout();
+          },
+        );
+      },
+    );
   }
 }

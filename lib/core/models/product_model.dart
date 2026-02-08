@@ -3,7 +3,8 @@ class ProductModel {
   final String name;       // اسم القطعة (زيت 10 آلاف)
   final double price;      // السعر
   final String category;   // التصنيف (Oils, Filters, Brakes)
-  final String? image;     // صورة (اختياري)
+  final String? image; 
+  final String? imagePath; // ✅ إضافة هذا الحقل    // صورة (اختياري)
   bool isMissed;
 
   ProductModel({
@@ -12,6 +13,6 @@ class ProductModel {
     required this.price,
     required this.category,
     this.image,
-    this.isMissed = false,
-  });
+    this.imagePath, // ✅ إضافته في المشيد (Constructor)
+this.isMissed = false,  });
 }

@@ -40,20 +40,21 @@ factory Car.fromJson(Map<String, dynamic> json) {
       modelData = json['model'] is String ? json['model'] : 'Unknown Model';
     }
 
-    return Car(
-      id: json['id']?.toString() ?? '',
-      make: makeData,
-      model: modelData,
-      year: json['year'] is String ? int.tryParse(json['year']) : (json['year'] ?? 0),
-      licensePlate: json['plateNumber'] ?? 'No Plate',
-      color: json['color'] ?? 'N/A',
-      vin: json['vin'],
-      imageUrl: json['imageUrl'] ?? '',
-      currentKm: json['currentKm'] != null 
-          ? (json['currentKm'] is int ? json['currentKm'] : int.tryParse(json['currentKm'].toString()) ?? 0)
-          : (json['mileageKm'] is int ? json['mileageKm'] : int.tryParse(json['mileageKm'].toString()) ?? 0),
-    );
-  }
+    // ✅ التعديل الجوهري لضمان قراءة العداد من أي حقل يرسله السيرفر
+  final dynamic rawKm = json['currentKm'] ?? json['mileageKm'] ?? json['mileage'] ?? 0;
+  final int finalKm = (rawKm is num) ? rawKm.toInt() : int.tryParse(rawKm.toString()) ?? 0;
 
-  get plateNumber => null;
+  return Car(
+    id: json['id']?.toString() ?? '',
+    make: makeData,
+    model: modelData,
+    year: json['year'] ?? 2024,
+    licensePlate: json['plateNumber'] ?? 'No Plate',
+    color: json['color'] ?? 'N/A',
+    imageUrl: json['imageUrl'] ?? '',
+    currentKm: finalKm, // القيمة الموحدة
+  );
+}
+
+  Null get plateNumber => null;
 }

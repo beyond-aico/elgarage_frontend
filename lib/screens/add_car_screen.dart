@@ -1,9 +1,11 @@
+// --- FILE: lib/screens/add_car_screen.dart ---
+
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
-import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import '../core/constants/app_colors.dart';
 import '../providers/app_provider.dart';
+import '../core/ui/textured_background.dart'; // ✅ استيراد الخلفية
 
 class AddCarScreen extends StatefulWidget {
   const AddCarScreen({super.key});
@@ -15,21 +17,18 @@ class AddCarScreen extends StatefulWidget {
 class _AddCarScreenState extends State<AddCarScreen> {
   final _formKey = GlobalKey<FormState>();
 
-  // القوائم القادمة من الباك إند
+  // القوائم والبيانات
   List<dynamic> _brands = [];
   List<dynamic> _models = [];
-
-  // الاختيارات (IDs للباك إند)
   String? _selectedBrandId;
   String? _selectedModelId;
 
-  // Controllers (نفس مسميات الكود الثاني مع إضافة Color)
+  // Controllers - الحفاظ على مسميات الباك إند الحالية
+  final _plateController = TextEditingController(); // ✅ رقم العربية
   final _yearController = TextEditingController();
-  final _mileageController = TextEditingController(); // currentKm
   final _colorController = TextEditingController();
+  final _mileageController = TextEditingController(); // currentKm
   final _avgConsController = TextEditingController();
-  final _lastMaintKmController = TextEditingController();
-  DateTime? _selectedDate;
 
   bool _isLoadingBrands = true;
   bool _isLoadingModels = false;
@@ -41,7 +40,16 @@ class _AddCarScreenState extends State<AddCarScreen> {
     _loadBrands();
   }
 
-  // 1. تحميل الماركات عند فتح الشاشة
+  @override
+  void dispose() {
+    _plateController.dispose();
+    _yearController.dispose();
+    _colorController.dispose();
+    _mileageController.dispose();
+    _avgConsController.dispose();
+    super.dispose();
+  }
+
   Future<void> _loadBrands() async {
     try {
       final brands = await Provider.of<AppProvider>(context, listen: false).fetchBrands();
@@ -56,14 +64,12 @@ class _AddCarScreenState extends State<AddCarScreen> {
     }
   }
 
-  // 2. تحميل الموديلات لما يختار ماركة
   Future<void> _loadModels(String brandId) async {
     setState(() {
       _isLoadingModels = true;
       _models = [];
       _selectedModelId = null; 
     });
-
     try {
       final models = await Provider.of<AppProvider>(context, listen: false).fetchModels(brandId);
       if (mounted) {
@@ -79,212 +85,196 @@ class _AddCarScreenState extends State<AddCarScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final appProvider = Provider.of<AppProvider>(context);
+    return TexturedBackground( // ✅ إضافة الباكجراوند المطلوبة
+      child: Scaffold(
+        backgroundColor: Colors.transparent, // شفافة لتظهر الخلفية المحببة
+        appBar: AppBar(
+          title: const Text("REGISTER NEW VEHICLE", 
+            style: TextStyle(fontWeight: FontWeight.w900, letterSpacing: 1.5, fontSize: 16)),
+          elevation: 0,
+          backgroundColor: Colors.transparent,
+          foregroundColor: AppColors.textMain,
+        ),
+        body: SingleChildScrollView(
+          padding: const EdgeInsets.symmetric(horizontal: 25, vertical: 20),
+          child: Form(
+            key: _formKey,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                _sectionHeader("CAR IDENTITY"),
+                const SizedBox(height: 20),
 
-    return Scaffold(
-      backgroundColor: AppColors.background,
-      appBar: AppBar(
-        title: const Text("Add New Car", style: TextStyle(fontWeight: FontWeight.bold)),
-        elevation: 0,
-        backgroundColor: Colors.white,
-        foregroundColor: AppColors.textPrimary,
-      ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(20),
-        child: Form(
-          key: _formKey,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const Text("Car Identity", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-              const SizedBox(height: 15),
-
-              // --- 1. Brands Dropdown ---
-              _isLoadingBrands 
-                ? const LinearProgressIndicator()
-                : DropdownButtonFormField<String>(
-                    value: _selectedBrandId,
-                    decoration: _inputDecoration("Car Make / Brand", CupertinoIcons.tag),
-                    hint: const Text("Select Brand"),
-                    items: _brands.map<DropdownMenuItem<String>>((brand) {
-                      return DropdownMenuItem(
-                        value: brand['id'].toString(), 
-                        child: Text(brand['name'] ?? 'Unknown'),
-                      );
-                    }).toList(),
-                    onChanged: (value) {
-                      if (value != null) {
-                        setState(() => _selectedBrandId = value);
-                        _loadModels(value); 
-                      }
-                    },
-                    validator: (v) => v == null ? "Required" : null,
-                  ),
-              
-              const SizedBox(height: 15),
-
-              // --- 2. Models Dropdown ---
-              _isLoadingModels
-                  ? const LinearProgressIndicator()
-                  : DropdownButtonFormField<String>(
-                      value: _selectedModelId,
-                      disabledHint: const Text("Select Brand First"),
-                      decoration: _inputDecoration("Car Model", CupertinoIcons.car_detailed),
-                      hint: const Text("Select Model"),
-                      items: _models.map<DropdownMenuItem<String>>((model) {
-                        return DropdownMenuItem(
-                          value: model['id'].toString(),
-                          child: Text(model['name'] ?? 'Unknown'),
-                        );
-                      }).toList(),
-                      onChanged: _models.isEmpty ? null : (value) {
-                        setState(() => _selectedModelId = value);
-                      },
-                      validator: (v) => v == null ? "Required" : null,
-                    ),
-
-              const SizedBox(height: 15),
-
-              Row(
-                children: [
-                  Expanded(child: _buildTextField(_yearController, "Year", CupertinoIcons.calendar, isNumber: true)),
-                  const SizedBox(width: 10),
-                  Expanded(child: _buildTextField(_colorController, "Color", Icons.color_lens)),
-                ],
-              ),
-
-              _buildTextField(_mileageController, "Current Mileage (KM)", Icons.speed, isNumber: true),
-              _buildTextField(_avgConsController, "Monthly Avg KM", CupertinoIcons.graph_square, isNumber: true),
-
-              const Divider(height: 40),
-              const Text("Last Maintenance", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-              const SizedBox(height: 15),
-
-              _buildDatePicker(),
-              const SizedBox(height: 15),
-              _buildTextField(_lastMaintKmController, "Maintenance KM", CupertinoIcons.wrench, isNumber: true),
-
-              const SizedBox(height: 30),
-
-              // --- Submit Button ---
-              SizedBox(
-                width: double.infinity,
-                child: ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: AppColors.primary,
-                    padding: const EdgeInsets.symmetric(vertical: 16),
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                  ),
-                  onPressed: _isSubmitting ? null : () => _submitForm(appProvider),
-                  child: _isSubmitting 
-                    ? const SizedBox(height: 20, width: 20, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2))
-                    : const Text("Save Car", style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16)),
+                // 1. الماركة
+                _buildDropdown(
+                  label: "Select Brand",
+                  icon: CupertinoIcons.tag_fill,
+                  isLoading: _isLoadingBrands,
+                  value: _selectedBrandId,
+                  items: _brands.map((b) => DropdownMenuItem(
+                    value: b['id'].toString(), 
+                    child: Text(b['name'] ?? 'Unknown')
+                  )).toList(),
+                  onChanged: (val) {
+                    if (val != null) {
+                      setState(() => _selectedBrandId = val);
+                      _loadModels(val);
+                    }
+                  },
                 ),
-              )
-            ],
+                
+                const SizedBox(height: 15),
+
+                // 2. الموديل
+                _buildDropdown(
+                  label: "Select Model",
+                  icon: CupertinoIcons.car_detailed,
+                  isLoading: _isLoadingModels,
+                  value: _selectedModelId,
+                  items: _models.map((m) => DropdownMenuItem(
+                    value: m['id'].toString(), 
+                    child: Text(m['name'] ?? 'Unknown')
+                  )).toList(),
+                  onChanged: _models.isEmpty ? null : (val) => setState(() => _selectedModelId = val),
+                ),
+
+                const SizedBox(height: 15),
+
+                // 3. رقم اللوحة (Plate Number)
+                _buildTextField(_plateController, "PLATE NUMBER (E.G. 123 ABC)", CupertinoIcons.number),
+
+                const SizedBox(height: 15),
+
+                Row(
+                  children: [
+                    Expanded(child: _buildTextField(_yearController, "YEAR", CupertinoIcons.calendar, isNumber: true)),
+                    const SizedBox(width: 15),
+                    Expanded(child: _buildTextField(_colorController, "COLOR", Icons.palette_outlined)),
+                  ],
+                ),
+
+                const SizedBox(height: 30),
+                _sectionHeader("USAGE DATA"),
+                const SizedBox(height: 20),
+
+                _buildTextField(_mileageController, "CURRENT MILEAGE (KM)", CupertinoIcons.speedometer, isNumber: true),
+                _buildTextField(_avgConsController, "ESTIMATED MONTHLY KM", CupertinoIcons.chart_bar_square, isNumber: true),
+
+                const SizedBox(height: 40),
+
+                // زر الإرسال بتصميم Stadium
+                SizedBox(
+                  width: double.infinity,
+                  height: 55,
+                  child: ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: AppColors.textMain,
+                      foregroundColor: AppColors.primary,
+                      shape: const StadiumBorder(),
+                      elevation: 5,
+                    ),
+                    onPressed: _isSubmitting ? null : () => _submitForm(),
+                    child: _isSubmitting 
+                      ? const CupertinoActivityIndicator(color: AppColors.primary)
+                      : const Text("ADD CAR TO MY GARAGE", style: TextStyle(fontWeight: FontWeight.w900, letterSpacing: 1.2)),
+                  ),
+                ),
+                const SizedBox(height: 50),
+              ],
+            ),
           ),
         ),
       ),
     );
   }
 
-  // --- UI Helper Methods (نفس هيكل الكود الثاني) ---
+  // --- UI Helpers ---
 
-  InputDecoration _inputDecoration(String label, IconData icon) {
-    return InputDecoration(
-      labelText: label,
-      prefixIcon: Icon(icon, color: AppColors.primary, size: 20),
-      filled: true,
-      fillColor: Colors.white,
-      border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
-      contentPadding: const EdgeInsets.symmetric(horizontal: 15, vertical: 15),
+  Widget _sectionHeader(String title) {
+    return Text(title, style: const TextStyle(
+      color: AppColors.primary, 
+      fontWeight: FontWeight.w900, 
+      fontSize: 12, 
+      letterSpacing: 2
+    ));
+  }
+
+  Widget _buildDropdown({
+    required String label,
+    required IconData icon,
+    required bool isLoading,
+    String? value,
+    required List<DropdownMenuItem<String>> items,
+    required Function(String?)? onChanged,
+  }) {
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(15),
+        boxShadow: [BoxShadow(color: Colors.black.withAlpha(05), blurRadius: 10)]
+      ),
+      child: DropdownButtonFormField<String>(
+        initialValue: value,
+        items: items,
+        onChanged: onChanged,
+        decoration: InputDecoration(
+          prefixIcon: Icon(icon, color: AppColors.textMain, size: 20),
+          hintText: isLoading ? "Loading..." : label,
+          border: InputBorder.none,
+          contentPadding: const EdgeInsets.symmetric(vertical: 15),
+        ),
+        validator: (v) => v == null ? "Required" : null,
+      ),
     );
   }
 
   Widget _buildTextField(TextEditingController controller, String label, IconData icon, {bool isNumber = false}) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 15),
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(15),
+        boxShadow: [BoxShadow(color: Colors.black.withAlpha(05), blurRadius: 10)]
+      ),
       child: TextFormField(
         controller: controller,
         keyboardType: isNumber ? TextInputType.number : TextInputType.text,
-        decoration: _inputDecoration(label, icon),
-        validator: (value) => value!.isEmpty ? "Required" : null,
+        style: const TextStyle(fontWeight: FontWeight.bold),
+        decoration: InputDecoration(
+          labelText: label,
+          labelStyle: const TextStyle(fontSize: 10, color: Colors.grey, fontWeight: FontWeight.bold),
+          prefixIcon: Icon(icon, color: AppColors.textMain, size: 20),
+          border: InputBorder.none,
+          contentPadding: const EdgeInsets.symmetric(horizontal: 15, vertical: 10),
+        ),
+        validator: (v) => v!.isEmpty ? "Required" : null,
       ),
     );
   }
 
-  Widget _buildDatePicker() {
-    return InkWell(
-      onTap: () async {
-        final picked = await showDatePicker(
-          context: context, 
-          initialDate: DateTime.now(), 
-          firstDate: DateTime(2010), 
-          lastDate: DateTime.now()
-        );
-        if (picked != null) setState(() => _selectedDate = picked);
-      },
-      child: Container(
-        padding: const EdgeInsets.all(15),
-        decoration: BoxDecoration(
-          color: Colors.white, 
-          borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: Colors.transparent)
-        ),
-        child: Row(
-          children: [
-            const Icon(CupertinoIcons.calendar, color: AppColors.primary, size: 20),
-            const SizedBox(width: 10),
-            Text(
-              _selectedDate == null 
-                ? "Select Last Maintenance Date" 
-                : DateFormat('yyyy-MM-dd').format(_selectedDate!),
-              style: TextStyle(color: _selectedDate == null ? Colors.grey[600] : Colors.black),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
+  // --- Logic ---
 
-  // --- Logic Helper ---
-
-  Future<void> _submitForm(AppProvider provider) async {
-    if (!_formKey.currentState!.validate()) return;
-    
-    if (_selectedModelId == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please select a car model')),
-      );
-      return;
-    }
+  Future<void> _submitForm() async {
+    if (!_formKey.currentState!.validate() || _selectedModelId == null) return;
 
     setState(() => _isSubmitting = true);
-    
-    // تجهيز البيانات للباك إند (دمج الحقول من الكودين)
+final String mileageText = _mileageController.text.replaceAll(',', '').trim(); // ✅ إزالة الفواصل
     final carData = {
       'modelId': _selectedModelId, 
       'year': int.parse(_yearController.text),
       'color': _colorController.text,
-      'currentKm': int.parse(_mileageController.text),
+      'plateNumber': _plateController.text, // ✅ مطابقة للسرفيس
+      'mileageKm': int.parse(_mileageController.text), // ✅ مطابقة للسرفيس
       'monthlyAvgKm': double.tryParse(_avgConsController.text) ?? 0.0,
-      'lastMaintenanceDate': _selectedDate?.toIso8601String(),
-      'lastMaintenanceKm': double.tryParse(_lastMaintKmController.text) ?? 0.0,
     };
 
-    final success = await provider.addNewCarv2(carData);
-
+    final success = await Provider.of<AppProvider>(context, listen: false).addNewCarv2(carData);
     if (!mounted) return;
     setState(() => _isSubmitting = false);
 
     if (success) {
       Navigator.pop(context);
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Car added successfully!'), backgroundColor: AppColors.success),
-      );
-    } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Failed to add car'), backgroundColor: AppColors.error),
+        const SnackBar(content: Text('Vehicle Registered Successfully!'), backgroundColor: Colors.green),
       );
     }
   }

@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/cupertino.dart';
+import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import '../core/constants/app_colors.dart';
 import '../providers/auth_provider.dart';
-import 'main_layout.dart';
+import '../core/ui/main_layout.dart';
+import '../core/ui/textured_background.dart';
 
 class RegisterScreen extends StatefulWidget {
   const RegisterScreen({super.key});
@@ -12,24 +15,18 @@ class RegisterScreen extends StatefulWidget {
 }
 
 class _RegisterScreenState extends State<RegisterScreen> {
-  // الكنترولرز عشان نمسك الداتا من الحقول
   final _nameController = TextEditingController();
   final _emailController = TextEditingController();
   final _phoneController = TextEditingController();
   final _passwordController = TextEditingController();
   final _confirmPasswordController = TextEditingController();
-  
   final _formKey = GlobalKey<FormState>();
 
-  // دالة التسجيل
   Future<void> _submit() async {
     if (!_formKey.currentState!.validate()) return;
-
     FocusScope.of(context).unfocus();
 
     final authProvider = Provider.of<AuthProvider>(context, listen: false);
-
-    // استدعاء دالة التسجيل من البروفايدر
     final success = await authProvider.register(
       _nameController.text.trim(),
       _emailController.text.trim(),
@@ -40,17 +37,16 @@ class _RegisterScreenState extends State<RegisterScreen> {
     if (!mounted) return;
 
     if (success) {
-      // لو نجح، يدخل على التطبيق علطول
       Navigator.of(context).pushAndRemoveUntil(
         MaterialPageRoute(builder: (context) => const MainLayout()),
-        (route) => false, // يمسح كل الصفحات اللي قبله عشان ميرجعش للتسجيل
+        (route) => false,
       );
     } else {
-      // لو فشل، يظهر رسالة الخطأ
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(authProvider.errorMessage ?? 'Registration failed'),
-          backgroundColor: Colors.red,
+          backgroundColor: AppColors.error,
+          behavior: SnackBarBehavior.floating,
         ),
       );
     }
@@ -68,167 +64,182 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Colors.black),
-          onPressed: () => Navigator.of(context).pop(),
-        ),
+    final double screenWidth = MediaQuery.of(context).size.width;
+
+    return AnnotatedRegion<SystemUiOverlayStyle>(
+      value: const SystemUiOverlayStyle(
+        statusBarColor: Colors.transparent,
+        statusBarIconBrightness: Brightness.dark, // أيقونات سوداء لأن الخلفية هنا فاتحة
       ),
-      body: SafeArea(
-        child: Center(
-          child: SingleChildScrollView(
-            padding: const EdgeInsets.all(24.0),
-            child: Form(
-              key: _formKey,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  Text(
-                    'Create Account',
-                    textAlign: TextAlign.center,
-                    style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                          fontWeight: FontWeight.bold,
-                          color: Colors.black87,
-                        ),
-                  ),
-                  const SizedBox(height: 8),
-                  Text(
-                    'Join us to take care of your car',
-                    textAlign: TextAlign.center,
-                    style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                          color: Colors.grey[600],
-                        ),
-                  ),
-                  const SizedBox(height: 32),
-
-                  // --- Name Field ---
-                  TextFormField(
-                    controller: _nameController,
-                    decoration: InputDecoration(
-                      labelText: 'Full Name',
-                      prefixIcon: const Icon(Icons.person_outline),
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                    ),
-                    validator: (value) {
-                      if (value == null || value.isEmpty) return 'Please enter your name';
-                      return null;
-                    },
-                  ),
-                  const SizedBox(height: 16),
-
-                  // --- Email Field ---
-                  TextFormField(
-                    controller: _emailController,
-                    keyboardType: TextInputType.emailAddress,
-                    decoration: InputDecoration(
-                      labelText: 'Email',
-                      prefixIcon: const Icon(Icons.email_outlined),
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                    ),
-                    validator: (value) {
-                      if (value == null || value.isEmpty) return 'Please enter email';
-                      if (!value.contains('@')) return 'Invalid email';
-                      return null;
-                    },
-                  ),
-                  const SizedBox(height: 16),
-
-                  // --- Phone Field ---
-                  TextFormField(
-                    controller: _phoneController,
-                    keyboardType: TextInputType.phone,
-                    decoration: InputDecoration(
-                      labelText: 'Phone Number',
-                      prefixIcon: const Icon(Icons.phone_android),
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                    ),
-                    validator: (value) {
-                      if (value == null || value.isEmpty) return 'Please enter phone';
-                      return null;
-                    },
-                  ),
-                  const SizedBox(height: 16),
-
-                  // --- Password Field ---
-                  TextFormField(
-                    controller: _passwordController,
-                    obscureText: true,
-                    decoration: InputDecoration(
-                      labelText: 'Password',
-                      prefixIcon: const Icon(Icons.lock_outline),
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                    ),
-                    validator: (value) {
-                      if (value == null || value.length < 6) return 'Min 6 characters';
-                      return null;
-                    },
-                  ),
-                  const SizedBox(height: 16),
-
-                  // --- Confirm Password Field ---
-                  TextFormField(
-                    controller: _confirmPasswordController,
-                    obscureText: true,
-                    decoration: InputDecoration(
-                      labelText: 'Confirm Password',
-                      prefixIcon: const Icon(Icons.lock_clock),
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                    ),
-                    validator: (value) {
-                      if (value != _passwordController.text) return 'Passwords do not match';
-                      return null;
-                    },
-                  ),
-                  const SizedBox(height: 32),
-
-                  // --- Register Button ---
-                  Consumer<AuthProvider>(
-                    builder: (context, provider, child) {
-                      return ElevatedButton(
-                        onPressed: provider.isLoading ? null : _submit,
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: AppColors.primary,
-                          padding: const EdgeInsets.symmetric(vertical: 16),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12),
+      child: Scaffold(
+        backgroundColor: AppColors.background,
+        body: TexturedBackground(
+          child: SafeArea(
+            child: SingleChildScrollView(
+              physics: const BouncingScrollPhysics(),
+              padding: EdgeInsets.symmetric(horizontal: screenWidth * 0.08),
+              child: Form(
+                key: _formKey,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    const SizedBox(height: 10),
+                    // 1. زر الرجوع في أعلى الصفحة تماماً
+                    Align(
+                      alignment: Alignment.centerLeft,
+                      child: GestureDetector(
+                        onTap: () => Navigator.of(context).pop(),
+                        child: Container(
+                          padding: const EdgeInsets.all(8),
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            shape: BoxShape.circle,
+                            boxShadow: [BoxShadow(color: Colors.black.withAlpha(10), blurRadius: 10)],
                           ),
+                          child: const Icon(Icons.arrow_back_ios_new, size: 20, color: AppColors.textMain),
                         ),
-                        child: provider.isLoading
-                            ? const SizedBox(
-                                height: 20,
-                                width: 20,
-                                child: CircularProgressIndicator(color: Colors.white),
-                              )
-                            : const Text(
-                                'Sign Up',
-                                style: TextStyle(
-                                  fontSize: 16, 
-                                  fontWeight: FontWeight.bold,
-                                  color: Colors.white,
-                                ),
-                              ),
-                      );
-                    },
-                  ),
-                ],
+                      ),
+                    ),
+                    
+                    const SizedBox(height: 30),
+
+                    // 2. العنوان الرئيسي (Top Aligned)
+                    Text(
+                      'Create Account',
+                      style: TextStyle(
+                        fontSize: screenWidth * 0.08, 
+                        fontWeight: FontWeight.w900,
+                        color: AppColors.textMain,
+                        letterSpacing: 1,
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    const Text(
+                      'Join us to take care of your car',
+                      style: TextStyle(color: AppColors.textSecondary, fontSize: 14),
+                    ),
+                    
+                    const SizedBox(height: 40),
+
+                    // 3. الحقول (Fields)
+                    _buildCustomField(
+                      controller: _nameController,
+                      label: 'Full Name',
+                      icon: CupertinoIcons.person,
+                      validator: (value) => (value == null || value.isEmpty) ? 'Enter your name' : null,
+                    ),
+                    const SizedBox(height: 16),
+
+                    _buildCustomField(
+                      controller: _emailController,
+                      label: 'Email Address',
+                      icon: CupertinoIcons.mail,
+                      type: TextInputType.emailAddress,
+                      validator: (value) => (value == null || !value.contains('@')) ? 'Invalid email' : null,
+                    ),
+                    const SizedBox(height: 16),
+
+                    _buildCustomField(
+                      controller: _phoneController,
+                      label: 'Phone Number',
+                      icon: CupertinoIcons.phone,
+                      type: TextInputType.phone,
+                      validator: (value) => (value == null || value.isEmpty) ? 'Enter phone' : null,
+                    ),
+                    const SizedBox(height: 16),
+
+                    _buildCustomField(
+                      controller: _passwordController,
+                      label: 'Password',
+                      icon: CupertinoIcons.lock,
+                      isPassword: true,
+                      validator: (value) => (value == null || value.length < 6) ? 'Min 6 characters' : null,
+                    ),
+                    const SizedBox(height: 16),
+
+                    _buildCustomField(
+                      controller: _confirmPasswordController,
+                      label: 'Confirm Password',
+                      icon: CupertinoIcons.lock_shield,
+                      isPassword: true,
+                      validator: (value) => (value != _passwordController.text) ? 'Not matching' : null,
+                    ),
+                    
+                    const SizedBox(height: 40),
+
+                    // 4. زر التسجيل المانجاوي
+                    Consumer<AuthProvider>(
+                      builder: (context, provider, child) {
+                        return SizedBox(
+                          height: 55,
+                          child: ElevatedButton(
+                            onPressed: provider.isLoading ? null : _submit,
+                            style: ElevatedButton.styleFrom(
+backgroundColor: AppColors.textMain,
+                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+                              elevation: 4,
+                              shadowColor: const Color.fromARGB(255, 44, 40, 36).withAlpha(100),
+                            ),
+                            child: provider.isLoading
+                                ? const CupertinoActivityIndicator(color: Colors.white)
+                                : const Text(
+                                    'SIGN UP',
+                                    style: TextStyle(
+                                      fontSize: 16, 
+                                      fontWeight: FontWeight.w900,
+                                      color: AppColors.primary, 
+                                      letterSpacing: 1,
+                                    ),
+                                  ),
+                          ),
+                        );
+                      },
+                    ),
+                    const SizedBox(height: 40), // مساحة لراحة السكرول
+                  ],
+                ),
               ),
             ),
           ),
         ),
       ),
+    );
+  }
+
+  Widget _buildCustomField({
+    required TextEditingController controller,
+    required String label,
+    required IconData icon,
+    bool isPassword = false,
+    TextInputType type = TextInputType.text,
+    String? Function(String?)? validator,
+  }) {
+    return TextFormField(
+      controller: controller,
+      obscureText: isPassword,
+      keyboardType: type,
+      style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
+      decoration: InputDecoration(
+        labelText: label,
+        labelStyle: const TextStyle(color: AppColors.textMain, fontSize: 13),
+        prefixIcon: Icon(icon, color: AppColors.primary, size: 22),
+        filled: true,
+        fillColor: Colors.white,
+        contentPadding: const EdgeInsets.symmetric(vertical: 18),
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(15),
+          borderSide: BorderSide(color: Colors.black.withAlpha(10)),
+        ),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(15),
+          borderSide: BorderSide(color: Colors.black.withAlpha(5)),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(15),
+          borderSide: const BorderSide(color: AppColors.primary, width: 1.5),
+        ),
+      ),
+      validator: validator,
     );
   }
 }

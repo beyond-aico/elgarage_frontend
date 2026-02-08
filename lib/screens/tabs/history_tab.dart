@@ -1,3 +1,4 @@
+import 'package:elgarage/core/ui/textured_background.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:provider/provider.dart';
@@ -10,305 +11,275 @@ class HistoryTab extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Stack(
-      children: [
-        // 1. القائمة (Service Logs List)
-        Consumer<AppProvider>(
-          builder: (context, provider, child) {
-            final logs = provider.historyLogs;
-            
-            if (logs.isEmpty) {
-              return Center(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Icon(CupertinoIcons.doc_text_search, size: 60, color: Colors.grey[300]),
-                    const SizedBox(height: 10),
-                    const Text(
-                      "No records found.",
-                      style: TextStyle(color: Colors.grey, fontSize: 16),
-                    ),
-                  ],
-                ),
+    final double screenWidth = MediaQuery.of(context).size.width;
+
+    return TexturedBackground( // ✅ التعديل الأساسي: إضافة الخلفية المنسوجة
+      child: Stack(
+        children: [
+          // 1. القائمة (Service Logs List)
+          Consumer<AppProvider>(
+            builder: (context, provider, child) {
+              final logs = provider.historyLogs;
+              
+              if (logs.isEmpty) {
+                return _buildEmptyState(screenWidth);
+              }
+
+              return ListView.builder(
+                // ✅ زيادة الـ padding السفلي لضمان عدم اختفاء الكروت خلف الفوتر
+                padding: const EdgeInsets.fromLTRB(16, 20, 16, 120), 
+                physics: const BouncingScrollPhysics(),
+                itemCount: logs.length,
+                itemBuilder: (context, index) {
+                  final log = logs[index];
+                  return _buildIndustrialLogCard(log, screenWidth);
+                },
               );
-            }
-
-            return ListView.builder(
-              padding: const EdgeInsets.fromLTRB(16, 15, 16, 100), // مسافة إضافية للـ FAB
-              itemCount: logs.length,
-              itemBuilder: (context, index) {
-                final log = logs[index];
-                return Container(
-                  margin: const EdgeInsets.only(bottom: 15),
-                  padding: const EdgeInsets.all(16),
-                  decoration: BoxDecoration(
-                    color: Colors.white, // بوكس أبيض صلب
-                    borderRadius: BorderRadius.circular(15), // حواف الكود الثاني
-                    border: Border.all(color: Colors.grey.shade100), // برواز الكود الثاني
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withOpacity(0.04), 
-                        blurRadius: 10, 
-                        offset: const Offset(0, 4)
-                      )
-                    ],
-                  ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
-                        children: [
-                          // أيقونة المفك (Wrench) من الكود الثاني
-                          Container(
-                            padding: const EdgeInsets.all(10),
-                            decoration: BoxDecoration(
-                              color: AppColors.primary.withOpacity(0.1), 
-                              shape: BoxShape.circle
-                            ),
-                            child: const Icon(CupertinoIcons.wrench, color: AppColors.primary, size: 20),
-                          ),
-                          const SizedBox(width: 15),
-                          
-                          // تفاصيل السجل
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  log.serviceName,
-                                  style: const TextStyle(
-                                    fontWeight: FontWeight.w900, // الوزن العريض من الكود الثاني
-                                    fontSize: 16
-                                  ),
-                                ),
-                                const SizedBox(height: 4),
-                                Row(
-                                  children: [
-                                    Text(
-                                      DateFormat('dd MMM yyyy').format(log.date),
-                                      style: const TextStyle(color: Colors.grey, fontSize: 12),
-                                    ),
-                                    if (log.mileage > 0) ...[
-                                      const SizedBox(width: 8),
-                                      const Icon(Icons.circle, size: 4, color: Colors.grey),
-                                      const SizedBox(width: 8),
-                                      Text(
-                                        '${log.mileage.toInt()} km',
-                                        style: const TextStyle(color: Colors.grey, fontSize: 12),
-                                      ),
-                                    ],
-                                  ],
-                                ),
-                              ],
-                            ),
-                          ),
-                          // أيقونة النجاح (Check Circle)
-                          const Icon(Icons.check_circle, color: Colors.green, size: 20),
-                        ],
-                      ),
-                      
-                      // عرض التاجات (Parts Replaced) - منطق الكود الأول
-                      if (log.partsReplaced.isNotEmpty) ...[
-                        const SizedBox(height: 12),
-                        const Divider(height: 1),
-                        const SizedBox(height: 8),
-                        Wrap(
-                          spacing: 6,
-                          runSpacing: 4,
-                          children: log.partsReplaced.map((part) => Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                            decoration: BoxDecoration(
-                              color: Colors.grey[50],
-                              borderRadius: BorderRadius.circular(6),
-                              border: Border.all(color: Colors.grey.shade200),
-                            ),
-                            child: Text(
-                              part, 
-                              style: TextStyle(fontSize: 10, color: Colors.grey[700], fontWeight: FontWeight.bold)
-                            ),
-                          )).toList(),
-                        )
-                      ]
-                    ],
-                  ),
-                );
-              },
-            );
-          },
-        ),
-
-        // 2. زر الإضافة (FAB) - ستايل الكود الثاني (الألوان والمكان)
-        Positioned(
-          bottom: 20,
-          right: 20,
-          child: FloatingActionButton(
-            backgroundColor: AppColors.textMain, // اللون الداكن من الكود الثاني
-            onPressed: () => _showAddLogSheet(context),
-            child: const Icon(Icons.add, color: AppColors.primary, size: 30), // أيقونة بلون المانجا
+            },
           ),
-        ),
-      ],
+
+          // 2. ✅ زر الإضافة المطور (Floating Action Button)
+          // تم رفعه للأعلى (bottom: 100) ليتجاوز الفوتر ويظهر بوضوح
+          Positioned(
+            bottom: 100, 
+            right: 20,
+            child: FloatingActionButton.extended(
+              heroTag: 'add_service_record_unique_tag', // لمنع التصادم مع أزرار FAB أخرى
+              backgroundColor: AppColors.textMain, // الأسود الصناعي الموحد
+              elevation: 10,
+              onPressed: () => _showAddLogSheet(context),
+              label: const Text(
+                "NEW RECORD", 
+                style: TextStyle(color: AppColors.primary, fontWeight: FontWeight.w900, fontSize: 12, letterSpacing: 1.5)
+              ),
+              icon: const Icon(CupertinoIcons.add, color: AppColors.primary, size: 20),
+            ),
+          ),
+        ],
+      ),
     );
   }
 
-  // --- شيت إضافة السجل (Add Service Sheet) - منطق الكود الأول مع تحسين الستايل ---
+  // --- ويدجت الكارت (Industrial Style) ---
+  Widget _buildIndustrialLogCard(dynamic log, double screenWidth) {
+    return Container(
+      margin: const EdgeInsets.only(bottom: 15),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(20),
+        boxShadow: [BoxShadow(color: Colors.black.withAlpha(10), blurRadius: 15, offset: const Offset(0, 5))],
+      ),
+      child: IntrinsicHeight(
+        child: Row(
+          children: [
+            // الجزء الأيسر: الأيقونة (Industrial Light)
+            Container(
+              width: 65,
+              decoration: BoxDecoration(
+                color: Colors.grey[50],
+                borderRadius: const BorderRadius.horizontal(left: Radius.circular(20)),
+              ),
+              child: const Center(
+                child: Icon(CupertinoIcons.wrench_fill, color: AppColors.primary, size: 24),
+              ),
+            ),
+            // الجزء الأيمن: البيانات (Industrial Dark)
+            Expanded(
+              child: Container(
+                padding: const EdgeInsets.all(15),
+                decoration: const BoxDecoration(
+                  color: AppColors.textMain,
+                  borderRadius: BorderRadius.horizontal(right: Radius.circular(20)),
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Expanded(
+                          child: Text(
+                            log.serviceName.toUpperCase(),
+                            style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w900, fontSize: 13),
+                            maxLines: 1, overflow: TextOverflow.ellipsis,
+                          ),
+                        ),
+                        const Icon(CupertinoIcons.checkmark_circle_fill, color: Colors.green, size: 16),
+                      ],
+                    ),
+                    const SizedBox(height: 5),
+                    Row(
+                      children: [
+                        Text(
+                          DateFormat('dd MMM yyyy').format(log.date),
+                          style: const TextStyle(color: Colors.grey, fontSize: 11, fontWeight: FontWeight.bold),
+                        ),
+                        if (log.mileage > 0) ...[
+                          const SizedBox(width: 10),
+                          Container(width: 4, height: 4, decoration: const BoxDecoration(color: Colors.grey, shape: BoxShape.circle)),
+                          const SizedBox(width: 10),
+                          Text('${log.mileage.toInt()} KM', style: const TextStyle(color: AppColors.primary, fontSize: 11, fontWeight: FontWeight.bold)),
+                        ],
+                      ],
+                    ),
+                    // عرض قطع الغيار كـ Tags صغيرة
+                    if (log.partsReplaced.isNotEmpty) ...[
+                      const Divider(color: Colors.white10, height: 20),
+                      Wrap(
+                        spacing: 6, runSpacing: 4,
+                        children: log.partsReplaced.map<Widget>((part) => Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                          decoration: BoxDecoration(color: Colors.white.withAlpha(15), borderRadius: BorderRadius.circular(5)),
+                          child: Text(part.toString(), style: const TextStyle(color: Colors.white70, fontSize: 9, fontWeight: FontWeight.bold)),
+                        )).toList(),
+                      ),
+                    ]
+                  ],
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  // --- شيت الإضافة (Add Sheet) ---
   void _showAddLogSheet(BuildContext context) {
     final nameController = TextEditingController();
     final mileageController = TextEditingController();
     DateTime selectedDate = DateTime.now();
     List<String> selectedParts = [];
-    
-    final List<String> availableParts = [
-      'Engine Oil', 'Oil Filter', 'Air Filter', 'Cabin Filter', 
-      'Spark Plugs', 'Brake Pads', 'Tires', 'Battery', 
-      'Coolant', 'Wipers', 'Timing Belt', 'Gearbox Oil'
-    ];
+    final List<String> availableParts = ['Engine Oil', 'Oil Filter', 'Brake Pads', 'Battery', 'Tires', 'Coolant', 'Spark Plugs'];
 
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.white,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(25)),
-      ),
+      shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(30))),
       builder: (context) {
-        return StatefulBuilder(
-          builder: (context, setState) {
-            return Padding(
-              padding: EdgeInsets.only(
-                bottom: MediaQuery.of(context).viewInsets.bottom + 20,
-                left: 20, right: 20, top: 20,
-              ),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const Center(
-                    child: Text(
-                      "Add Service Record", 
-                      style: TextStyle(fontSize: 20, fontWeight: FontWeight.w900)
+        return StatefulBuilder(builder: (context, setState) {
+          return Padding(
+            padding: EdgeInsets.only(
+              bottom: MediaQuery.of(context).viewInsets.bottom + 20, 
+              left: 25, right: 25, top: 25
+            ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Center(child: Text("NEW SERVICE LOG", style: TextStyle(fontSize: 18, fontWeight: FontWeight.w900, letterSpacing: 1.5))),
+                const SizedBox(height: 25),
+                
+                _buildSheetField(nameController, "Service Name", CupertinoIcons.wrench),
+                const SizedBox(height: 15),
+                _buildSheetField(mileageController, "Mileage (km)", CupertinoIcons.speedometer, type: TextInputType.number),
+                const SizedBox(height: 15),
+                
+                // اختيار التاريخ (Date Picker)
+                InkWell(
+                  onTap: () async {
+                    final picked = await showDatePicker(
+                      context: context, 
+                      initialDate: selectedDate, 
+                      firstDate: DateTime(2000), 
+                      lastDate: DateTime.now()
+                    );
+                    if (picked != null) setState(() => selectedDate = picked);
+                  },
+                  child: Container(
+                    padding: const EdgeInsets.all(15),
+                    decoration: BoxDecoration(
+                      border: Border.all(color: Colors.grey.shade300), 
+                      borderRadius: BorderRadius.circular(15)
+                    ),
+                    child: Row(
+                      children: [
+                        const Icon(CupertinoIcons.calendar, color: AppColors.primary),
+                        const SizedBox(width: 10),
+                        Text(DateFormat('dd/MM/yyyy').format(selectedDate), style: const TextStyle(fontWeight: FontWeight.bold)),
+                        const Spacer(),
+                        const Icon(Icons.arrow_drop_down, color: Colors.grey),
+                      ],
                     ),
                   ),
-                  const SizedBox(height: 25),
-                  
-                  // 1. اسم الخدمة
-                  TextField(
-                    controller: nameController,
-                    decoration: InputDecoration(
-                      labelText: "Service Name",
-                      prefixIcon: const Icon(CupertinoIcons.wrench),
-                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(15)),
+                ),
+                
+                const SizedBox(height: 25),
+                const Text("Select Replaced Parts:", style: TextStyle(fontWeight: FontWeight.w900, fontSize: 13)),
+                const SizedBox(height: 12),
+                
+                Wrap(
+                  spacing: 8,
+                  children: availableParts.map((part) {
+                    final isSelected = selectedParts.contains(part);
+                    return FilterChip(
+                      label: Text(part, style: TextStyle(fontSize: 11, color: isSelected ? Colors.white : Colors.black87)),
+                      selected: isSelected,
+                      selectedColor: AppColors.primary,
+                      checkmarkColor: Colors.white,
+                      onSelected: (val) => setState(() => val ? selectedParts.add(part) : selectedParts.remove(part)),
+                    );
+                  }).toList(),
+                ),
+                
+                const SizedBox(height: 30),
+                
+                SizedBox(
+                  width: double.infinity,
+                  height: 55,
+                  child: ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: AppColors.primary, 
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+                      elevation: 5,
                     ),
-                  ),
-                  const SizedBox(height: 15),
-
-                  // 2. العداد
-                  TextField(
-                    controller: mileageController,
-                    keyboardType: TextInputType.number,
-                    decoration: InputDecoration(
-                      labelText: "Mileage (km)",
-                      prefixIcon: const Icon(CupertinoIcons.speedometer),
-                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(15)),
-                    ),
-                  ),
-                  const SizedBox(height: 15),
-
-                  // 3. اختيار التاريخ
-                  InkWell(
-                    onTap: () async {
-                      final picked = await showDatePicker(
-                        context: context,
-                        initialDate: selectedDate,
-                        firstDate: DateTime(2000),
-                        lastDate: DateTime.now(),
-                      );
-                      if (picked != null) setState(() => selectedDate = picked);
+                    onPressed: () {
+                      if (nameController.text.isNotEmpty) {
+                        Provider.of<AppProvider>(context, listen: false).addServiceLog({
+                          'name': nameController.text,
+                          'date': selectedDate,
+                          'mileage': double.tryParse(mileageController.text) ?? 0.0,
+                          'parts': selectedParts,
+                        });
+                        Navigator.pop(context);
+                      }
                     },
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 15),
-                      decoration: BoxDecoration(
-                        border: Border.all(color: Colors.grey.shade300),
-                        borderRadius: BorderRadius.circular(15),
-                      ),
-                      child: Row(
-                        children: [
-                          const Icon(CupertinoIcons.calendar, color: Colors.grey),
-                          const SizedBox(width: 10),
-                          Text(DateFormat('dd/MM/yyyy').format(selectedDate)),
-                          const Spacer(),
-                          const Icon(Icons.arrow_drop_down, color: Colors.grey),
-                        ],
-                      ),
-                    ),
+                    child: const Text("SAVE RECORD", style: TextStyle(color: Colors.black, fontWeight: FontWeight.w900, letterSpacing: 1)),
                   ),
-                  
-                  const SizedBox(height: 20),
-
-                  // 4. اختيار قطع الغيار (Chips Selector)
-                  const Text("Parts Replaced:", style: TextStyle(fontWeight: FontWeight.bold)),
-                  const SizedBox(height: 10),
-                  
-                  Wrap(
-                    spacing: 8,
-                    children: availableParts.map((part) {
-                      final isSelected = selectedParts.contains(part);
-                      return FilterChip(
-                        label: Text(part, style: TextStyle(fontSize: 12, color: isSelected ? Colors.white : Colors.black87)),
-                        selected: isSelected,
-                        selectedColor: AppColors.primary,
-                        checkmarkColor: Colors.white,
-                        onSelected: (bool value) {
-                          setState(() {
-                            if (value) selectedParts.add(part);
-                            else selectedParts.remove(part);
-                          });
-                        },
-                      );
-                    }).toList(),
-                  ),
-
-                  const SizedBox(height: 30),
-
-                  // 5. زر الحفظ
-                  SizedBox(
-                    width: double.infinity,
-                    child: ElevatedButton(
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: AppColors.primary,
-                        padding: const EdgeInsets.symmetric(vertical: 16),
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
-                        elevation: 0,
-                      ),
-                      onPressed: () {
-                        if (nameController.text.isNotEmpty) {
-                          double mileage = double.tryParse(mileageController.text) ?? 0.0;
-                          
-                          Provider.of<AppProvider>(context, listen: false).addServiceLog({
-                            'name': nameController.text,
-                            'date': selectedDate,
-                            'mileage': mileage,
-                            'parts': selectedParts,
-                          });
-                          
-                          Navigator.pop(context);
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(content: Text("Service Log Saved!"), backgroundColor: AppColors.success)
-                          );
-                        }
-                      },
-                      child: const Text(
-                        "SAVE RECORD", 
-                        style: TextStyle(color: Colors.white, fontWeight: FontWeight.w900)
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            );
-          },
-        );
+                ),
+              ],
+            ),
+          );
+        });
       },
+    );
+  }
+
+  Widget _buildSheetField(TextEditingController controller, String label, IconData icon, {TextInputType type = TextInputType.text}) {
+    return TextField(
+      controller: controller,
+      keyboardType: type,
+      decoration: InputDecoration(
+        labelText: label,
+        prefixIcon: Icon(icon, color: AppColors.primary),
+        border: OutlineInputBorder(borderRadius: BorderRadius.circular(15)),
+        focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(15), borderSide: const BorderSide(color: AppColors.primary, width: 2)),
+      ),
+    );
+  }
+
+  Widget _buildEmptyState(double screenWidth) {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(CupertinoIcons.doc_text_search, size: 80, color: Colors.grey.withAlpha(50)),
+          const SizedBox(height: 15),
+          const Text("No history found.", style: TextStyle(color: Colors.grey, fontSize: 18, fontWeight: FontWeight.bold)),
+          const Text("Record your first maintenance now.", style: TextStyle(color: Colors.grey, fontSize: 12)),
+        ],
+      ),
     );
   }
 }

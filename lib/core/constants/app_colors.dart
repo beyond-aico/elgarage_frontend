@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
 
+
 class AppColors {
   // --- الألوان الرئيسية (Ismaily Spirit Colors) ---
-  static const Color primary = Color(0xFFFFAB00);      // المانجاوي
+  static const Color primary = Color(0xFFFFAC43);      // المانجاوي
   static const Color secondary = Color(0xFF101010);    // الأسفلتي
-  static const Color accent = Color(0xFFFFA000);       
+  static const Color accent = Color(0xFFFFAC43);       
 
   // --- ألوان الخلفيات ---
   static const Color background = Color(0xFFFAF9F6);   
