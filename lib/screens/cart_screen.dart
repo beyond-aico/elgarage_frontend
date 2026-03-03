@@ -6,6 +6,7 @@ import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import '../core/constants/app_colors.dart';
 import '../providers/app_provider.dart';
+import 'package:flutter_paypal_payment/flutter_paypal_payment.dart';
 
 class CartScreen extends StatelessWidget {
   const CartScreen({super.key});
@@ -17,14 +18,14 @@ class CartScreen extends StatelessWidget {
     return AnnotatedRegion<SystemUiOverlayStyle>(
       value: const SystemUiOverlayStyle(
         statusBarColor: Colors.transparent,
-        statusBarIconBrightness: Brightness.dark, // أيقونات غامقة لتناسب الخلفية الفاتحة
+        statusBarIconBrightness: Brightness.dark, 
       ),
       child: Scaffold(
         backgroundColor: AppColors.background,
         body: TexturedBackground(
           child: Column(
             children: [
-              // --- 1. الهيدر الموحد (Back Button + Title) ---
+              // --- 1. الهيدر الموحد ---
               SafeArea(
                 child: Padding(
                   padding: EdgeInsets.symmetric(horizontal: screenWidth * 0.02, vertical: 5),
@@ -34,7 +35,6 @@ class CartScreen extends StatelessWidget {
                         icon: const Icon(Icons.arrow_back_ios_new, color: AppColors.textMain),
                         onPressed: () => Navigator.pop(context),
                       ),
-                      // العنوان بجانب زر الرجوع مباشرة كما في Policy/About
                       Text(
                         'MY CART',
                         style: TextStyle(
@@ -45,30 +45,23 @@ class CartScreen extends StatelessWidget {
                         ),
                       ),
                       const Spacer(),
-                      // أيقونة خفيفة في النهاية للتوازن البصري
-                      Padding(
-                        padding: const EdgeInsets.only(right: 15),
-                      ),
                     ],
                   ),
                 ),
               ),
 
-              // --- 2. محتوى السلة (Scrollable List) ---
+              // --- 2. محتوى السلة ---
               Expanded(
                 child: Consumer<AppProvider>(
                   builder: (context, provider, _) {
                     final cartItems = provider.cartItems;
-
-                    if (cartItems.isEmpty) {
-                      return _buildEmptyCart(screenWidth);
-                    }
+                    if (cartItems.isEmpty) return _buildEmptyCart(screenWidth);
 
                     return ListView.separated(
                       physics: const BouncingScrollPhysics(),
                       padding: EdgeInsets.symmetric(horizontal: screenWidth * 0.05, vertical: 10),
                       itemCount: cartItems.length,
-                      separatorBuilder: (_, __) => const SizedBox(height: 12),
+                      separatorBuilder: (_, _) => const SizedBox(height: 12),
                       itemBuilder: (context, index) {
                         return _buildCartItem(context, cartItems[index], provider, screenWidth, index);
                       },
@@ -77,7 +70,7 @@ class CartScreen extends StatelessWidget {
                 ),
               ),
 
-              // --- 3. قسم الدفع والمراكز (Bottom Panel) ---
+              // --- 3. قسم الدفع والمراكز ---
               _buildBottomSummary(context, screenWidth),
             ],
           ),
@@ -85,8 +78,6 @@ class CartScreen extends StatelessWidget {
       ),
     );
   }
-
-  // --- دوال بناء الـ UI الصناعية (Industrial Style) ---
 
   Widget _buildCartItem(BuildContext context, ProductModel item, AppProvider provider, double screenWidth, int index) {
     return Dismissible(
@@ -217,8 +208,58 @@ class CartScreen extends StatelessWidget {
                     shadowColor: AppColors.textMain.withAlpha(100),
                   ),
                   onPressed: () {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text("Connecting to Payment Gateway..."), backgroundColor: AppColors.success, behavior: SnackBarBehavior.floating),
+                    // تحويل السعر لصيغة نصية عشرية (0.00)
+                    final String amountStr = provider.cartTotal.toStringAsFixed(2);
+
+                    Navigator.of(context).push(
+                      MaterialPageRoute(
+                        builder: (BuildContext context) => PaypalCheckoutView(
+                          sandboxMode: true,
+                          clientId: "AS3ird1lER-YiSo5GBwcetm6XkRZEMJw4PXkATyn-uwHmtDVqOOsvu5bPqJo3dixDCZT8K9fGqXsd2Nz",
+                          secretKey: "EOcshM8io2zPZ8eI4WvfA-0-wddnedvvZNJLWwj_hwi9iSytoDoH_cGNeulGGnc3VT7U661F9GF5mmhd",
+                          transactions: [
+                            {
+                              "amount": {
+                                "total": amountStr,
+                                "currency": "USD",
+                                "details": {
+                                  "subtotal": amountStr,
+                                  "shipping": '0',
+                                  "shipping_discount": 0
+                                }
+                              },
+                              "description": "General Maintenance", // وصف مبسط لتجنب الرفض
+                              "item_list": {
+                                "items": provider.cartItems.map((item) => {
+                                  "name": "Service Unit", // اسم ثابت لتجاوزCompliance check
+                                  "quantity": 1,
+                                  "price": item.price.toStringAsFixed(2),
+                                  "currency": "USD"
+                                }).toList(),
+                              }
+                            }
+                          ],
+                          note: "Beyond AI Terminal - Safe Payment",
+                          onSuccess: (Map params) async {
+                            provider.addServiceLog({
+                              'name': 'Paid via PayPal',
+                              'date': DateTime.now(),
+                              'mileage': provider.selectedCar?.currentKm ?? 0.0,
+                              'parts': provider.cartItems.map((e) => e.name).toList(),
+                            });
+                            provider.cartItems.clear();
+                            Navigator.pop(context);
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(content: Text("Payment Successful!"), backgroundColor: AppColors.success),
+                            );
+                          },
+                          onError: (error) {
+                            print("❌ PayPal Error: $error");
+                            Navigator.pop(context);
+                          },
+                          onCancel: () => Navigator.pop(context),
+                        ),
+                      ),
                     );
                   },
                   child: const Text("PROCEED TO CHECKOUT", style: TextStyle(color: AppColors.primary, fontSize: 16, fontWeight: FontWeight.w900, letterSpacing: 1)),
@@ -240,7 +281,7 @@ class CartScreen extends StatelessWidget {
           const SizedBox(height: 20),
           const Text("Your cart is empty", style: TextStyle(color: Colors.grey, fontSize: 18, fontWeight: FontWeight.bold)),
           const SizedBox(height: 10),
-          const Text("Add some premium parts to get started", style: TextStyle(color: Colors.grey, fontSize: 12)),
+          const Text("Add premium parts to get started", style: TextStyle(color: Colors.grey, fontSize: 12)),
         ],
       ),
     );

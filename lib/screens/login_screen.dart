@@ -22,23 +22,19 @@ Future<void> _handleLogin() async {
 
   final auth = Provider.of<AuthProvider>(context, listen: false);
   final app = Provider.of<AppProvider>(context, listen: false);
-  await app.syncUserContext(auth.user);
+
   bool success = await auth.login(
     _emailController.text.trim(), 
     _passwordController.text
   );
 
   if (success && mounted) {
-    // 1. جلب بيانات السيارات
-    await app.fetchMyCars();
-
-    // ✅ التعديل الجوهري: لا تستخدم Navigator هنا!
-    // بمجرد نجاح اللوجن، ستقوم notifyListeners() بتنبيه InitialRouter 
-    // الموجود في main.dart ليقوم بتحويلك للشاشة الصحيحة تلقائياً. [cite: 1, 13]
-    print("🚀 LOGIN_SUCCESS: InitialRouter will handle redirection.");
+    // ✅ يكفي استدعاء syncUserContext فقط لأنها بداخلها بتنادي fetchMyCars
+    await app.syncUserContext(auth.user); 
+    
+    debugPrint("🚀 Fleet Data Synced & Dashboard Ready.");
   }
 }
-
 
   @override
   Widget build(BuildContext context) {

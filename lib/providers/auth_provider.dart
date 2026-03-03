@@ -6,7 +6,7 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:http/http.dart' as http;
 import '../core/models/auth_response_model.dart';
 import '../core/services/auth_service.dart';
-
+import 'package:elgarage/providers/app_provider.dart'; // ده هيحل error الـ Undefined class
 class AuthProvider with ChangeNotifier {
   // بنستخدم السرفيس الخاصة بالباك إند بتاعنا بس
   final AuthService _authService = AuthService();
@@ -77,11 +77,18 @@ class AuthProvider with ChangeNotifier {
     }
   }
 
-Future<void> logout() async {
+// لاحظ الأقواس المربعة [ ] دي بتخلي البروفايدر اختياري
+Future<void> logout([AppProvider? appProvider]) async {
   await _storage.delete(key: 'accessToken');
   _token = null;
   _user = null;
-  notifyListeners(); // ✅ هذا السطر هو المحرك لعملية الخروج
+
+  // لو بعتنا البروفايدر (زي ما هنعمل في الـ UI)، نضف الداتا
+  if (appProvider != null) {
+    appProvider.clearData();
+  }
+  
+  notifyListeners();
 }
 
 // --- الفحص التلقائي للجلسة عند فتح التطبيق ---

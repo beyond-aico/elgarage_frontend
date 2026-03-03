@@ -1,7 +1,12 @@
+// --- FILE: lib/widgets/car_header.dart ---
+
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:provider/provider.dart'; // ✅ إضافة Provider
 import '../core/constants/app_colors.dart';
 import '../core/models/car_model.dart';
+import '../providers/app_provider.dart'; // ✅ إضافة الـ Provider
+// ✅ إضافة الموديل
 
 class CarHeader extends StatelessWidget {
   final Car car;
@@ -10,17 +15,38 @@ class CarHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // ✅ استدعاء الـ Provider لجلب بيانات الصيانة
+    final provider = Provider.of<AppProvider>(context);
+    
+    // حساب أقرب صيانة (أقل عدد كيلومترات متبقي)
+    String nextServiceText = "Healthy";
+    Color serviceColor = AppColors.primary;
+
+    if (provider.dueMaintenance.isNotEmpty) {
+      // البحث عن أقل remainingKm بشرط ميكونش OK
+      final dueItems = provider.dueMaintenance.where((i) => i.status != 'OK').toList();
+      if (dueItems.isNotEmpty) {
+        dueItems.sort((a, b) => (a.remainingKm ?? 999999).compareTo(b.remainingKm ?? 999999));
+        final closest = dueItems.first;
+        
+        nextServiceText = closest.status == 'OVERDUE' 
+            ? 'OVERDUE' 
+            : '${closest.remainingKm} km';
+        
+        serviceColor = closest.status == 'OVERDUE' ? Colors.red : AppColors.warning;
+      }
+    }
+
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: const BoxDecoration(
-        color: AppColors.textMain, // Asphalt Dark لإعطاء طابع صناعي
+        color: AppColors.textMain,
         borderRadius: BorderRadius.vertical(bottom: Radius.circular(30)),
       ),
       child: Column(
         children: [
           Row(
             children: [
-              // 1. صورة العربية أو اللوجو
               Container(
                 width: 70,
                 height: 70,
@@ -36,8 +62,6 @@ class CarHeader extends StatelessWidget {
                     : _defaultIcon(),
               ),
               const SizedBox(width: 15),
-
-              // 2. الاسم والموديل مع حماية الـ Overflow
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -58,8 +82,6 @@ class CarHeader extends StatelessWidget {
             ],
           ),
           const SizedBox(height: 20),
-
-          // 3. شريط المعلومات الحقيقي
           Container(
             padding: const EdgeInsets.all(15),
             decoration: BoxDecoration(
@@ -77,10 +99,10 @@ class CarHeader extends StatelessWidget {
                 ),
                 Container(width: 1, height: 30, color: Colors.white10),
                 _buildInfoItem(
-                  icon: CupertinoIcons.wrench_fill,
+                  icon: closestStatusIcon(provider), // ✅ تغيير الأيقونة حسب الحالة
                   title: 'Next Service',
-                  value: 'Soon',
-                  color: AppColors.warning,
+                  value: nextServiceText, // ✅ القيمة الحقيقية
+                  color: serviceColor, // ✅ اللون الديناميكي
                 ),
               ],
             ),
@@ -88,6 +110,13 @@ class CarHeader extends StatelessWidget {
         ],
       ),
     );
+  }
+
+  // دالة مساعدة لاختيار الأيقونة
+  IconData closestStatusIcon(AppProvider provider) {
+    if (provider.dueMaintenance.any((i) => i.status == 'OVERDUE')) return CupertinoIcons.exclamationmark_circle_fill;
+    if (provider.dueMaintenance.any((i) => i.status == 'DUE_SOON')) return CupertinoIcons.wrench_fill;
+    return CupertinoIcons.checkmark_shield_fill;
   }
 
   Widget _defaultIcon() => const Icon(CupertinoIcons.car_detailed, size: 30, color: AppColors.primary);
@@ -99,7 +128,7 @@ class CarHeader extends StatelessWidget {
           Icon(icon, color: color, size: 18),
           const SizedBox(height: 5),
           Text(title, style: const TextStyle(fontSize: 10, color: Colors.grey, fontWeight: FontWeight.bold)),
-          Text(value, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: Colors.white)),
+          Text(value, style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: color == AppColors.primary ? Colors.white : color)),
         ],
       ),
     );

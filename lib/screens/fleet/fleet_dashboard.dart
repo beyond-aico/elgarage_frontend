@@ -25,17 +25,22 @@ class _FleetDashboardState extends State<FleetDashboard> {
   String searchQuery = "";
   int _currentIndex = 0;
 
- @override
-  void initState() {
-    super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (mounted) {
-        // ✅ جلب الأسطول بناءً على دور FLEET_MANAGER
-        final auth = Provider.of<AuthProvider>(context, listen: false);
-        Provider.of<AppProvider>(context, listen: false).fetchMyCars(role: auth.user?.role);
-      }
-    });
-  }
+@override
+void initState() {
+  super.initState();
+  WidgetsBinding.instance.addPostFrameCallback((_) async {
+    if (mounted) {
+      final auth = Provider.of<AuthProvider>(context, listen: false);
+      final app = Provider.of<AppProvider>(context, listen: false);
+
+      // لو الـ User لسه مش جاهز، استنى ثانية واحدة
+      String? userRole = auth.user?.role;
+      
+      debugPrint("🚀 Dashboard Init with Role: $userRole");
+      await app.fetchMyCars(role: userRole);
+    }
+  });
+}
 
   void _switchToTab(int index) {
     setState(() => _currentIndex = index);
@@ -82,13 +87,15 @@ onPopInvokedWithResult: (didPop, result) {
   }
 
   Widget _buildDashboardHome(AppProvider provider, AuthProvider auth) {
-    // ✅ تفعيل الفلترة بناءً على بيانات الباك إند
-    final filteredCars = provider.myCars.where((car) {
-      final query = searchQuery.toLowerCase();
-      return car.make.toLowerCase().contains(query) || 
-             car.model.toLowerCase().contains(query) || 
-             (car.licensePlate ?? "").toLowerCase().contains(query);
-    }).toList();
+final filteredCars = provider.myCars.where((car) {
+  final query = searchQuery.toLowerCase();
+  // إضافة حماية ضد الـ Null في الـ Make والـ Model
+  final make = car.make.toLowerCase();
+  final model = car.model.toLowerCase();
+  final plate = (car.licensePlate ?? "").toLowerCase();
+  
+  return make.contains(query) || model.contains(query) || plate.contains(query);
+}).toList();
 
     Map<String, List> groupedCars = {};
     for (var car in filteredCars) {

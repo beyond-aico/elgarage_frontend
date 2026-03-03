@@ -4,938 +4,7 @@ Target Extensions: ['.dart', '.yaml', '.gradle', '.xml', '.plist', '.json']
 
 
 ==================================================
-FILE START: .\analysis_options.yaml
-==================================================
-
-# This file configures the analyzer, which statically analyzes Dart code to
-# check for errors, warnings, and lints.
-#
-# The issues identified by the analyzer are surfaced in the UI of Dart-enabled
-# IDEs (https://dart.dev/tools#ides-and-editors). The analyzer can also be
-# invoked from the command line by running `flutter analyze`.
-
-# The following line activates a set of recommended lints for Flutter apps,
-# packages, and plugins designed to encourage good coding practices.
-include: package:flutter_lints/flutter.yaml
-
-linter:
-  # The lint rules applied to this project can be customized in the
-  # section below to disable rules from the `package:flutter_lints/flutter.yaml`
-  # included above or to enable additional rules. A list of all available lints
-  # and their documentation is published at https://dart.dev/lints.
-  #
-  # Instead of disabling a lint rule for the entire project in the
-  # section below, it can also be suppressed for a single line of code
-  # or a specific dart file by using the `// ignore: name_of_lint` and
-  # `// ignore_for_file: name_of_lint` syntax on the line or in the file
-  # producing the lint.
-  rules:
-    # avoid_print: false  # Uncomment to disable the `avoid_print` rule
-    # prefer_single_quotes: true  # Uncomment to enable the `prefer_single_quotes` rule
-
-# Additional information about this file can be found at
-# https://dart.dev/guides/language/analysis-options
-
-
-==================================================
-FILE END: .\analysis_options.yaml
-==================================================
-
-==================================================
-FILE START: .\devtools_options.yaml
-==================================================
-
-description: This file stores settings for Dart & Flutter DevTools.
-documentation: https://docs.flutter.dev/tools/devtools/extensions#configure-extension-enablement-states
-extensions:
-
-
-==================================================
-FILE END: .\devtools_options.yaml
-==================================================
-
-==================================================
-FILE START: .\firebase.json
-==================================================
-
-{"flutter":{"platforms":{"android":{"default":{"projectId":"elgarage-beyond","appId":"1:602286841824:android:9a1875fde2ad22aeb31585","fileOutput":"android/app/google-services.json"}},"dart":{"lib/firebase_options.dart":{"projectId":"elgarage-beyond","configurations":{"android":"1:602286841824:android:9a1875fde2ad22aeb31585","ios":"1:602286841824:ios:11006aa1d78cb22ab31585","macos":"1:602286841824:ios:0ed219da4fe238c7b31585","web":"1:602286841824:web:f67d15614ccc8ec4b31585","windows":"1:602286841824:web:bfdd510f5f407d0db31585"}}}}}}
-
-==================================================
-FILE END: .\firebase.json
-==================================================
-
-==================================================
-FILE START: .\pubspec.yaml
-==================================================
-
-name: elgarage
-description: "El Garage."
-version: 1.0.9
-
-environment:
-  sdk: ^3.10.1
-
-dependencies:
-  flutter:
-    sdk: flutter
-
-  cupertino_icons: ^1.0.8
-  google_fonts: ^6.3.3
-  flutter_svg: ^2.2.3
-  font_awesome_flutter: ^10.12.0
-  intl: ^0.20.2
-  url_launcher: ^6.3.2
-  permission_handler: ^12.0.1
-  flutter_localizations:
-    sdk: flutter
-  firebase_core: ^4.2.1
-  cloud_firestore: ^6.1.0
-  http: ^1.6.0
-  loading_animation_widget: ^1.3.0
-  flutter_staggered_animations: ^1.1.1
-  flutter_screenutil: ^5.9.3
-  easy_localization: ^3.0.8
-  crypto: ^3.0.7
-  provider: ^6.1.5+1
-  change_app_package_name: ^1.5.0
-  audioplayers: ^6.5.1
-  dart_openai: ^6.1.1
-  speech_to_text: ^7.3.0
-  cached_network_image: ^3.4.1
-  flutter_secure_storage: ^10.0.0
-  firebase_auth: ^6.1.4
-  google_sign_in: ^7.2.0
-  flutter_lints: ^6.0.0
-  flutter_paypal_payment: ^1.0.8
-
-dev_dependencies:
-  flutter_test:
-    sdk: flutter
-
-
-flutter:
-
-  uses-material-design: true
-
-  assets:
-   - assets/images/
-   - assets/translations/
-   - assets/images/beyond.png
-
-==================================================
-FILE END: .\pubspec.yaml
-==================================================
-
-==================================================
-FILE START: .\android\app\google-services.json
-==================================================
-
-{
-  "project_info": {
-    "project_number": "602286841824",
-    "project_id": "elgarage-beyond",
-    "storage_bucket": "elgarage-beyond.firebasestorage.app"
-  },
-  "client": [
-    {
-      "client_info": {
-        "mobilesdk_app_id": "1:602286841824:android:9a1875fde2ad22aeb31585",
-        "android_client_info": {
-          "package_name": "com.beyondaico.elgarage"
-        }
-      },
-      "oauth_client": [
-        {
-          "client_id": "602286841824-j0aavp2s0u70k7uk8ag2f3g0irkcf8ln.apps.googleusercontent.com",
-          "client_type": 1,
-          "android_info": {
-            "package_name": "com.beyondaico.elgarage",
-            "certificate_hash": "7cee5eb46208ddd164dff81f19d06e87f537f5dc"
-          }
-        },
-        {
-          "client_id": "602286841824-j8e55rjmjcm9smr05tg23g61j3a40mca.apps.googleusercontent.com",
-          "client_type": 3
-        }
-      ],
-      "api_key": [
-        {
-          "current_key": "AIzaSyBPtf4rBwVh6DaCAotzraPBk81XYI6e8Mg"
-        }
-      ],
-      "services": {
-        "appinvite_service": {
-          "other_platform_oauth_client": [
-            {
-              "client_id": "602286841824-j8e55rjmjcm9smr05tg23g61j3a40mca.apps.googleusercontent.com",
-              "client_type": 3
-            },
-            {
-              "client_id": "602286841824-442k0hd8is0m1shkefqtvj5d65kchsbd.apps.googleusercontent.com",
-              "client_type": 2,
-              "ios_info": {
-                "bundle_id": "com.beyondaico.elgarage"
-              }
-            }
-          ]
-        }
-      }
-    }
-  ],
-  "configuration_version": "1"
-}
-
-==================================================
-FILE END: .\android\app\google-services.json
-==================================================
-
-==================================================
-FILE START: .\android\app\src\debug\AndroidManifest.xml
-==================================================
-
-<manifest xmlns:android="http://schemas.android.com/apk/res/android">
-    <!-- The INTERNET permission is required for development. Specifically,
-         the Flutter tool needs it to communicate with the running application
-         to allow setting breakpoints, to provide hot reload, etc.
-    -->
-    <uses-permission android:name="android.permission.INTERNET"/>
-</manifest>
-
-
-==================================================
-FILE END: .\android\app\src\debug\AndroidManifest.xml
-==================================================
-
-==================================================
-FILE START: .\android\app\src\main\AndroidManifest.xml
-==================================================
-
-<manifest xmlns:android="http://schemas.android.com/apk/res/android">
-
-    <uses-permission android:name="android.permission.INTERNET"/>
-    <uses-permission android:name="android.permission.POST_NOTIFICATIONS"/>
-    <uses-permission android:name="com.google.android.gms.permission.AD_ID"/>
-    <application
-        android:label="El Garage"
-        android:name="${applicationName}"
-        android:icon="@mipmap/ic_launcher"
-        android:enableOnBackInvokedCallback="true">
-        
-        <activity
-            android:name=".MainActivity"
-            android:exported="true"
-            android:launchMode="singleTop"
-            android:taskAffinity=""
-            android:theme="@style/LaunchTheme"
-            android:configChanges="orientation|keyboardHidden|keyboard|screenSize|smallestScreenSize|locale|layoutDirection|fontScale|screenLayout|density|uiMode"
-            android:hardwareAccelerated="true"
-            android:windowSoftInputMode="adjustResize">
-            
-            <meta-data
-              android:name="io.flutter.embedding.android.NormalTheme"
-              android:resource="@style/NormalTheme"
-              />
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN"/>
-                <category android:name="android.intent.category.LAUNCHER"/>
-            </intent-filter>
-        </activity>
-        
-        <meta-data
-            android:name="flutterEmbedding"
-            android:value="2" />
-    </application>
-
-    <queries>
-        <intent>
-            <action android:name="android.intent.action.VIEW" />
-            <data android:scheme="https" />
-        </intent>
-        <intent>
-            <action android:name="android.intent.action.DIAL" />
-            <data android:scheme="tel" />
-        </intent>
-        <intent>
-            <action android:name="android.intent.action.SENDTO" />
-            <data android:scheme="smsto" />
-        </intent>
-        <intent>
-            <action android:name="android.intent.action.VIEW" />
-            <data android:scheme="geo" />
-        </intent>
-        <intent>
-            <action android:name="android.intent.action.PROCESS_TEXT"/>
-            <data android:mimeType="text/plain"/>
-        </intent>
-    </queries>
-</manifest>
-
-==================================================
-FILE END: .\android\app\src\main\AndroidManifest.xml
-==================================================
-
-==================================================
-FILE START: .\android\app\src\main\res\drawable\launch_background.xml
-==================================================
-
-<?xml version="1.0" encoding="utf-8"?>
-<!-- Modify this file to customize your launch splash screen -->
-<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
-    <item android:drawable="@android:color/white" />
-
-    <!-- You can insert your own image assets here -->
-    <!-- <item>
-        <bitmap
-            android:gravity="center"
-            android:src="@mipmap/launch_image" />
-    </item> -->
-</layer-list>
-
-
-==================================================
-FILE END: .\android\app\src\main\res\drawable\launch_background.xml
-==================================================
-
-==================================================
-FILE START: .\android\app\src\main\res\drawable-v21\launch_background.xml
-==================================================
-
-<?xml version="1.0" encoding="utf-8"?>
-<!-- Modify this file to customize your launch splash screen -->
-<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
-    <item android:drawable="?android:colorBackground" />
-
-    <!-- You can insert your own image assets here -->
-    <!-- <item>
-        <bitmap
-            android:gravity="center"
-            android:src="@mipmap/launch_image" />
-    </item> -->
-</layer-list>
-
-
-==================================================
-FILE END: .\android\app\src\main\res\drawable-v21\launch_background.xml
-==================================================
-
-==================================================
-FILE START: .\android\app\src\main\res\values\styles.xml
-==================================================
-
-<?xml version="1.0" encoding="utf-8"?>
-<resources>
-    <!-- Theme applied to the Android Window while the process is starting when the OS's Dark Mode setting is off -->
-    <style name="LaunchTheme" parent="@android:style/Theme.Light.NoTitleBar">
-        <!-- Show a splash screen on the activity. Automatically removed when
-             the Flutter engine draws its first frame -->
-        <item name="android:windowBackground">@drawable/launch_background</item>
-    </style>
-    <!-- Theme applied to the Android Window as soon as the process has started.
-         This theme determines the color of the Android Window while your
-         Flutter UI initializes, as well as behind your Flutter UI while its
-         running.
-
-         This Theme is only used starting with V2 of Flutter's Android embedding. -->
-    <style name="NormalTheme" parent="@android:style/Theme.Light.NoTitleBar">
-        <item name="android:windowBackground">?android:colorBackground</item>
-    </style>
-</resources>
-
-
-==================================================
-FILE END: .\android\app\src\main\res\values\styles.xml
-==================================================
-
-==================================================
-FILE START: .\android\app\src\main\res\values-night\styles.xml
-==================================================
-
-<?xml version="1.0" encoding="utf-8"?>
-<resources>
-    <!-- Theme applied to the Android Window while the process is starting when the OS's Dark Mode setting is on -->
-    <style name="LaunchTheme" parent="@android:style/Theme.Black.NoTitleBar">
-        <!-- Show a splash screen on the activity. Automatically removed when
-             the Flutter engine draws its first frame -->
-        <item name="android:windowBackground">@drawable/launch_background</item>
-    </style>
-    <!-- Theme applied to the Android Window as soon as the process has started.
-         This theme determines the color of the Android Window while your
-         Flutter UI initializes, as well as behind your Flutter UI while its
-         running.
-
-         This Theme is only used starting with V2 of Flutter's Android embedding. -->
-    <style name="NormalTheme" parent="@android:style/Theme.Black.NoTitleBar">
-        <item name="android:windowBackground">?android:colorBackground</item>
-    </style>
-</resources>
-
-
-==================================================
-FILE END: .\android\app\src\main\res\values-night\styles.xml
-==================================================
-
-==================================================
-FILE START: .\android\app\src\profile\AndroidManifest.xml
-==================================================
-
-<manifest xmlns:android="http://schemas.android.com/apk/res/android">
-    <!-- The INTERNET permission is required for development. Specifically,
-         the Flutter tool needs it to communicate with the running application
-         to allow setting breakpoints, to provide hot reload, etc.
-    -->
-    <uses-permission android:name="android.permission.INTERNET"/>
-</manifest>
-
-
-==================================================
-FILE END: .\android\app\src\profile\AndroidManifest.xml
-==================================================
-
-==================================================
-FILE START: .\assets\translations\ar.json
-==================================================
-
-{
-  "welcome": "أهلاً بك،",
-  "search_hint": "ابحث عن خدمة، قطعة غيار، أو مساعدة...",
-  "hero_slogan": "كل ما تحتاجه\nلسيارتك {}",
-  "quick_access": "وصول سريع",
-  
-  "sos_title": "الإنقاذ والطوارئ",
-  "maintenance_title": "مراكز الصيانة",
-  "tires_batteries": "إطارات وبطاريات",
-  "services_title": "خدمات سريعة",
-  "car_care_title": "عناية بالسيارة",
-  "my_garage": "الجراج",
-  "spare_parts_title": "قطع الغيار",
-
-  "sos_button": "استغاثة",
-  "nearby_winch": "أقرب أوناش إنقاذ",
-  "winch_fast": "ونش القاهرة السريع",
-  "winch_road": "إنقاذ الطريق",
-  "away_km": "يبعد {} كم",
-  
-  "routine_checks": "فحوصات دورية",
-  "nearby_stations": "محطات خدمة قريبة",
-  "check_engine_oil": "زيت المحرك",
-  "check_filters": "فلاتر",
-  "check_coolant": "تبريد",
-  "check_brakes": "فرامل",
-  "station_mobil": "مركز موبيل 1",
-  "station_total": "توتال كوارتز",
-  "station_shell": "شيل هيليكس",
-  "serv_oil_filters": "زيت وفلاتر",
-  "serv_fluids": "تزويد سوائل",
-  "serv_full_checkup": "فحص شامل",
-  
-  "tires_tab": "إطارات",
-  "battery_tab": "بطارية",
-  "shop_fit_fix": "فيت آند فيكس",
-  "serv_tire_repair": "إصلاح إطارات",
-  "shop_bridgestone": "بريدجستون",
-  "serv_new_tires": "إطارات جديدة",
-  "status_closing_soon": "يغلق قريباً",
-  "shop_battery_pro": "بطاريات برو",
-  "serv_jump_start": "شحن وتوصيل",
-  "status_available": "متاح",
-  
-  "care_categories": "الأقسام",
-  "top_centers": "المراكز الأعلى تقييماً",
-  "premium_detailing": "عناية فائقة",
-  "nano_offer": "خصم 20% على\nباقات النانو سيراميك",
-  "cat_wash": "غسيل",
-  "cat_polish": "بوليش",
-  "cat_interior": "داخلي",
-  "cat_accessories": "كماليات",
-  "care_center_name": "مركز عناية {}",
-  "full_detailing": "تلميع شامل • نانو",
-
-  "garage_schedule": "جدول الصيانة",
-  "stat_mileage": "الممشى",
-  "stat_fuel": "الوقود",
-  "stat_oil_life": "الزيت",
-  "car_desc": "2023 • سيدان • أسود",
-  "serv_oil_change": "تغيير زيت",
-  "status_done": "تم في {}",
-  "serv_tire_rotation": "تبديل إطارات",
-  "status_due_km": "مستحق بعد {} كم",
-  "serv_brake_insp": "فحص فرامل",
-  "status_due_month": "الشهر القادم",
-  
-  "profile_title": "ملفي الشخصي",
-  "personal_info": "البيانات الشخصية",
-  "vehicle_details": "تفاصيل السيارة",
-  "service_history": "سجل الصيانة",
-  "account": "الحساب",
-  "settings": "الإعدادات",
-  "notifications": "الإشعارات",
-  "language": "اللغة",
-  "lang_name": "العربية",
-  "logout": "تسجيل الخروج",
-
-  "spare_categories": "أقسام قطع الغيار",
-  "verified_merchants": "تجار موثوقون",
-  "cat_engine": "المحرك",
-  "cat_body": "الهيكل",
-  "cat_electrical": "الكهرباء",
-  "cat_access": "كماليات",
-  "view_products": "عرض المنتجات",
-  "merch_tawfik": "التوفيق لقطع الغيار",
-  "spec_kia": "متخصص كيا وهيونداي",
-  "item_oil_filter": "فلتر زيت",
-  "item_brake_pads": "تيل فرامل",
-  "merch_speed": "سبيد للأداء",
-  "spec_tuning": "تعديل وهيكل",
-  "item_spoiler": "سبويلر",
-  
-  "open_now": "مفتوح الآن",
-  "closed": "مغلق",
-  "book_appointment": "حجز موعد",
-  
-  "shop_top_gear": "توب جير",
-  "spec_german": "متخصص سيارات ألماني",
-  "serv_engine": "محرك",
-  "serv_trans": "فتيس",
-  "shop_auto_elec": "أوتو إليكتريك",
-  "spec_diag": "كشف أعطال",
-  "serv_sensors": "حساسات",
-  "serv_ecu": "كنترول",
-  "shop_suspension": "عفشة ماسترز",
-  "spec_chassis": "شاسيه وزوايا",
-  "serv_shocks": "مساعدين",
-
-"ask_me": "اسألني",
-"listening": "جاري الاستماع...",
-"speaking": "يتحدث...",
-"type_message": "اكتب رسالتك أو إضغط مطولا..."
-}
-
-==================================================
-FILE END: .\assets\translations\ar.json
-==================================================
-
-==================================================
-FILE START: .\assets\translations\en.json
-==================================================
-
-{
-  "welcome": "Welcome Back,",
-  "search_hint": "Find service, parts, or help...",
-  "hero_slogan": "Find Everything\nFor Your {}",
-  "quick_access": "Quick Access",
-  
-  "sos_title": "SOS & Rescue",
-  "maintenance_title": "Maintenance",
-  "tires_batteries": "Tires & Battery",
-  "services_title": "Quick Service",
-  "car_care_title": "Car Care",
-  "my_garage": "Garage",
-  "spare_parts_title": "Spare Parts",
-
-  "sos_button": "SOS",
-  "nearby_winch": "Nearby Winch Services",
-  "winch_fast": "Fast Winch Cairo",
-  "winch_road": "Road Rescue",
-  "away_km": "{} km away",
-  
-  "routine_checks": "Routine Checks",
-  "nearby_stations": "Nearby Service Stations",
-  "check_engine_oil": "Engine Oil",
-  "check_filters": "Filters",
-  "check_coolant": "Coolant",
-  "check_brakes": "Brakes",
-  "station_mobil": "Mobil 1 Center",
-  "station_total": "Total Quartz",
-  "station_shell": "Shell Helix",
-  "serv_oil_filters": "Oil & Filters",
-  "serv_fluids": "Fluids Top-up",
-  "serv_full_checkup": "Full Checkup",
-  
-  "tires_tab": "Tires",
-  "battery_tab": "Battery",
-  "shop_fit_fix": "Fit & Fix",
-  "serv_tire_repair": "Tire Repair",
-  "shop_bridgestone": "Bridgestone",
-  "serv_new_tires": "New Tires",
-  "status_closing_soon": "Closing Soon",
-  "shop_battery_pro": "Battery Pro",
-  "serv_jump_start": "Jump Start",
-  "status_available": "Available",
-  
-  "care_categories": "Categories",
-  "top_centers": "Top Rated Centers",
-  "premium_detailing": "Premium Detailing",
-  "nano_offer": "Get 20% off on\nNano Ceramic packages",
-  "cat_wash": "Car Wash",
-  "cat_polish": "Polishing",
-  "cat_interior": "Interior",
-  "cat_accessories": "Accessories",
-  "care_center_name": "Care Center {}",
-  "full_detailing": "Full Detailing • Nano Ceramic",
-
-  "garage_schedule": "Maintenance Schedule",
-  "stat_mileage": "Mileage",
-  "stat_fuel": "Fuel",
-  "stat_oil_life": "Oil Life",
-  "car_desc": "2023 • Sedan • Black",
-  "serv_oil_change": "Oil Change",
-  "status_done": "Done on {}",
-  "serv_tire_rotation": "Tire Rotation",
-  "status_due_km": "Due in {} km",
-  "serv_brake_insp": "Brake Inspection",
-  "status_due_month": "Due next month",
-  
-  "profile_title": "My Profile",
-  "personal_info": "Personal Info",
-  "vehicle_details": "Vehicle Details",
-  "service_history": "Service History",
-  "account": "Account",
-  "settings": "Settings",
-  "notifications": "Notifications",
-  "language": "Language",
-  "lang_name": "English",
-  "logout": "Log Out",
-
-  "spare_categories": "Spare Parts Categories",
-  "verified_merchants": "Verified Merchants",
-  "cat_engine": "Engine",
-  "cat_body": "Body",
-  "cat_electrical": "Electrical",
-  "cat_access": "Accessories",
-  "view_products": "View Products",
-  "merch_tawfik": "El-Tawfik Auto Parts",
-  "spec_kia": "Kia & Hyundai Specialist",
-  "item_oil_filter": "Oil Filters",
-  "item_brake_pads": "Brake Pads",
-  "merch_speed": "Speed Performance",
-  "spec_tuning": "Body Kits & Tuning",
-  "item_spoiler": "Spoilers",
-  
-  "open_now": "Open Now",
-  "closed": "Closed",
-  "book_appointment": "Book Appointment",
-  
-  "shop_top_gear": "Top Gear Mechanics",
-  "spec_german": "German Cars Specialist",
-  "serv_engine": "Engine",
-  "serv_trans": "Transmission",
-  "shop_auto_elec": "Auto Electric Pro",
-  "spec_diag": "Advanced Diagnostics",
-  "serv_sensors": "Sensors",
-  "serv_ecu": "ECU",
-  "shop_suspension": "Suspension Masters",
-  "spec_chassis": "Chassis & Alignment",
-  "serv_shocks": "Shocks",
-
-  "ask_me": "Ask me",
-"listening": "Listening...",
-"speaking": "Speaking...",
-"type_message": "Type a message or press & hold..."
-
-}
-
-==================================================
-FILE END: .\assets\translations\en.json
-==================================================
-
-==================================================
-FILE START: .\ios\Flutter\AppFrameworkInfo.plist
-==================================================
-
-<?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
-<plist version="1.0">
-<dict>
-  <key>CFBundleDevelopmentRegion</key>
-  <string>en</string>
-  <key>CFBundleExecutable</key>
-  <string>App</string>
-  <key>CFBundleIdentifier</key>
-  <string>io.flutter.flutter.app</string>
-  <key>CFBundleInfoDictionaryVersion</key>
-  <string>6.0</string>
-  <key>CFBundleName</key>
-  <string>App</string>
-  <key>CFBundlePackageType</key>
-  <string>FMWK</string>
-  <key>CFBundleShortVersionString</key>
-  <string>1.0</string>
-  <key>CFBundleSignature</key>
-  <string>????</string>
-  <key>CFBundleVersion</key>
-  <string>1.0</string>
-  <key>MinimumOSVersion</key>
-  <string>13.0</string>
-</dict>
-</plist>
-
-
-==================================================
-FILE END: .\ios\Flutter\AppFrameworkInfo.plist
-==================================================
-
-==================================================
-FILE START: .\ios\Runner\Info.plist
-==================================================
-
-<?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
-<plist version="1.0">
-<dict>
-	<key>CFBundleDevelopmentRegion</key>
-	<string>$(DEVELOPMENT_LANGUAGE)</string>
-	<key>CFBundleDisplayName</key>
-	<string>elgarage</string>
-	<key>CFBundleExecutable</key>
-	<string>$(EXECUTABLE_NAME)</string>
-	<key>CFBundleIdentifier</key>
-	<string>$(PRODUCT_BUNDLE_IDENTIFIER)</string>
-	<key>CFBundleInfoDictionaryVersion</key>
-	<string>6.0</string>
-	<key>CFBundleName</key>
-	<string>elgarage</string>
-	<key>CFBundlePackageType</key>
-	<string>APPL</string>
-	<key>CFBundleShortVersionString</key>
-	<string>$(FLUTTER_BUILD_NAME)</string>
-	<key>CFBundleSignature</key>
-	<string>????</string>
-	<key>CFBundleVersion</key>
-	<string>$(FLUTTER_BUILD_NUMBER)</string>
-	<key>LSRequiresIPhoneOS</key>
-	<true/>
-	<key>UILaunchStoryboardName</key>
-	<string>LaunchScreen</string>
-	<key>UIMainStoryboardFile</key>
-	<string>Main</string>
-	<key>UISupportedInterfaceOrientations</key>
-	<array>
-		<string>UIInterfaceOrientationPortrait</string>
-		<string>UIInterfaceOrientationLandscapeLeft</string>
-		<string>UIInterfaceOrientationLandscapeRight</string>
-	</array>
-	<key>UISupportedInterfaceOrientations~ipad</key>
-	<array>
-		<string>UIInterfaceOrientationPortrait</string>
-		<string>UIInterfaceOrientationPortraitUpsideDown</string>
-		<string>UIInterfaceOrientationLandscapeLeft</string>
-		<string>UIInterfaceOrientationLandscapeRight</string>
-	</array>
-	<key>CADisableMinimumFrameDurationOnPhone</key>
-	<true/>
-	<key>UIApplicationSupportsIndirectInputEvents</key>
-	<true/>
-</dict>
-</plist>
-
-
-==================================================
-FILE END: .\ios\Runner\Info.plist
-==================================================
-
-==================================================
-FILE START: .\ios\Runner\Assets.xcassets\AppIcon.appiconset\Contents.json
-==================================================
-
-{
-  "images" : [
-    {
-      "size" : "20x20",
-      "idiom" : "iphone",
-      "filename" : "Icon-App-20x20@2x.png",
-      "scale" : "2x"
-    },
-    {
-      "size" : "20x20",
-      "idiom" : "iphone",
-      "filename" : "Icon-App-20x20@3x.png",
-      "scale" : "3x"
-    },
-    {
-      "size" : "29x29",
-      "idiom" : "iphone",
-      "filename" : "Icon-App-29x29@1x.png",
-      "scale" : "1x"
-    },
-    {
-      "size" : "29x29",
-      "idiom" : "iphone",
-      "filename" : "Icon-App-29x29@2x.png",
-      "scale" : "2x"
-    },
-    {
-      "size" : "29x29",
-      "idiom" : "iphone",
-      "filename" : "Icon-App-29x29@3x.png",
-      "scale" : "3x"
-    },
-    {
-      "size" : "40x40",
-      "idiom" : "iphone",
-      "filename" : "Icon-App-40x40@2x.png",
-      "scale" : "2x"
-    },
-    {
-      "size" : "40x40",
-      "idiom" : "iphone",
-      "filename" : "Icon-App-40x40@3x.png",
-      "scale" : "3x"
-    },
-    {
-      "size" : "60x60",
-      "idiom" : "iphone",
-      "filename" : "Icon-App-60x60@2x.png",
-      "scale" : "2x"
-    },
-    {
-      "size" : "60x60",
-      "idiom" : "iphone",
-      "filename" : "Icon-App-60x60@3x.png",
-      "scale" : "3x"
-    },
-    {
-      "size" : "20x20",
-      "idiom" : "ipad",
-      "filename" : "Icon-App-20x20@1x.png",
-      "scale" : "1x"
-    },
-    {
-      "size" : "20x20",
-      "idiom" : "ipad",
-      "filename" : "Icon-App-20x20@2x.png",
-      "scale" : "2x"
-    },
-    {
-      "size" : "29x29",
-      "idiom" : "ipad",
-      "filename" : "Icon-App-29x29@1x.png",
-      "scale" : "1x"
-    },
-    {
-      "size" : "29x29",
-      "idiom" : "ipad",
-      "filename" : "Icon-App-29x29@2x.png",
-      "scale" : "2x"
-    },
-    {
-      "size" : "40x40",
-      "idiom" : "ipad",
-      "filename" : "Icon-App-40x40@1x.png",
-      "scale" : "1x"
-    },
-    {
-      "size" : "40x40",
-      "idiom" : "ipad",
-      "filename" : "Icon-App-40x40@2x.png",
-      "scale" : "2x"
-    },
-    {
-      "size" : "76x76",
-      "idiom" : "ipad",
-      "filename" : "Icon-App-76x76@1x.png",
-      "scale" : "1x"
-    },
-    {
-      "size" : "76x76",
-      "idiom" : "ipad",
-      "filename" : "Icon-App-76x76@2x.png",
-      "scale" : "2x"
-    },
-    {
-      "size" : "83.5x83.5",
-      "idiom" : "ipad",
-      "filename" : "Icon-App-83.5x83.5@2x.png",
-      "scale" : "2x"
-    },
-    {
-      "size" : "1024x1024",
-      "idiom" : "ios-marketing",
-      "filename" : "Icon-App-1024x1024@1x.png",
-      "scale" : "1x"
-    }
-  ],
-  "info" : {
-    "version" : 1,
-    "author" : "xcode"
-  }
-}
-
-
-==================================================
-FILE END: .\ios\Runner\Assets.xcassets\AppIcon.appiconset\Contents.json
-==================================================
-
-==================================================
-FILE START: .\ios\Runner\Assets.xcassets\LaunchImage.imageset\Contents.json
-==================================================
-
-{
-  "images" : [
-    {
-      "idiom" : "universal",
-      "filename" : "LaunchImage.png",
-      "scale" : "1x"
-    },
-    {
-      "idiom" : "universal",
-      "filename" : "LaunchImage@2x.png",
-      "scale" : "2x"
-    },
-    {
-      "idiom" : "universal",
-      "filename" : "LaunchImage@3x.png",
-      "scale" : "3x"
-    }
-  ],
-  "info" : {
-    "version" : 1,
-    "author" : "xcode"
-  }
-}
-
-
-==================================================
-FILE END: .\ios\Runner\Assets.xcassets\LaunchImage.imageset\Contents.json
-==================================================
-
-==================================================
-FILE START: .\ios\Runner.xcodeproj\project.xcworkspace\xcshareddata\IDEWorkspaceChecks.plist
-==================================================
-
-<?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
-<plist version="1.0">
-<dict>
-	<key>IDEDidComputeMac32BitWarning</key>
-	<true/>
-</dict>
-</plist>
-
-
-==================================================
-FILE END: .\ios\Runner.xcodeproj\project.xcworkspace\xcshareddata\IDEWorkspaceChecks.plist
-==================================================
-
-==================================================
-FILE START: .\ios\Runner.xcworkspace\xcshareddata\IDEWorkspaceChecks.plist
-==================================================
-
-<?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
-<plist version="1.0">
-<dict>
-	<key>IDEDidComputeMac32BitWarning</key>
-	<true/>
-</dict>
-</plist>
-
-
-==================================================
-FILE END: .\ios\Runner.xcworkspace\xcshareddata\IDEWorkspaceChecks.plist
-==================================================
-
-==================================================
-FILE START: .\lib\main.dart
+FILE START: .\main.dart
 ==================================================
 
 // --- FILE: lib/main.dart ---
@@ -1063,11 +132,11 @@ void initState() {
 }
 
 ==================================================
-FILE END: .\lib\main.dart
+FILE END: .\main.dart
 ==================================================
 
 ==================================================
-FILE START: .\lib\core\constants\app_colors.dart
+FILE START: .\core\constants\app_colors.dart
 ==================================================
 
 import 'package:flutter/material.dart';
@@ -1104,11 +173,11 @@ class AppColors {
 }
 
 ==================================================
-FILE END: .\lib\core\constants\app_colors.dart
+FILE END: .\core\constants\app_colors.dart
 ==================================================
 
 ==================================================
-FILE START: .\lib\core\constants\app_config.dart
+FILE START: .\core\constants\app_config.dart
 ==================================================
 
 class AppConfig {
@@ -1123,11 +192,11 @@ class AppConfig {
 }
 
 ==================================================
-FILE END: .\lib\core\constants\app_config.dart
+FILE END: .\core\constants\app_config.dart
 ==================================================
 
 ==================================================
-FILE START: .\lib\core\constants\maintenance_constants.dart
+FILE START: .\core\constants\maintenance_constants.dart
 ==================================================
 
 class MaintenanceParts {
@@ -1148,11 +217,11 @@ class MaintenanceParts {
 }
 
 ==================================================
-FILE END: .\lib\core\constants\maintenance_constants.dart
+FILE END: .\core\constants\maintenance_constants.dart
 ==================================================
 
 ==================================================
-FILE START: .\lib\core\data\dummy_data.dart
+FILE START: .\core\data\dummy_data.dart
 ==================================================
 
 // Assuming you have or will create basic models
@@ -1256,11 +325,11 @@ class DummyDataService {
 }
 
 ==================================================
-FILE END: .\lib\core\data\dummy_data.dart
+FILE END: .\core\data\dummy_data.dart
 ==================================================
 
 ==================================================
-FILE START: .\lib\core\models\auth_response_model.dart
+FILE START: .\core\models\auth_response_model.dart
 ==================================================
 
 // --- التعديل في ملف lib/core/models/auth_response_model.dart ---
@@ -1325,11 +394,11 @@ class AuthResponse {
 }
 
 ==================================================
-FILE END: .\lib\core\models\auth_response_model.dart
+FILE END: .\core\models\auth_response_model.dart
 ==================================================
 
 ==================================================
-FILE START: .\lib\core\models\car_model.dart
+FILE START: .\core\models\car_model.dart
 ==================================================
 
 class Car {
@@ -1394,11 +463,11 @@ factory Car.fromJson(Map<String, dynamic> json) {
 }
 
 ==================================================
-FILE END: .\lib\core\models\car_model.dart
+FILE END: .\core\models\car_model.dart
 ==================================================
 
 ==================================================
-FILE START: .\lib\core\models\emergency_model.dart
+FILE START: .\core\models\emergency_model.dart
 ==================================================
 
 class EmergencyModel {
@@ -1418,11 +487,11 @@ class EmergencyModel {
 }
 
 ==================================================
-FILE END: .\lib\core\models\emergency_model.dart
+FILE END: .\core\models\emergency_model.dart
 ==================================================
 
 ==================================================
-FILE START: .\lib\core\models\maintenance_item_model.dart
+FILE START: .\core\models\maintenance_item_model.dart
 ==================================================
 
 class MaintenanceItem {
@@ -1459,11 +528,11 @@ class MaintenanceItem {
 }
 
 ==================================================
-FILE END: .\lib\core\models\maintenance_item_model.dart
+FILE END: .\core\models\maintenance_item_model.dart
 ==================================================
 
 ==================================================
-FILE START: .\lib\core\models\product_model.dart
+FILE START: .\core\models\product_model.dart
 ==================================================
 
 class ProductModel {
@@ -1486,11 +555,11 @@ this.isMissed = false,  });
 }
 
 ==================================================
-FILE END: .\lib\core\models\product_model.dart
+FILE END: .\core\models\product_model.dart
 ==================================================
 
 ==================================================
-FILE START: .\lib\core\models\service_log_model.dart
+FILE START: .\core\models\service_log_model.dart
 ==================================================
 
 class ServiceLogModel {
@@ -1512,11 +581,11 @@ class ServiceLogModel {
 }
 
 ==================================================
-FILE END: .\lib\core\models\service_log_model.dart
+FILE END: .\core\models\service_log_model.dart
 ==================================================
 
 ==================================================
-FILE START: .\lib\core\services\auth_service.dart
+FILE START: .\core\services\auth_service.dart
 ==================================================
 
 import 'dart:convert';
@@ -1566,11 +635,11 @@ class AuthService {
 }
 
 ==================================================
-FILE END: .\lib\core\services\auth_service.dart
+FILE END: .\core\services\auth_service.dart
 ==================================================
 
 ==================================================
-FILE START: .\lib\core\services\car_service.dart
+FILE START: .\core\services\car_service.dart
 ==================================================
 
 // --- FILE: lib/core/services/car_service.dart ---
@@ -1746,11 +815,11 @@ Future<List<dynamic>> getMaintenanceDue(String carId) async {
 }
 
 ==================================================
-FILE END: .\lib\core\services\car_service.dart
+FILE END: .\core\services\car_service.dart
 ==================================================
 
 ==================================================
-FILE START: .\lib\core\ui\app_footer.dart
+FILE START: .\core\ui\app_footer.dart
 ==================================================
 
 import 'package:flutter/material.dart';
@@ -1822,11 +891,11 @@ class AppFooter extends StatelessWidget {
 }
 
 ==================================================
-FILE END: .\lib\core\ui\app_footer.dart
+FILE END: .\core\ui\app_footer.dart
 ==================================================
 
 ==================================================
-FILE START: .\lib\core\ui\app_header.dart
+FILE START: .\core\ui\app_header.dart
 ==================================================
 
 // --- FILE: lib/core/ui/app_header.dart ---
@@ -2009,11 +1078,11 @@ class AdvancedWaveClipper extends CustomClipper<Path> {
 }
 
 ==================================================
-FILE END: .\lib\core\ui\app_header.dart
+FILE END: .\core\ui\app_header.dart
 ==================================================
 
 ==================================================
-FILE START: .\lib\core\ui\caution_tape.dart
+FILE START: .\core\ui\caution_tape.dart
 ==================================================
 
 import 'package:flutter/material.dart';
@@ -2042,11 +1111,11 @@ class CautionTapeDecoration extends StatelessWidget {
 }
 
 ==================================================
-FILE END: .\lib\core\ui\caution_tape.dart
+FILE END: .\core\ui\caution_tape.dart
 ==================================================
 
 ==================================================
-FILE START: .\lib\core\ui\main_layout.dart
+FILE START: .\core\ui\main_layout.dart
 ==================================================
 
 import 'package:elgarage/core/ui/app_footer.dart';
@@ -2120,11 +1189,11 @@ class _MainLayoutState extends State<MainLayout> {
 }
 
 ==================================================
-FILE END: .\lib\core\ui\main_layout.dart
+FILE END: .\core\ui\main_layout.dart
 ==================================================
 
 ==================================================
-FILE START: .\lib\core\ui\textured_background.dart
+FILE START: .\core\ui\textured_background.dart
 ==================================================
 
 import 'dart:math';
@@ -2209,11 +1278,11 @@ class EnhancedBohemianPainter extends CustomPainter {
 }
 
 ==================================================
-FILE END: .\lib\core\ui\textured_background.dart
+FILE END: .\core\ui\textured_background.dart
 ==================================================
 
 ==================================================
-FILE START: .\lib\providers\app_provider.dart
+FILE START: .\providers\app_provider.dart
 ==================================================
 
 import 'package:elgarage/core/services/car_service.dart';
@@ -2659,11 +1728,11 @@ void clearData() {
 }
 
 ==================================================
-FILE END: .\lib\providers\app_provider.dart
+FILE END: .\providers\app_provider.dart
 ==================================================
 
 ==================================================
-FILE START: .\lib\providers\auth_provider.dart
+FILE START: .\providers\auth_provider.dart
 ==================================================
 
 import 'dart:convert';
@@ -2821,11 +1890,11 @@ if (response.statusCode == 200) {
 }
 
 ==================================================
-FILE END: .\lib\providers\auth_provider.dart
+FILE END: .\providers\auth_provider.dart
 ==================================================
 
 ==================================================
-FILE START: .\lib\screens\add_car_screen.dart
+FILE START: .\screens\add_car_screen.dart
 ==================================================
 
 // --- FILE: lib/screens/add_car_screen.dart ---
@@ -3111,11 +2180,11 @@ final String mileageText = _mileageController.text.replaceAll(',', '').trim(); /
 }
 
 ==================================================
-FILE END: .\lib\screens\add_car_screen.dart
+FILE END: .\screens\add_car_screen.dart
 ==================================================
 
 ==================================================
-FILE START: .\lib\screens\cart_screen.dart
+FILE START: .\screens\cart_screen.dart
 ==================================================
 
 import 'package:elgarage/core/models/product_model.dart';
@@ -3482,11 +2551,11 @@ class CartScreen extends StatelessWidget {
 }
 
 ==================================================
-FILE END: .\lib\screens\cart_screen.dart
+FILE END: .\screens\cart_screen.dart
 ==================================================
 
 ==================================================
-FILE START: .\lib\screens\car_details_screen.dart
+FILE START: .\screens\car_details_screen.dart
 ==================================================
 
 import 'package:flutter/material.dart';
@@ -3718,11 +2787,11 @@ void _showDeleteConfirmation(BuildContext context, AppProvider provider, String 
 }
 
 ==================================================
-FILE END: .\lib\screens\car_details_screen.dart
+FILE END: .\screens\car_details_screen.dart
 ==================================================
 
 ==================================================
-FILE START: .\lib\screens\emergency_screen.dart
+FILE START: .\screens\emergency_screen.dart
 ==================================================
 
 import 'package:flutter/material.dart';
@@ -3980,11 +3049,11 @@ class EmergencyWaveClipper extends CustomClipper<Path> {
 }
 
 ==================================================
-FILE END: .\lib\screens\emergency_screen.dart
+FILE END: .\screens\emergency_screen.dart
 ==================================================
 
 ==================================================
-FILE START: .\lib\screens\home_screen.dart
+FILE START: .\screens\home_screen.dart
 ==================================================
 
 // --- FILE: lib/screens/home_screen.dart ---
@@ -4101,11 +3170,11 @@ class HeroClipper extends CustomClipper<Path> {
 }
 
 ==================================================
-FILE END: .\lib\screens\home_screen.dart
+FILE END: .\screens\home_screen.dart
 ==================================================
 
 ==================================================
-FILE START: .\lib\screens\login_screen.dart
+FILE START: .\screens\login_screen.dart
 ==================================================
 
 import 'package:elgarage/providers/app_provider.dart';
@@ -4270,11 +3339,11 @@ Future<void> _handleLogin() async {
 }
 
 ==================================================
-FILE END: .\lib\screens\login_screen.dart
+FILE END: .\screens\login_screen.dart
 ==================================================
 
 ==================================================
-FILE START: .\lib\screens\marketplace_screen.dart
+FILE START: .\screens\marketplace_screen.dart
 ==================================================
 
 import 'package:elgarage/core/models/product_model.dart';
@@ -4607,11 +3676,11 @@ class MarketplaceWaveClipper extends CustomClipper<Path> {
 }
 
 ==================================================
-FILE END: .\lib\screens\marketplace_screen.dart
+FILE END: .\screens\marketplace_screen.dart
 ==================================================
 
 ==================================================
-FILE START: .\lib\screens\register_screen.dart
+FILE START: .\screens\register_screen.dart
 ==================================================
 
 import 'package:flutter/material.dart';
@@ -4861,11 +3930,11 @@ backgroundColor: AppColors.textMain,
 }
 
 ==================================================
-FILE END: .\lib\screens\register_screen.dart
+FILE END: .\screens\register_screen.dart
 ==================================================
 
 ==================================================
-FILE START: .\lib\screens\driver\driver_screen.dart
+FILE START: .\screens\driver\driver_screen.dart
 ==================================================
 
 import 'package:elgarage/screens/home_screen.dart';
@@ -5048,11 +4117,11 @@ class _DriverScreenState extends State<DriverScreen> {
 }
 
 ==================================================
-FILE END: .\lib\screens\driver\driver_screen.dart
+FILE END: .\screens\driver\driver_screen.dart
 ==================================================
 
 ==================================================
-FILE START: .\lib\screens\fleet\fleet_dashboard.dart
+FILE START: .\screens\fleet\fleet_dashboard.dart
 ==================================================
 
 // --- FILE: lib/screens/fleet/fleet_dashboard.dart ---
@@ -5305,11 +4374,11 @@ final filteredCars = provider.myCars.where((car) {
 }
 
 ==================================================
-FILE END: .\lib\screens\fleet\fleet_dashboard.dart
+FILE END: .\screens\fleet\fleet_dashboard.dart
 ==================================================
 
 ==================================================
-FILE START: .\lib\screens\more\aboutus_screen.dart
+FILE START: .\screens\more\aboutus_screen.dart
 ==================================================
 
 import 'package:flutter/material.dart';
@@ -5490,11 +4559,11 @@ class AboutUsScreen extends StatelessWidget {
 }
 
 ==================================================
-FILE END: .\lib\screens\more\aboutus_screen.dart
+FILE END: .\screens\more\aboutus_screen.dart
 ==================================================
 
 ==================================================
-FILE START: .\lib\screens\more\more_screen.dart
+FILE START: .\screens\more\more_screen.dart
 ==================================================
 
 import 'package:elgarage/core/ui/textured_background.dart';
@@ -5609,11 +4678,11 @@ class MoreScreen extends StatelessWidget {
 }
 
 ==================================================
-FILE END: .\lib\screens\more\more_screen.dart
+FILE END: .\screens\more\more_screen.dart
 ==================================================
 
 ==================================================
-FILE START: .\lib\screens\more\policy_screen.dart
+FILE START: .\screens\more\policy_screen.dart
 ==================================================
 
 import 'package:flutter/material.dart';
@@ -5779,11 +4848,11 @@ content: "Driven by a high-performance backend, El Garage automates your mainten
 }
 
 ==================================================
-FILE END: .\lib\screens\more\policy_screen.dart
+FILE END: .\screens\more\policy_screen.dart
 ==================================================
 
 ==================================================
-FILE START: .\lib\screens\more\profile_screen.dart
+FILE START: .\screens\more\profile_screen.dart
 ==================================================
 
 import 'package:flutter/material.dart';
@@ -5860,11 +4929,11 @@ class ProfileScreen extends StatelessWidget {
 }
 
 ==================================================
-FILE END: .\lib\screens\more\profile_screen.dart
+FILE END: .\screens\more\profile_screen.dart
 ==================================================
 
 ==================================================
-FILE START: .\lib\screens\tabs\history_tab.dart
+FILE START: .\screens\tabs\history_tab.dart
 ==================================================
 
 import 'package:elgarage/core/ui/textured_background.dart';
@@ -6154,11 +5223,11 @@ class HistoryTab extends StatelessWidget {
 }
 
 ==================================================
-FILE END: .\lib\screens\tabs\history_tab.dart
+FILE END: .\screens\tabs\history_tab.dart
 ==================================================
 
 ==================================================
-FILE START: .\lib\screens\tabs\maintenance_tab.dart
+FILE START: .\screens\tabs\maintenance_tab.dart
 ==================================================
 
 // --- FILE: lib/screens/tabs/maintenance_tab.dart ---
@@ -6430,11 +5499,11 @@ class _MaintenanceTabState extends State<MaintenanceTab> {
 }
 
 ==================================================
-FILE END: .\lib\screens\tabs\maintenance_tab.dart
+FILE END: .\screens\tabs\maintenance_tab.dart
 ==================================================
 
 ==================================================
-FILE START: .\lib\widgets\car_card.dart
+FILE START: .\widgets\car_card.dart
 ==================================================
 
 // --- FILE: lib/widgets/car_card.dart ---
@@ -6601,11 +5670,11 @@ Text(
 }
 
 ==================================================
-FILE END: .\lib\widgets\car_card.dart
+FILE END: .\widgets\car_card.dart
 ==================================================
 
 ==================================================
-FILE START: .\lib\widgets\car_header.dart
+FILE START: .\widgets\car_header.dart
 ==================================================
 
 // --- FILE: lib/widgets/car_header.dart ---
@@ -6746,206 +5815,5 @@ class CarHeader extends StatelessWidget {
 }
 
 ==================================================
-FILE END: .\lib\widgets\car_header.dart
-==================================================
-
-==================================================
-FILE START: .\macos\Runner\Info.plist
-==================================================
-
-<?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
-<plist version="1.0">
-<dict>
-	<key>CFBundleDevelopmentRegion</key>
-	<string>$(DEVELOPMENT_LANGUAGE)</string>
-	<key>CFBundleExecutable</key>
-	<string>$(EXECUTABLE_NAME)</string>
-	<key>CFBundleIconFile</key>
-	<string></string>
-	<key>CFBundleIdentifier</key>
-	<string>$(PRODUCT_BUNDLE_IDENTIFIER)</string>
-	<key>CFBundleInfoDictionaryVersion</key>
-	<string>6.0</string>
-	<key>CFBundleName</key>
-	<string>$(PRODUCT_NAME)</string>
-	<key>CFBundlePackageType</key>
-	<string>APPL</string>
-	<key>CFBundleShortVersionString</key>
-	<string>$(FLUTTER_BUILD_NAME)</string>
-	<key>CFBundleVersion</key>
-	<string>$(FLUTTER_BUILD_NUMBER)</string>
-	<key>LSMinimumSystemVersion</key>
-	<string>$(MACOSX_DEPLOYMENT_TARGET)</string>
-	<key>NSHumanReadableCopyright</key>
-	<string>$(PRODUCT_COPYRIGHT)</string>
-	<key>NSMainNibFile</key>
-	<string>MainMenu</string>
-	<key>NSPrincipalClass</key>
-	<string>NSApplication</string>
-</dict>
-</plist>
-
-
-==================================================
-FILE END: .\macos\Runner\Info.plist
-==================================================
-
-==================================================
-FILE START: .\macos\Runner\Assets.xcassets\AppIcon.appiconset\Contents.json
-==================================================
-
-{
-  "images" : [
-    {
-      "size" : "16x16",
-      "idiom" : "mac",
-      "filename" : "app_icon_16.png",
-      "scale" : "1x"
-    },
-    {
-      "size" : "16x16",
-      "idiom" : "mac",
-      "filename" : "app_icon_32.png",
-      "scale" : "2x"
-    },
-    {
-      "size" : "32x32",
-      "idiom" : "mac",
-      "filename" : "app_icon_32.png",
-      "scale" : "1x"
-    },
-    {
-      "size" : "32x32",
-      "idiom" : "mac",
-      "filename" : "app_icon_64.png",
-      "scale" : "2x"
-    },
-    {
-      "size" : "128x128",
-      "idiom" : "mac",
-      "filename" : "app_icon_128.png",
-      "scale" : "1x"
-    },
-    {
-      "size" : "128x128",
-      "idiom" : "mac",
-      "filename" : "app_icon_256.png",
-      "scale" : "2x"
-    },
-    {
-      "size" : "256x256",
-      "idiom" : "mac",
-      "filename" : "app_icon_256.png",
-      "scale" : "1x"
-    },
-    {
-      "size" : "256x256",
-      "idiom" : "mac",
-      "filename" : "app_icon_512.png",
-      "scale" : "2x"
-    },
-    {
-      "size" : "512x512",
-      "idiom" : "mac",
-      "filename" : "app_icon_512.png",
-      "scale" : "1x"
-    },
-    {
-      "size" : "512x512",
-      "idiom" : "mac",
-      "filename" : "app_icon_1024.png",
-      "scale" : "2x"
-    }
-  ],
-  "info" : {
-    "version" : 1,
-    "author" : "xcode"
-  }
-}
-
-
-==================================================
-FILE END: .\macos\Runner\Assets.xcassets\AppIcon.appiconset\Contents.json
-==================================================
-
-==================================================
-FILE START: .\macos\Runner.xcodeproj\project.xcworkspace\xcshareddata\IDEWorkspaceChecks.plist
-==================================================
-
-<?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
-<plist version="1.0">
-<dict>
-	<key>IDEDidComputeMac32BitWarning</key>
-	<true/>
-</dict>
-</plist>
-
-
-==================================================
-FILE END: .\macos\Runner.xcodeproj\project.xcworkspace\xcshareddata\IDEWorkspaceChecks.plist
-==================================================
-
-==================================================
-FILE START: .\macos\Runner.xcworkspace\xcshareddata\IDEWorkspaceChecks.plist
-==================================================
-
-<?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
-<plist version="1.0">
-<dict>
-	<key>IDEDidComputeMac32BitWarning</key>
-	<true/>
-</dict>
-</plist>
-
-
-==================================================
-FILE END: .\macos\Runner.xcworkspace\xcshareddata\IDEWorkspaceChecks.plist
-==================================================
-
-==================================================
-FILE START: .\web\manifest.json
-==================================================
-
-{
-    "name": "elgarage",
-    "short_name": "elgarage",
-    "start_url": ".",
-    "display": "standalone",
-    "background_color": "#0175C2",
-    "theme_color": "#0175C2",
-    "description": "A new Flutter project.",
-    "orientation": "portrait-primary",
-    "prefer_related_applications": false,
-    "icons": [
-        {
-            "src": "icons/Icon-192.png",
-            "sizes": "192x192",
-            "type": "image/png"
-        },
-        {
-            "src": "icons/Icon-512.png",
-            "sizes": "512x512",
-            "type": "image/png"
-        },
-        {
-            "src": "icons/Icon-maskable-192.png",
-            "sizes": "192x192",
-            "type": "image/png",
-            "purpose": "maskable"
-        },
-        {
-            "src": "icons/Icon-maskable-512.png",
-            "sizes": "512x512",
-            "type": "image/png",
-            "purpose": "maskable"
-        }
-    ]
-}
-
-
-==================================================
-FILE END: .\web\manifest.json
+FILE END: .\widgets\car_header.dart
 ==================================================

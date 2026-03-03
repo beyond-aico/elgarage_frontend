@@ -1,5 +1,6 @@
 // --- FILE: lib/screens/tabs/maintenance_tab.dart ---
 
+import 'package:elgarage/core/models/maintenance_item_model.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:provider/provider.dart';
@@ -16,10 +17,10 @@ class MaintenanceTab extends StatefulWidget {
 
 class _MaintenanceTabState extends State<MaintenanceTab> {
   int? _selectedMilestone;
-@override
+
+  @override
   void initState() {
     super.initState();
-    // ✅ مكان التعديل: طلب بيانات الصيانة من السيرفر فور فتح الشاشة
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final provider = Provider.of<AppProvider>(context, listen: false);
       if (provider.selectedCar != null) {
@@ -27,6 +28,7 @@ class _MaintenanceTabState extends State<MaintenanceTab> {
       }
     });
   }
+
   @override
   Widget build(BuildContext context) {
     final provider = Provider.of<AppProvider>(context);
@@ -35,18 +37,37 @@ class _MaintenanceTabState extends State<MaintenanceTab> {
     final next = current + 10000;
 
     _selectedMilestone ??= current;
-List<dynamic> items;
+
+    List<dynamic> items;
+    
     // إذا كنا في التاب الموصى به (Recommended)
     if (_selectedMilestone == current) {
-      // ✅ إذا كان السيرفر (PostgreSQL) أرسل داتا، اعرضها فوراً
-      // وإذا كانت فارغة، استخدم المصفوفة المحلية كـ Fallback
-      items = provider.dueMaintenance.isNotEmpty 
-          ? provider.dueMaintenance 
-          : provider.getMaintenanceItemsFor(_selectedMilestone!);
+      if (provider.dueMaintenance.isNotEmpty) {
+        // ✅ منطق "اللي عليه الدور" الذكي:
+        // 1. العثور على أقرب مسافة صيانة قادمة (أصغر Remaining KM)
+        final validItems = provider.dueMaintenance.where((e) => e.remainingKm != null);
+        
+        if (validItems.isNotEmpty) {
+          int minRemaining = validItems
+              .map((e) => e.remainingKm!)
+              .reduce((a, b) => a < b ? a : b);
+
+          // 2. عرض فقط القطع التي موعدها هو الأقرب ( Milestone الحالي) أو المتأخرة
+          items = provider.dueMaintenance.where((item) {
+            return item.remainingKm == minRemaining || item.status == 'OVERDUE';
+          }).toList();
+        } else {
+          items = provider.dueMaintenance;
+        }
+      } else {
+        // إذا كان السيرفر فارغ، نستخدم المصفوفة المحلية كـ Fallback
+        items = provider.getMaintenanceItemsFor(_selectedMilestone!);
+      }
     } else {
-      // التابات الأخرى (Previous/Upcoming) تعرض المصفوفة المحلية حالياً
+      // التابات الأخرى تعرض المصفوفة المحلية كالمعتاد
       items = provider.getMaintenanceItemsFor(_selectedMilestone!);
     }
+
     return ListView(
       padding: const EdgeInsets.fromLTRB(0, 0, 0, 150),
       children: [
@@ -64,7 +85,8 @@ List<dynamic> items;
             ],
           ),
         ),
-if (provider.isLoadingMaintenance && _selectedMilestone == current)
+
+        if (provider.isLoadingMaintenance && _selectedMilestone == current)
           const Center(
             child: Padding(
               padding: EdgeInsets.all(40.0),
@@ -75,7 +97,8 @@ if (provider.isLoadingMaintenance && _selectedMilestone == current)
           const Center(
             child: Padding(
               padding: EdgeInsets.all(40),
-              child: Text("No items defined for this milestone.", 
+              child: Text("✨ All Systems Healthy!\nCheck later for maintenance items.", 
+                textAlign: TextAlign.center,
                 style: TextStyle(color: Colors.grey, fontWeight: FontWeight.bold)),
             ),
           )
@@ -84,15 +107,22 @@ if (provider.isLoadingMaintenance && _selectedMilestone == current)
             bool isPastView = _selectedMilestone! < current;
             bool isDone = isPastView && !item.isMissed;
 
+            bool isWarning = false;
+            if (item is MaintenanceItem) {
+              isWarning = item.status == 'DUE_SOON' || item.status == 'OVERDUE';
+            } else {
+              isWarning = item.isMissed;
+            }
+
             return Container(
               margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
-                color: item.isMissed ? Colors.amber.withAlpha(20) : Colors.white,
+                color: isWarning ? (item is MaintenanceItem && item.status == 'OVERDUE' ? Colors.red.withAlpha(10) : Colors.amber.withAlpha(20)) : Colors.white,
                 borderRadius: BorderRadius.circular(12),
                 border: Border.all(
-                  color: item.isMissed ? Colors.amber.withAlpha(50) : Colors.grey.shade200,
-                  width: item.isMissed ? 1.5 : 1,
+                  color: isWarning ? (item is MaintenanceItem && item.status == 'OVERDUE' ? Colors.red.withAlpha(30) : Colors.amber.withAlpha(50)) : Colors.grey.shade200,
+                  width: isWarning ? 1.5 : 1,
                 ),
               ),
               child: Row(
@@ -108,7 +138,6 @@ if (provider.isLoadingMaintenance && _selectedMilestone == current)
 
         const SizedBox(height: 30),
 
-        // زر ADD ALL TO CART
         if (items.isNotEmpty && !provider.isLoadingMaintenance)
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 40),
@@ -131,34 +160,65 @@ if (provider.isLoadingMaintenance && _selectedMilestone == current)
     );
   }
 
-  // --- Widgets مساعدة للحفاظ على نظافة الكود والـ UI الأصلي ---
-
   Widget _buildStatusIcon(item) {
+    Color iconColor = AppColors.primary;
+    IconData iconData = CupertinoIcons.settings;
+
+    if (item is MaintenanceItem) {
+      if (item.status == 'OVERDUE') {
+        iconColor = Colors.red;
+        iconData = CupertinoIcons.exclamationmark_circle_fill;
+      } else if (item.status == 'DUE_SOON') {
+        iconColor = Colors.orange;
+        iconData = CupertinoIcons.exclamationmark_triangle_fill;
+      }
+    } else if (item.isMissed) {
+      iconColor = Colors.amber[700]!;
+      iconData = CupertinoIcons.exclamationmark_triangle_fill;
+    }
+
     return Container(
       padding: const EdgeInsets.all(8),
       decoration: BoxDecoration(
-        color: item.isMissed ? Colors.amber.withAlpha(40) : AppColors.primary.withAlpha(20),
+        color: iconColor.withAlpha(20),
         shape: BoxShape.circle,
       ),
-      child: Icon(
-        item.isMissed ? CupertinoIcons.exclamationmark_triangle_fill : CupertinoIcons.settings,
-        color: item.isMissed ? Colors.amber[700] : AppColors.primary,
-        size: 20,
-      ),
+      child: Icon(iconData, color: iconColor, size: 20),
     );
   }
 
   Widget _buildItemDetails(item, bool isDone) {
+    String? remainingText;
+    if (item is MaintenanceItem && item.remainingKm != null) {
+      remainingText = "${item.remainingKm} KM REMAINING";
+    }
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(item.name, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15)),
-        if (item.isMissed)
+        
+        if (item is MaintenanceItem && (item.status == 'DUE_SOON' || item.status == 'OVERDUE'))
+          Text(
+            item.status == 'DUE_SOON' ? "Service Due Soon!" : "Urgent: Service Overdue!", 
+            style: TextStyle(
+              fontSize: 11, 
+              color: item.status == 'DUE_SOON' ? Colors.orange : Colors.red, 
+              fontWeight: FontWeight.bold
+            )
+          )
+        else if (item.isMissed)
           const Text("Missed in previous service!", style: TextStyle(fontSize: 11, color: Colors.amber, fontWeight: FontWeight.bold))
         else if (isDone)
           const Text("Completed", style: TextStyle(fontSize: 11, color: AppColors.success, fontWeight: FontWeight.bold))
         else
           Text(item.category, style: const TextStyle(fontSize: 11, color: Colors.grey)),
+
+        if (remainingText != null && item is MaintenanceItem)
+          Padding(
+            padding: const EdgeInsets.only(top: 4),
+            child: Text(remainingText, style: const TextStyle(fontSize: 10, color: AppColors.primary, fontWeight: FontWeight.w900)),
+          ),
       ],
     );
   }

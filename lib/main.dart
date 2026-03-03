@@ -14,11 +14,11 @@ import 'screens/driver/driver_screen.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
-  runApp(const AutoMentorApp());
+  runApp(const ELGarage());
 }
 
-class AutoMentorApp extends StatelessWidget {
-  const AutoMentorApp({super.key});
+class ELGarage extends StatelessWidget {
+  const ELGarage({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -28,7 +28,7 @@ class AutoMentorApp extends StatelessWidget {
         ChangeNotifierProvider(create: (_) => AppProvider()),
       ],
       child: MaterialApp(
-        title: 'Auto Mentor Fleet',
+        title: 'ELGarage',
         debugShowCheckedModeBanner: false,
         theme: ThemeData(
           primaryColor: AppColors.primary,
@@ -76,12 +76,18 @@ class InitialRouter extends StatefulWidget {
 class _InitialRouterState extends State<InitialRouter> {
   late Future<bool> _authFuture;
 
-  @override
-  void initState() {
-    super.initState();
-    // ✅ تشغيل الفحص لمرة واحدة لضمان ثبات البيانات
-    _authFuture = Provider.of<AuthProvider>(context, listen: false).tryAutoLogin();
-  }
+@override
+void initState() {
+  super.initState();
+  // ✅ فحص الجلسة وإذا نجحت، قم بمزامنة البيانات فوراً
+  _authFuture = Provider.of<AuthProvider>(context, listen: false).tryAutoLogin().then((success) {
+    if (success && mounted) {
+      final auth = Provider.of<AuthProvider>(context, listen: false);
+      Provider.of<AppProvider>(context, listen: false).syncUserContext(auth.user);
+    }
+    return success;
+  });
+}
 
   @override
   Widget build(BuildContext context) {
@@ -97,13 +103,20 @@ class _InitialRouterState extends State<InitialRouter> {
           builder: (context, auth, _) {
             if (!auth.isAuthenticated) return const LoginScreen();
 
-            // التوجيه الذكي بناءً على الـ Role المؤكد من السيرفر
-            final role = auth.user?.role;
-            if (role == "FLEET_MANAGER") return const FleetDashboard();
-            if (role == "DRIVER") return const DriverScreen();
-            return const MainLayout();
-          },
-        );
+           final role = auth.user?.role;
+    
+    // 🚨 المشكلة كانت هنا: غيرنا FLEET_MANAGER لـ ACCOUNT_MANAGER
+    if (role == "ACCOUNT_MANAGER" || role == "ADMIN") {
+      return const FleetDashboard(); 
+    } 
+    
+    if (role == "DRIVER") {
+      return const DriverScreen();
+    }
+
+    return const MainLayout(); // للمستخدمين العاديين
+  },
+);
       },
     );
   }
