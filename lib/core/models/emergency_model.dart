@@ -12,4 +12,23 @@ class EmergencyModel {
     required this.type,
     required this.rating,
   });
+  factory EmergencyModel.fromJson(Map<String, dynamic> json) {
+    return EmergencyModel(
+      name: json['name'] ?? '',
+      phoneNumber: json['phoneNumber'] ?? '',
+      location: json['location'] ?? '',
+      type: json['type'] ?? '',
+      rating: json['rating']?.toString() ?? '0',
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'name': name,
+      'phoneNumber': phoneNumber,
+      'location': location,
+      'type': type,
+      'rating': rating,
+    };
+  }
 }

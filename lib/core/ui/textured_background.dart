@@ -12,12 +12,14 @@ class TexturedBackground extends StatelessWidget {
       backgroundColor: const Color(0xFFF9F9F9), // أوف وايت بوهيمي
       body: Stack(
         children: [
-          // 1. طبقة الرسوم الفنية (Bohemian Painter)
-          Positioned.fill(
-            child: CustomPaint(
-              painter: EnhancedBohemianPainter(),
-            ),
-          ),
+   // في ملف textured_background.dart
+Positioned.fill(
+  child: RepaintBoundary( // ✅ صمام أمان للأداء
+    child: CustomPaint(
+      painter: EnhancedBohemianPainter(),
+    ),
+  ),
+),
           
           // 2. طبقة تركيز الضوء (Vignette)
           Positioned.fill(

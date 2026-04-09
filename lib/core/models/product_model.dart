@@ -1,10 +1,10 @@
 class ProductModel {
   final String id;
-  final String name;       // اسم القطعة (زيت 10 آلاف)
-  final double price;      // السعر
-  final String category;   // التصنيف (Oils, Filters, Brakes)
-  final String? image; 
-  final String? imagePath; // ✅ إضافة هذا الحقل    // صورة (اختياري)
+  final String name;
+  final double price;
+  final String category;
+  final String? image;
+  final String? imagePath;
   bool isMissed;
 
   ProductModel({
@@ -13,6 +13,29 @@ class ProductModel {
     required this.price,
     required this.category,
     this.image,
-    this.imagePath, // ✅ إضافته في المشيد (Constructor)
-this.isMissed = false,  });
+    this.imagePath,
+    this.isMissed = false,
+  });
+
+  factory ProductModel.fromJson(Map<String, dynamic> json) {
+    return ProductModel(
+      id: json['id']?.toString() ?? '',
+      name: json['name'] ?? '',
+      price: (json['price'] is num) ? (json['price'] as num).toDouble() : 0.0,
+      category: json['category'] ?? '',
+      image: json['image'],
+      imagePath: json['imagePath'],
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'name': name,
+      'price': price,
+      'category': category,
+      'image': image,
+      'imagePath': imagePath,
+    };
+  }
 }

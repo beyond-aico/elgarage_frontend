@@ -1,3 +1,4 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';
@@ -8,7 +9,8 @@ import '../core/ui/main_layout.dart';
 import '../core/ui/textured_background.dart';
 
 class RegisterScreen extends StatefulWidget {
-  const RegisterScreen({super.key});
+  final String verifiedPhone; // استلام الرقم الموثق من صفحة الـ OTP
+  const RegisterScreen({super.key, required this.verifiedPhone});
 
   @override
   State<RegisterScreen> createState() => _RegisterScreenState();
@@ -17,10 +19,17 @@ class RegisterScreen extends StatefulWidget {
 class _RegisterScreenState extends State<RegisterScreen> {
   final _nameController = TextEditingController();
   final _emailController = TextEditingController();
-  final _phoneController = TextEditingController();
+  late TextEditingController _phoneController;
   final _passwordController = TextEditingController();
   final _confirmPasswordController = TextEditingController();
   final _formKey = GlobalKey<FormState>();
+
+  @override
+  void initState() {
+    super.initState();
+    // ✅ تثبيت الرقم الموثق في الحقل فور الدخول
+    _phoneController = TextEditingController(text: widget.verifiedPhone);
+  }
 
   Future<void> _submit() async {
     if (!_formKey.currentState!.validate()) return;
@@ -69,7 +78,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
     return AnnotatedRegion<SystemUiOverlayStyle>(
       value: const SystemUiOverlayStyle(
         statusBarColor: Colors.transparent,
-        statusBarIconBrightness: Brightness.dark, // أيقونات سوداء لأن الخلفية هنا فاتحة
+        statusBarIconBrightness: Brightness.dark,
       ),
       child: Scaffold(
         backgroundColor: AppColors.background,
@@ -84,70 +93,57 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
                     const SizedBox(height: 10),
-                    // 1. زر الرجوع في أعلى الصفحة تماماً
                     Align(
                       alignment: Alignment.centerLeft,
-                      child: GestureDetector(
-                        onTap: () => Navigator.of(context).pop(),
-                        child: Container(
-                          padding: const EdgeInsets.all(8),
-                          decoration: BoxDecoration(
-                            color: Colors.white,
-                            shape: BoxShape.circle,
-                            boxShadow: [BoxShadow(color: Colors.black.withAlpha(10), blurRadius: 10)],
-                          ),
-                          child: const Icon(Icons.arrow_back_ios_new, size: 20, color: AppColors.textMain),
-                        ),
+                      child: IconButton(
+                        onPressed: () => Navigator.of(context).pop(),
+                        icon: const Icon(Icons.arrow_back_ios_new, color: AppColors.textMain),
                       ),
                     ),
-                    
-                    const SizedBox(height: 30),
-
-                    // 2. العنوان الرئيسي (Top Aligned)
+                    const SizedBox(height: 10),
                     Text(
-                      'Create Account',
+                       'auth.complete_profile_title'.tr(),
                       style: TextStyle(
                         fontSize: screenWidth * 0.08, 
                         fontWeight: FontWeight.w900,
                         color: AppColors.textMain,
-                        letterSpacing: 1,
                       ),
                     ),
-                    const SizedBox(height: 8),
-                    const Text(
-                      'Join us to take care of your car',
-                      style: TextStyle(color: AppColors.textSecondary, fontSize: 14),
+                    Text(
+                       'auth.complete_profile_desc'.tr(),
+                      style: const TextStyle(color: AppColors.textSecondary, fontSize: 14),
                     ),
-                    
-                    const SizedBox(height: 40),
+                    const SizedBox(height: 30),
 
-                    // 3. الحقول (Fields)
+                    // 1. الاسم
                     _buildCustomField(
                       controller: _nameController,
-                      label: 'Full Name',
+                      label:  'auth.full_name_label'.tr(),
                       icon: CupertinoIcons.person,
                       validator: (value) => (value == null || value.isEmpty) ? 'Enter your name' : null,
                     ),
                     const SizedBox(height: 16),
 
+                    // 2. الإيميل
                     _buildCustomField(
                       controller: _emailController,
-                      label: 'Email Address',
+                      label:  'auth.email_label'.tr(),
                       icon: CupertinoIcons.mail,
                       type: TextInputType.emailAddress,
                       validator: (value) => (value == null || !value.contains('@')) ? 'Invalid email' : null,
                     ),
                     const SizedBox(height: 16),
 
+                    // 3. رقم الهاتف (ReadOnly)
                     _buildCustomField(
                       controller: _phoneController,
-                      label: 'Phone Number',
-                      icon: CupertinoIcons.phone,
-                      type: TextInputType.phone,
-                      validator: (value) => (value == null || value.isEmpty) ? 'Enter phone' : null,
+                      label:  'auth.verified_phone_label'.tr(),
+                      icon: CupertinoIcons.phone_fill,
+                      enabled: false, // ✅ مقفل لأنه موثق بالـ OTP
                     ),
                     const SizedBox(height: 16),
 
+                    // 4. كلمة المرور
                     _buildCustomField(
                       controller: _passwordController,
                       label: 'Password',
@@ -157,17 +153,25 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     ),
                     const SizedBox(height: 16),
 
+                    // 5. تأكيد كلمة المرور
                     _buildCustomField(
                       controller: _confirmPasswordController,
-                      label: 'Confirm Password',
+                      label:  'auth.confirm_password_label'.tr(),
                       icon: CupertinoIcons.lock_shield,
                       isPassword: true,
-                      validator: (value) => (value != _passwordController.text) ? 'Not matching' : null,
+                      validator: (value) => (value != _passwordController.text) ? 'Passwords do not match' : null,
                     ),
                     
                     const SizedBox(height: 40),
-
-                    // 4. زر التسجيل المانجاوي
+// داخل RegisterScreen تحت TextFormField بتاع الإيميل
+Align(
+  alignment: Alignment.centerRight,
+  child: TextButton(
+    onPressed: () { /* نداء دالة إرسال OTP للإيميل */ },
+    child: const Text("Send Code to Email", style: TextStyle(color: AppColors.primary, fontSize: 12)),
+  ),
+),
+                    // زر التسجيل
                     Consumer<AuthProvider>(
                       builder: (context, provider, child) {
                         return SizedBox(
@@ -175,15 +179,14 @@ class _RegisterScreenState extends State<RegisterScreen> {
                           child: ElevatedButton(
                             onPressed: provider.isLoading ? null : _submit,
                             style: ElevatedButton.styleFrom(
-backgroundColor: AppColors.textMain,
+                              backgroundColor: AppColors.textMain,
                               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
                               elevation: 4,
-                              shadowColor: const Color.fromARGB(255, 44, 40, 36).withAlpha(100),
                             ),
                             child: provider.isLoading
                                 ? const CupertinoActivityIndicator(color: Colors.white)
-                                : const Text(
-                                    'SIGN UP',
+                                :  Text(
+                                     'auth.create_account_btn'.tr(),
                                     style: TextStyle(
                                       fontSize: 16, 
                                       fontWeight: FontWeight.w900,
@@ -195,7 +198,7 @@ backgroundColor: AppColors.textMain,
                         );
                       },
                     ),
-                    const SizedBox(height: 40), // مساحة لراحة السكرول
+                    const SizedBox(height: 40),
                   ],
                 ),
               ),
@@ -211,6 +214,7 @@ backgroundColor: AppColors.textMain,
     required String label,
     required IconData icon,
     bool isPassword = false,
+    bool enabled = true, // ✅ أضفنا خاصية التحكم في التفعيل
     TextInputType type = TextInputType.text,
     String? Function(String?)? validator,
   }) {
@@ -218,26 +222,21 @@ backgroundColor: AppColors.textMain,
       controller: controller,
       obscureText: isPassword,
       keyboardType: type,
-      style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
+      enabled: enabled, // ✅ التحكم هنا
+      style: TextStyle(
+        fontWeight: FontWeight.bold, 
+        fontSize: 15,
+        color: enabled ? AppColors.textMain : Colors.grey, // تغميق اللون لو مقفل
+      ),
       decoration: InputDecoration(
         labelText: label,
         labelStyle: const TextStyle(color: AppColors.textMain, fontSize: 13),
-        prefixIcon: Icon(icon, color: AppColors.primary, size: 22),
+        prefixIcon: Icon(icon, color: enabled ? AppColors.primary : Colors.grey, size: 22),
         filled: true,
-        fillColor: Colors.white,
-        contentPadding: const EdgeInsets.symmetric(vertical: 18),
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(15),
-          borderSide: BorderSide(color: Colors.black.withAlpha(10)),
-        ),
-        enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(15),
-          borderSide: BorderSide(color: Colors.black.withAlpha(5)),
-        ),
-        focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(15),
-          borderSide: const BorderSide(color: AppColors.primary, width: 1.5),
-        ),
+        fillColor: enabled ? Colors.white : Colors.grey.withAlpha(20),
+        border: OutlineInputBorder(borderRadius: BorderRadius.circular(15), borderSide: BorderSide.none),
+        enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(15), borderSide: BorderSide(color: Colors.black.withAlpha(10))),
+        disabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(15), borderSide: BorderSide(color: Colors.grey.withAlpha(30))),
       ),
       validator: validator,
     );

@@ -149,7 +149,7 @@ class AboutUsScreen extends StatelessWidget {
               fontWeight: FontWeight.bold,
             ),
           ),
-          if (footer != null) footer,
+          ?footer,
         ],
       ),
     );

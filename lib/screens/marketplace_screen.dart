@@ -61,6 +61,7 @@ class MarketplaceScreen extends StatelessWidget {
                             _buildCartButton(context),
                           ],
                         ),
+                        
                         const SizedBox(height: 25),
                         _buildSearchBar(),
                       ],

@@ -6,7 +6,6 @@ import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import '../core/constants/app_colors.dart';
 import '../providers/app_provider.dart';
-import 'package:flutter_paypal_payment/flutter_paypal_payment.dart';
 
 class CartScreen extends StatelessWidget {
   const CartScreen({super.key});
@@ -44,7 +43,6 @@ class CartScreen extends StatelessWidget {
                           letterSpacing: 1,
                         ),
                       ),
-                      const Spacer(),
                     ],
                   ),
                 ),
@@ -70,7 +68,7 @@ class CartScreen extends StatelessWidget {
                 ),
               ),
 
-              // --- 3. قسم الدفع والمراكز ---
+              // --- 3. قسم التأكيد والمراكز ---
               _buildBottomSummary(context, screenWidth),
             ],
           ),
@@ -89,6 +87,7 @@ class CartScreen extends StatelessWidget {
         decoration: BoxDecoration(color: AppColors.error, borderRadius: BorderRadius.circular(20)),
         child: const Icon(CupertinoIcons.delete, color: Colors.white, size: 28),
       ),
+      // ✅ تعديل: تمرير الـ item نفسه للبروفايدر كما هو محدد في الكود الخاص بك
       onDismissed: (_) => provider.removeFromCart(item),
       child: Container(
         decoration: BoxDecoration(
@@ -208,61 +207,10 @@ class CartScreen extends StatelessWidget {
                     shadowColor: AppColors.textMain.withAlpha(100),
                   ),
                   onPressed: () {
-                    // تحويل السعر لصيغة نصية عشرية (0.00)
-                    final String amountStr = provider.cartTotal.toStringAsFixed(2);
-
-                    Navigator.of(context).push(
-                      MaterialPageRoute(
-                        builder: (BuildContext context) => PaypalCheckoutView(
-                          sandboxMode: true,
-                          clientId: "AS3ird1lER-YiSo5GBwcetm6XkRZEMJw4PXkATyn-uwHmtDVqOOsvu5bPqJo3dixDCZT8K9fGqXsd2Nz",
-                          secretKey: "EOcshM8io2zPZ8eI4WvfA-0-wddnedvvZNJLWwj_hwi9iSytoDoH_cGNeulGGnc3VT7U661F9GF5mmhd",
-                          transactions: [
-                            {
-                              "amount": {
-                                "total": amountStr,
-                                "currency": "USD",
-                                "details": {
-                                  "subtotal": amountStr,
-                                  "shipping": '0',
-                                  "shipping_discount": 0
-                                }
-                              },
-                              "description": "General Maintenance", // وصف مبسط لتجنب الرفض
-                              "item_list": {
-                                "items": provider.cartItems.map((item) => {
-                                  "name": "Service Unit", // اسم ثابت لتجاوزCompliance check
-                                  "quantity": 1,
-                                  "price": item.price.toStringAsFixed(2),
-                                  "currency": "USD"
-                                }).toList(),
-                              }
-                            }
-                          ],
-                          note: "Beyond AI Terminal - Safe Payment",
-                          onSuccess: (Map params) async {
-                            provider.addServiceLog({
-                              'name': 'Paid via PayPal',
-                              'date': DateTime.now(),
-                              'mileage': provider.selectedCar?.currentKm ?? 0.0,
-                              'parts': provider.cartItems.map((e) => e.name).toList(),
-                            });
-                            provider.cartItems.clear();
-                            Navigator.pop(context);
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(content: Text("Payment Successful!"), backgroundColor: AppColors.success),
-                            );
-                          },
-                          onError: (error) {
-                            print("❌ PayPal Error: $error");
-                            Navigator.pop(context);
-                          },
-                          onCancel: () => Navigator.pop(context),
-                        ),
-                      ),
-                    );
+                    // ✅ تم التعديل: إتمام الطلب والرجوع لصفحة العربية
+                    _handleCheckout(context, provider);
                   },
-                  child: const Text("PROCEED TO CHECKOUT", style: TextStyle(color: AppColors.primary, fontSize: 16, fontWeight: FontWeight.w900, letterSpacing: 1)),
+                  child: const Text("CONFIRM ORDER", style: TextStyle(color: AppColors.primary, fontSize: 16, fontWeight: FontWeight.w900, letterSpacing: 1)),
                 ),
               ),
             ],
@@ -272,6 +220,27 @@ class CartScreen extends StatelessWidget {
     );
   }
 
+  void _handleCheckout(BuildContext context, AppProvider provider) {
+    showCupertinoDialog(
+      context: context,
+      builder: (context) => CupertinoAlertDialog(
+        title: const Text("Order Placed!"),
+        content: const Text("Your order has been confirmed. You can track its status in My Orders."),
+        actions: [
+          CupertinoDialogAction(
+            child: const Text("Done"),
+            onPressed: () {
+              provider.placeOrder(); // ✅ دالة البروفايدر الجديدة لمسح السلة
+              Navigator.pop(context); // غلق الديالوج
+              Navigator.pop(context); // الرجوع لصفحة العربية (التي تسبق السلة)
+            },
+          ),
+        ],
+      ),
+    );
+  }
+
+  // الدوال المساعدة (Empty Cart & Service Sheet) تظل كما هي في كودك الأصلي
   Widget _buildEmptyCart(double screenWidth) {
     return Center(
       child: Column(

@@ -4,7 +4,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:provider/provider.dart';
 import 'package:intl/intl.dart';
 import '../../core/constants/app_colors.dart';
-import '../../providers/app_provider.dart';
+import '../../providers/maintenance_provider.dart'; // ✅ تم التأكد من الاستيراد
 
 class HistoryTab extends StatelessWidget {
   const HistoryTab({super.key});
@@ -13,20 +13,19 @@ class HistoryTab extends StatelessWidget {
   Widget build(BuildContext context) {
     final double screenWidth = MediaQuery.of(context).size.width;
 
-    return TexturedBackground( // ✅ التعديل الأساسي: إضافة الخلفية المنسوجة
+    return TexturedBackground(
       child: Stack(
         children: [
-          // 1. القائمة (Service Logs List)
-          Consumer<AppProvider>(
-            builder: (context, provider, child) {
-              final logs = provider.historyLogs;
+          // 1. القائمة (تستخدم الآن MaintenanceProvider)
+          Consumer<MaintenanceProvider>( // ✅ التغيير لـ MaintenanceProvider
+            builder: (context, mProvider, child) {
+              final logs = mProvider.serviceHistory; // ✅ استخدام القائمة الموحدة serviceHistory
               
               if (logs.isEmpty) {
                 return _buildEmptyState(screenWidth);
               }
 
               return ListView.builder(
-                // ✅ زيادة الـ padding السفلي لضمان عدم اختفاء الكروت خلف الفوتر
                 padding: const EdgeInsets.fromLTRB(16, 20, 16, 120), 
                 physics: const BouncingScrollPhysics(),
                 itemCount: logs.length,
@@ -38,14 +37,13 @@ class HistoryTab extends StatelessWidget {
             },
           ),
 
-          // 2. ✅ زر الإضافة المطور (Floating Action Button)
-          // تم رفعه للأعلى (bottom: 100) ليتجاوز الفوتر ويظهر بوضوح
+          // 2. زر الإضافة
           Positioned(
             bottom: 100, 
             right: 20,
             child: FloatingActionButton.extended(
-              heroTag: 'add_service_record_unique_tag', // لمنع التصادم مع أزرار FAB أخرى
-              backgroundColor: AppColors.textMain, // الأسود الصناعي الموحد
+              heroTag: 'add_service_record_unique_tag',
+              backgroundColor: AppColors.textMain,
               elevation: 10,
               onPressed: () => _showAddLogSheet(context),
               label: const Text(
@@ -61,7 +59,7 @@ class HistoryTab extends StatelessWidget {
   }
 
   // --- ويدجت الكارت (Industrial Style) ---
-  Widget _buildIndustrialLogCard(dynamic log, double screenWidth) {
+  Widget _buildIndustrialLogCard(log, double screenWidth) {
     return Container(
       margin: const EdgeInsets.only(bottom: 15),
       decoration: BoxDecoration(
@@ -72,7 +70,6 @@ class HistoryTab extends StatelessWidget {
       child: IntrinsicHeight(
         child: Row(
           children: [
-            // الجزء الأيسر: الأيقونة (Industrial Light)
             Container(
               width: 65,
               decoration: BoxDecoration(
@@ -83,7 +80,6 @@ class HistoryTab extends StatelessWidget {
                 child: Icon(CupertinoIcons.wrench_fill, color: AppColors.primary, size: 24),
               ),
             ),
-            // الجزء الأيمن: البيانات (Industrial Dark)
             Expanded(
               child: Container(
                 padding: const EdgeInsets.all(15),
@@ -122,7 +118,6 @@ class HistoryTab extends StatelessWidget {
                         ],
                       ],
                     ),
-                    // عرض قطع الغيار كـ Tags صغيرة
                     if (log.partsReplaced.isNotEmpty) ...[
                       const Divider(color: Colors.white10, height: 20),
                       Wrap(
@@ -176,7 +171,6 @@ class HistoryTab extends StatelessWidget {
                 _buildSheetField(mileageController, "Mileage (km)", CupertinoIcons.speedometer, type: TextInputType.number),
                 const SizedBox(height: 15),
                 
-                // اختيار التاريخ (Date Picker)
                 InkWell(
                   onTap: () async {
                     final picked = await showDatePicker(
@@ -236,10 +230,11 @@ class HistoryTab extends StatelessWidget {
                     ),
                     onPressed: () {
                       if (nameController.text.isNotEmpty) {
-                        Provider.of<AppProvider>(context, listen: false).addServiceLog({
-                          'name': nameController.text,
-                          'date': selectedDate,
-                          'mileage': double.tryParse(mileageController.text) ?? 0.0,
+                        // ✅ التغيير لـ MaintenanceProvider واستخدام مفاتيح مطابقة للموديل
+                        Provider.of<MaintenanceProvider>(context, listen: false).addServiceLog({
+                          'serviceName': nameController.text, // مفتاح 'serviceName' للموديل
+                          'serviceDate': selectedDate.toIso8601String(), // مفتاح 'serviceDate' للموديل
+                          'mileageKm': double.tryParse(mileageController.text) ?? 0.0, // مفتاح 'mileageKm' للموديل
                           'parts': selectedParts,
                         });
                         Navigator.pop(context);

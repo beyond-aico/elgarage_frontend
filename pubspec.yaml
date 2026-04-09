@@ -1,6 +1,6 @@
 name: elgarage
 description: "El Garage."
-version: 1.0.9
+version: 1.0.10+10
 
 environment:
   sdk: ^3.10.1
@@ -37,6 +37,10 @@ dependencies:
   google_sign_in: ^7.2.0
   flutter_lints: ^6.0.0
   flutter_paypal_payment: ^1.0.8
+  intl_phone_field: ^3.2.0
+  pinput: ^6.0.2
+  #qr_flutter: ^4.1.0
+  #mobile_scanner: ^7.2.0
 
 dev_dependencies:
   flutter_test:

@@ -1,1 +1,39 @@
-{"flutter":{"platforms":{"android":{"default":{"projectId":"elgarage-beyond","appId":"1:602286841824:android:9a1875fde2ad22aeb31585","fileOutput":"android/app/google-services.json"}},"dart":{"lib/firebase_options.dart":{"projectId":"elgarage-beyond","configurations":{"android":"1:602286841824:android:9a1875fde2ad22aeb31585","ios":"1:602286841824:ios:11006aa1d78cb22ab31585","macos":"1:602286841824:ios:0ed219da4fe238c7b31585","web":"1:602286841824:web:f67d15614ccc8ec4b31585","windows":"1:602286841824:web:bfdd510f5f407d0db31585"}}}}}}
+{
+  "flutter": {
+    "platforms": {
+      "android": {
+        "default": {
+          "projectId": "elgarage-beyond",
+          "appId": "1:602286841824:android:9a1875fde2ad22aeb31585",
+          "fileOutput": "android/app/google-services.json"
+        }
+      },
+      "dart": {
+        "lib/firebase_options.dart": {
+          "projectId": "elgarage-beyond",
+          "configurations": {
+            "android": "1:602286841824:android:9a1875fde2ad22aeb31585",
+            "ios": "1:602286841824:ios:11006aa1d78cb22ab31585",
+            "macos": "1:602286841824:ios:0ed219da4fe238c7b31585",
+            "web": "1:602286841824:web:f67d15614ccc8ec4b31585",
+            "windows": "1:602286841824:web:bfdd510f5f407d0db31585"
+          }
+        }
+      }
+    }
+  },
+  "hosting": {
+    "public": "build/web",
+    "ignore": [
+      "firebase.json",
+      "**/.*",
+      "**/node_modules/**"
+    ],
+    "rewrites": [
+      {
+        "source": "**",
+        "destination": "/index.html"
+      }
+    ]
+  }
+}

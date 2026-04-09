@@ -1,19 +1,20 @@
-// --- FILE: lib/screens/fleet/fleet_dashboard.dart ---
-
+import 'package:elgarage/core/models/fleet_analytics_model.dart';
 import 'package:elgarage/core/ui/app_footer.dart'; 
 import 'package:elgarage/core/ui/app_header.dart'; 
 import 'package:elgarage/core/ui/textured_background.dart';
 import 'package:elgarage/screens/add_car_screen.dart';
-import 'package:elgarage/screens/marketplace_screen.dart';
-import 'package:elgarage/screens/emergency_screen.dart';
-import 'package:elgarage/screens/more/more_screen.dart';
 import 'package:elgarage/widgets/car_card.dart'; 
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../core/constants/app_colors.dart';
 import '../../providers/app_provider.dart';
 import '../../providers/auth_provider.dart';
+import '../../providers/fleet_provider.dart';
+import '../../screens/fleet/analytics_dashboard.dart';
 import '../car_details_screen.dart';
+import '../marketplace_screen.dart';
+import '../emergency_screen.dart';
+import '../more/more_screen.dart';
 
 class FleetDashboard extends StatefulWidget {
   const FleetDashboard({super.key});
@@ -22,125 +23,150 @@ class FleetDashboard extends StatefulWidget {
 }
 
 class _FleetDashboardState extends State<FleetDashboard> {
-  String searchQuery = "";
   int _currentIndex = 0;
-
-@override
-void initState() {
-  super.initState();
-  WidgetsBinding.instance.addPostFrameCallback((_) async {
-    if (mounted) {
-      final auth = Provider.of<AuthProvider>(context, listen: false);
-      final app = Provider.of<AppProvider>(context, listen: false);
-
-      // لو الـ User لسه مش جاهز، استنى ثانية واحدة
-      String? userRole = auth.user?.role;
-      
-      debugPrint("🚀 Dashboard Init with Role: $userRole");
-      await app.fetchMyCars(role: userRole);
-    }
-  });
-}
-
-  void _switchToTab(int index) {
-    setState(() => _currentIndex = index);
-  }
+  final TextEditingController _searchController = TextEditingController();
+  String searchQuery = "";
 
   @override
+  void initState() {
+    super.initState();
+    _searchController.addListener(() {
+      setState(() => searchQuery = _searchController.text);
+    });
+    
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _refreshData(); 
+    });
+  }
+
+  Future<void> _refreshData() async {
+    if (!mounted) return;
+
+    // الحصول على الـ Providers قبل أي عملية await لتجنب async gap errors
+    final auth = Provider.of<AuthProvider>(context, listen: false);
+    final app = Provider.of<AppProvider>(context, listen: false);
+    final fleet = Provider.of<FleetProvider>(context, listen: false);
+    
+    if (auth.user == null) {
+      await Future.delayed(const Duration(milliseconds: 800));
+    }
+
+    if (!mounted) return;
+
+    // 1. جلب السيارات أولاً
+    await app.fetchMyCars(
+      role: auth.user?.role,
+      orgId: auth.user?.organizationId,
+      authProvider: auth,
+      forceRefresh: true,
+    );
+
+    // 2. تمرير السيارات لجلب الإحصائيات (حل مشكلة positional argument)
+    await fleet.loadFleetStats(app.myCars);
+  }
+  
+  @override
   Widget build(BuildContext context) {
-    final provider = Provider.of<AppProvider>(context);
-    final auth = Provider.of<AuthProvider>(context);
+    final appProvider = Provider.of<AppProvider>(context);
+    final authProvider = Provider.of<AuthProvider>(context);
+    final fleetProvider = Provider.of<FleetProvider>(context);
 
-    final List<Widget> fleetScreens = [
-      _buildDashboardHome(provider, auth), 
-      const CarDetailsScreen(),             
-      const MarketplaceScreen(),           
-      const EmergencyScreen(),             
-      const MoreScreen(),                  
-    ];
-
-    return PopScope(
-      canPop: _currentIndex == 0,
-onPopInvokedWithResult: (didPop, result) {
-        if (didPop) return;
-        _switchToTab(0);
-      },
-      child: Scaffold(
-        extendBody: true, 
-        body: IndexedStack(
-          index: _currentIndex,
-          children: fleetScreens,
-        ),
-        bottomNavigationBar: AppFooter(
-          currentIndex: _currentIndex,
-          onTap: _switchToTab,
-        ),
-        floatingActionButton: FloatingActionButton(
-          onPressed: () => _switchToTab(2),
-          backgroundColor: AppColors.primary,
-          shape: const CircleBorder(),
-          child: const Icon(Icons.local_shipping, color: Colors.black),
-        ),
-        floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
-      ),
+if (appProvider.isLoadingCars && appProvider.myCars.isEmpty) {
+    return const Scaffold(
+      backgroundColor: AppColors.textMain, // خلفية سوداء نفس لون التطبيق
+      body: Center(child: CircularProgressIndicator(color: AppColors.primary)),
     );
   }
 
-  Widget _buildDashboardHome(AppProvider provider, AuthProvider auth) {
-final filteredCars = provider.myCars.where((car) {
-  final query = searchQuery.toLowerCase();
-  // إضافة حماية ضد الـ Null في الـ Make والـ Model
-  final make = car.make.toLowerCase();
-  final model = car.model.toLowerCase();
-  final plate = (car.licensePlate ?? "").toLowerCase();
-  
-  return make.contains(query) || model.contains(query) || plate.contains(query);
-}).toList();
+    final List<Widget> commanderScreens = [
+      _buildAnalyticsTab(appProvider, authProvider, fleetProvider), 
+      _buildFleetListTab(appProvider, authProvider),               
+      const MarketplaceScreen(),                                   
+      const EmergencyScreen(),                                     
+      const MoreScreen(),                                          
+    ];
 
-    Map<String, List> groupedCars = {};
-    for (var car in filteredCars) {
-      String groupKey = "${car.make} ${car.model}".toUpperCase();
-      groupedCars.putIfAbsent(groupKey, () => []).add(car);
+    return Scaffold(
+      extendBody: true,
+      backgroundColor: Colors.transparent,
+      body: commanderScreens[_currentIndex], 
+      bottomNavigationBar: AppFooter(
+        currentIndex: _currentIndex,
+        onTap: (index) => setState(() => _currentIndex = index),
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () => setState(() => _currentIndex = 2),
+        backgroundColor: AppColors.primary,
+        shape: const CircleBorder(),
+        child: const Icon(Icons.storefront, color: Colors.black, size: 28),
+      ),
+      floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
+    );
+  }
+
+  Widget _buildAnalyticsTab(AppProvider app, AuthProvider auth, FleetProvider fleet) {
+    if (fleet.isLoadingStats) {
+      return const Center(child: CircularProgressIndicator(color: AppColors.primary));
     }
+
+   final stats = fleet.fleetStats;
+  if (stats == null) {
+    return const Center(child: Text("HOLD ON, SYNCING DATA...", style: TextStyle(color: Colors.white24)));
+  }
+
+    final filteredBreakdown = stats.vehicleBreakdown.where((v) {
+      final query = searchQuery.toLowerCase();
+      return v.plateNumber.toLowerCase().contains(query) ||
+             v.brand.toLowerCase().contains(query) ||
+             v.model.toLowerCase().contains(query);
+    }).toList();
+    
+    final filteredStats = FleetAnalytics(
+      totalFleetCost: stats.totalFleetCost,
+      totalFuelConsumedLiters: stats.totalFuelConsumedLiters,
+      totalKmsDriven: stats.totalKmsDriven,
+      costPerKm: stats.costPerKm,
+      totalMaintenanceCost: stats.totalMaintenanceCost,
+      totalFuelCost: stats.totalFuelCost,
+      vehicleBreakdown: filteredBreakdown,
+    );
 
     return TexturedBackground(
       child: SafeArea(
         child: Column(
           children: [
             AppHeader(
-              title: 'Welcome back,',
-             userName: auth.user?.name ?? 'Fleet Commander',
-      statsText: '${provider.myCars.length} VEHICLES IN FLEET',
-              actionLabel: 'GROW MY FLEET',
-              onActionPressed: () => Navigator.push(
-                context, MaterialPageRoute(builder: (_) => const AddCarScreen())
-              ),
+              title: 'Fleet Control,',
+              userName: auth.user?.name ?? 'Commander',
+              statsText: 'LIVE ANALYTICS OVERVIEW',
+              actionLabel: 'home.add_car_title',
+              onActionPressed: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const AddCarScreen())),
             ),
-            
             Expanded(
-              child: provider.isLoadingCars 
-                ? const Center(child: CircularProgressIndicator(color: Colors.amber))
-                : ListView(
-                    padding: const EdgeInsets.only(top: 0, bottom: 120), 
-                    children: [
-                      const SizedBox(height: 15),
+              child: RefreshIndicator(
+                // حل مشكلة RefreshCallback عن طريق دالة مجهولة تمرر المعامل المطلوب
+                onRefresh: () => fleet.loadFleetStats(app.myCars), 
+                color: AppColors.primary,
+                child: ListView(
+                  padding: const EdgeInsets.only(top: 15, bottom: 100),
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 20),
+                      child: _buildSearchField("FILTER ANALYTICS..."),
+                    ),
+                    const SizedBox(height: 25),
+                    if (searchQuery.isNotEmpty)
                       Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 20),
-                        child: _buildSearchField(),
+                        padding: const EdgeInsets.symmetric(horizontal: 25, vertical: 5),
+                        child: Text(
+                          "FOUND ${filteredBreakdown.length} MATCHES",
+                          style: const TextStyle(color: Colors.white24, fontSize: 10, fontWeight: FontWeight.bold),
+                        ),
                       ),
-                      const SizedBox(height: 25),
-                      
-                      _buildSectionTitle("ANALYTIC INSIGHTS"),
-                      _buildVerticalBarChart("FUEL USAGE (GAL)", ["S", "M", "T", "W", "T", "F", "S"], [0.3, 0.7, 0.5, 0.9, 0.4, 0.2, 0.6], Colors.blue),
-                      _buildVerticalBarChart("ACTIVE HOURS", ["W1", "W2", "W3", "W4"], [0.8, 0.6, 0.9, 0.7], AppColors.primary),
-
-                      const SizedBox(height: 25),
-                      
-                      ...groupedCars.entries.map((entry) => 
-                        _buildModelSlideshow(entry.key, entry.value)
-                      ),
-                    ],
-                  ),
+                    AnalyticsDashboard(stats: filteredStats),
+                  ],
+                ),
+              ),
             ),
           ],
         ),
@@ -148,101 +174,122 @@ final filteredCars = provider.myCars.where((car) {
     );
   }
 
-  Widget _buildVerticalBarChart(String title, List<String> labels, List<double> values, Color color) {
-    return Container(
-      height: 180, 
-      margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
-      padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(color: AppColors.textMain, borderRadius: BorderRadius.circular(15)),
+Widget _buildFleetListTab(AppProvider app, AuthProvider auth) {
+  debugPrint("UI_DEBUG: [_buildFleetListTab] Building View...");
+  
+  final filteredCars = app.myCars.where((car) {
+    final query = searchQuery.toLowerCase();
+    return car.make.toLowerCase().contains(query) || 
+           car.model.toLowerCase().contains(query) || 
+           (car.licensePlate ?? "").toLowerCase().contains(query);
+  }).toList();
+
+  return TexturedBackground(
+    child: SafeArea(
       child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(title, style: const TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.bold, letterSpacing: 1)),
-          const SizedBox(height: 10),
+          AppHeader(
+            title: 'Fleet Schedule', 
+            userName: auth.user?.name ?? 'Commander',
+            statsText: '${app.myCars.length} VEHICLES SECURED', 
+            actionLabel: 'home.add_car_title',
+            onActionPressed: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const AddCarScreen())),
+          ),
+
           Expanded(
-            child: LayoutBuilder( 
-              builder: (context, constraints) {
-                double maxHeight = constraints.maxHeight - 20; 
-                return Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceAround,
-                  crossAxisAlignment: CrossAxisAlignment.end,
-                  children: List.generate(labels.length, (i) {
-                    return Column(
-                      mainAxisAlignment: MainAxisAlignment.end,
-                      children: [
-                        Flexible( 
-                          child: AnimatedContainer(
-                            duration: const Duration(milliseconds: 500),
-                            width: 15,
-                            height: maxHeight * values[i], 
-                            decoration: BoxDecoration(color: color, borderRadius: BorderRadius.circular(4)),
-                          ),
-                        ),
-                        const SizedBox(height: 4),
-                        Text(labels[i], style: const TextStyle(color: Colors.white60, fontSize: 8)),
-                      ],
-                    );
-                  }),
-                );
-              },
-            ),
+            child: app.isLoadingCars && app.myCars.isEmpty
+              ? const Center(child: CircularProgressIndicator(color: AppColors.primary))
+              : ListView(
+                  padding: const EdgeInsets.only(top: 15, bottom: 100),
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 20),
+                      child: _buildSearchField("SEARCH BY PLATE OR MODEL..."),
+                    ),
+                    const SizedBox(height: 25),
+                    
+                    if (filteredCars.isEmpty)
+                      const Center(child: Padding(
+                        padding: EdgeInsets.only(top: 50),
+                        child: Text("NO VEHICLES FOUND", style: TextStyle(color: Colors.grey)),
+                      ))
+                    else
+                      ..._groupCars(filteredCars).entries.map((e) {
+                        debugPrint("UI_DEBUG: Drawing Group: ${e.key}");
+                        return _buildModelSlideshow(e.key, e.value);
+                      }),
+                  ],
+                ),
           ),
         ],
       ),
-    );
+    ),
+  );
+}
+
+  Map<String, List> _groupCars(List cars) {
+    Map<String, List> groups = {};
+    for (var car in cars) {
+      String key = "${car.make} ${car.model}".toUpperCase();
+      groups.putIfAbsent(key, () => []).add(car);
+    }
+    return groups;
   }
 
-  Widget _buildModelSlideshow(String modelTitle, List cars) {
+  Widget _buildModelSlideshow(String title, List cars) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Padding(
-          padding: const EdgeInsets.fromLTRB(20, 15, 20, 5), 
-          child: Text(modelTitle, style: const TextStyle(fontWeight: FontWeight.w900, fontSize: 14)),
-        ),
+          padding: const EdgeInsets.fromLTRB(20, 15, 20, 10), 
+          child: Text(title, style: const TextStyle(fontWeight: FontWeight.w900, fontSize: 14, color: AppColors.textMain))),
         SizedBox(
-          // ✅ تم رفع الارتفاع لـ 340 لإعطاء مساحة للكارت (300) ومنع الـ Overflow
-          height: 340, 
+          height: 300, 
           child: ListView.builder(
             scrollDirection: Axis.horizontal,
-            padding: const EdgeInsets.only(left: 8),
+            padding: const EdgeInsets.only(left: 10),
             itemCount: cars.length,
-            itemBuilder: (context, index) {
-              return SizedBox(
-                width: 340, 
-                child: CarCard(
-                  car: cars[index], 
-                  onTap: () {
-                    Provider.of<AppProvider>(context, listen: false).setSelectedCar(cars[index]);
-                    _switchToTab(1);
-                  },
-                  isSelected: false,
-                ),
-              );
-            },
+            itemBuilder: (context, index) => SizedBox(
+              width: MediaQuery.of(context).size.width * 0.85, 
+              child: CarCard(
+                car: cars[index], 
+                onTap: () {
+                  Provider.of<AppProvider>(context, listen: false).setSelectedCar(cars[index]);
+                  Navigator.push(context, MaterialPageRoute(builder: (_) => const CarDetailsScreen()));
+                },
+                isSelected: false,
+              ),
+            ),
           ),
         ),
       ],
     );
   }
 
-  Widget _buildSectionTitle(String text) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-      child: Text(text, style: const TextStyle(fontWeight: FontWeight.w900, fontSize: 13, letterSpacing: 1.2)),
+  Widget _buildSearchField(String hint) {
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(15),
+        boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 10)],
+      ),
+      child: TextField(
+        controller: _searchController,
+        style: const TextStyle(color: AppColors.textMain, fontWeight: FontWeight.bold),
+        decoration: InputDecoration(
+          hintText: hint, 
+          hintStyle: const TextStyle(fontSize: 11, color: Colors.grey),
+          prefixIcon: const Icon(Icons.search, color: AppColors.primary), 
+          border: InputBorder.none,
+          contentPadding: const EdgeInsets.symmetric(vertical: 15),
+        ),
+      ),
     );
   }
 
-  Widget _buildSearchField() {
-    return TextField(
-      onChanged: (v) => setState(() => searchQuery = v),
-      decoration: InputDecoration(
-        hintText: "SEARCH FLEET BY PLATE OR MODEL...", 
-        prefixIcon: const Icon(Icons.search, color: AppColors.primary), 
-        filled: true, 
-        fillColor: Colors.white, 
-        border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
-      ),
-    );
+  @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
   }
 }

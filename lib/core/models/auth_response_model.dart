@@ -1,12 +1,11 @@
-// --- التعديل في ملف lib/core/models/auth_response_model.dart ---
-
 class User {
   final String id;
   final String email;
   final String name;
   final String phone;
   final String role;
-  final String? organizationName; // ✅ إضافة هذا الحقل لإظهار اسم الشركة (فودافون مثلاً)
+  final String? organizationName;
+  final String? organizationId; // ✅ لازم السطر ده يكون موجود
 
   User({
     required this.id,
@@ -15,26 +14,34 @@ class User {
     required this.phone,
     required this.role,
     this.organizationName, 
+    this.organizationId, // ✅ ولازم يكون هنا
   });
 
+  // داخل كلاس User
   factory User.fromJson(Map<String, dynamic> json) {
-    // الباك إند أحياناً بيبعت بيانات المنظمة متداخلة
-    String? orgName;
-    if (json['organization'] != null && json['organization'] is Map) {
-      orgName = json['organization']['name'];
-    }
-
     return User(
       id: json['id']?.toString() ?? '',
       email: json['email'] ?? '',
       name: json['name'] ?? 'User',
       phone: json['phone'] ?? '',
       role: json['role'] ?? 'CUSTOMER',
-      organizationName: orgName, // ✅ سحب اسم الشركة لو موجود
+      organizationName: json['organizationName'] ?? json['organization']?['name'],
+      organizationId: json['organizationId']?.toString() ?? json['organization']?['id']?.toString(), // ✅ استخراج الـ ID
     );
   }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'email': email,
+      'name': name,
+      'phone': phone,
+      'role': role,
+      'organizationName': organizationName,
+      'organizationId': organizationId, // ✅ حفظ الـ ID لضمان ظهوره بعد الريستارت
+    };
+  }
 }
-// بقية ملف AuthResponse تظل كما هي
 
 class AuthResponse {
   final String accessToken;

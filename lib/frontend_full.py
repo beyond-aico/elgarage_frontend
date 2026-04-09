@@ -3,7 +3,7 @@ import os
 # ================= إعدادات السكريبت لمشروع FLUTTER =================
 
 # 1. اسم الملف النهائي
-output_filename = 'flutter_full_code.txt'
+output_filename = 'frontend_lib.txt'
 
 # 2. الامتدادات المهمة في فلاتر (Dart, Config, Android Build)
 included_extensions = [

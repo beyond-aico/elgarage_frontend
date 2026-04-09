@@ -144,90 +144,90 @@ class EmergencyScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildContactList(BuildContext context, String type, double screenWidth) {
-    final provider = Provider.of<AppProvider>(context, listen: false);
-    final contacts = provider.getEmergencyByType(type);
+  // استبدل دالة _buildContactList بالنسخة المحدثة (بدون صور)
 
-    return Column(
-      children: contacts.map((contact) {
-        return Container(
-          margin: const EdgeInsets.only(bottom: 15),
-          height: 110,
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(18),
-            boxShadow: [BoxShadow(color: Colors.black.withAlpha(10), blurRadius: 10, offset: const Offset(0, 5))],
-          ),
-          child: Row(
-            children: [
-              // الجزء الأيسر: الأيقونة (Industrial Grey)
-              Container(
-                width: 80,
-                decoration: BoxDecoration(
-                  color: Colors.grey[100],
-                  borderRadius: const BorderRadius.horizontal(left: Radius.circular(18)),
-                ),
-                child: Center(
-                  child: Icon(
-                    type == 'Winch' ? CupertinoIcons.bus : 
-                    type == 'Battery' ? CupertinoIcons.bolt_circle_fill : CupertinoIcons.circle_grid_hex_fill,
-                    color: AppColors.textMain.withAlpha(150),
-                    size: 35,
-                  ),
-                ),
-              ),
-              // الجزء الأيمن: البيانات (مثل كارت السيارة الأسفلتي)
-              Expanded(
-                child: Container(
-                  padding: const EdgeInsets.all(12),
-                  decoration: const BoxDecoration(
-                    color: AppColors.textMain,
-                    borderRadius: BorderRadius.horizontal(right: Radius.circular(18)),
-                  ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Text(
-                        contact.name.toUpperCase(),
-                        style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w900, fontSize: 14),
-                        maxLines: 1, overflow: TextOverflow.ellipsis,
+Widget _buildContactList(BuildContext context, String type, double screenWidth) {
+  final provider = Provider.of<AppProvider>(context, listen: false);
+  final contacts = provider.getEmergencyByType(type);
+
+  return Column(
+    children: contacts.map((contact) {
+      return Container(
+        margin: const EdgeInsets.only(bottom: 15),
+        decoration: BoxDecoration(
+          color: AppColors.textMain, // ✅ جعل اللون الأساسي هو لون الكارت
+          borderRadius: BorderRadius.circular(18),
+          boxShadow: [
+            BoxShadow(color: Colors.black.withAlpha(20), blurRadius: 10, offset: const Offset(0, 5))
+          ],
+        ),
+        child: InkWell(
+          onTap: () => _makePhoneCall(contact.phoneNumber),
+          borderRadius: BorderRadius.circular(18),
+          child: Padding(
+            padding: const EdgeInsets.all(16), // زيادة الهامش الداخلي
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      contact.name.toUpperCase(),
+                      style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w900, fontSize: 15),
+                    ),
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                      decoration: BoxDecoration(
+                        color: Colors.white10,
+                        borderRadius: BorderRadius.circular(8),
                       ),
-                      const SizedBox(height: 5),
-                      Row(
+                      child: Row(
                         children: [
-                          const Icon(CupertinoIcons.location_solid, color: AppColors.primary, size: 12),
-                          const SizedBox(width: 4),
-                          Text(contact.location, style: const TextStyle(color: Colors.grey, fontSize: 11)),
-                          const Spacer(),
                           const Icon(CupertinoIcons.star_fill, color: Colors.amber, size: 12),
                           const SizedBox(width: 4),
                           Text(contact.rating, style: const TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.bold)),
                         ],
                       ),
-                      const Divider(color: Colors.white10, height: 15),
-                      // زر الاتصال المدمج
-                      GestureDetector(
-                        onTap: () => _makePhoneCall(contact.phoneNumber),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.end,
-                          children: [
-                            Text("REQUEST ASSISTANCE", style: TextStyle(color: AppColors.primary, fontSize: 10, fontWeight: FontWeight.w900)),
-                            const SizedBox(width: 8),
-                            const Icon(CupertinoIcons.phone_fill, color: AppColors.primary, size: 16),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
+                    ),
+                  ],
                 ),
-              ),
-            ],
+                const SizedBox(height: 8),
+                Row(
+                  children: [
+                    const Icon(CupertinoIcons.location_solid, color: AppColors.primary, size: 14),
+                    const SizedBox(width: 6),
+                    Text(contact.location, style: const TextStyle(color: Colors.grey, fontSize: 12)),
+                  ],
+                ),
+                const Divider(color: Colors.white10, height: 20),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      "CALL ${contact.phoneNumber}",
+                      style: const TextStyle(color: Colors.grey, fontSize: 11, fontWeight: FontWeight.bold),
+                    ),
+                    Row(
+                      children: [
+                        Text(
+                          "REQUEST NOW",
+                          style: TextStyle(color: AppColors.primary, fontSize: 11, fontWeight: FontWeight.w900),
+                        ),
+                        const SizedBox(width: 8),
+                        const Icon(CupertinoIcons.phone_fill, color: AppColors.primary, size: 18),
+                      ],
+                    ),
+                  ],
+                ),
+              ],
+            ),
           ),
-        );
-      }).toList(),
-    );
-  }
+        ),
+      );
+    }).toList(),
+  );
+}
 
   Future<void> _makePhoneCall(String phoneNumber) async {
     final Uri launchUri = Uri(scheme: 'tel', path: phoneNumber);

@@ -1,10 +1,9 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
-import '../constants/app_config.dart'; // ✅ استيراد الإعدادات
+import '../constants/app_config.dart'; 
 import '../models/auth_response_model.dart';
 
 class AuthService {
-  // ✅ استخدام الرابط المركزي
   final String baseUrl = AppConfig.auth;
 
   Future<AuthResponse> register(String name, String email, String phone, String password) async {
@@ -26,12 +25,13 @@ class AuthService {
     }
   }
 
-  Future<AuthResponse> login(String email, String password) async {
+  // ✅ تعديل: استقبال identifier (إيميل أو هاتف)
+  Future<AuthResponse> login(String identifier, String password) async {
     final response = await http.post(
       Uri.parse('$baseUrl/login'),
       headers: {'Content-Type': 'application/json'},
       body: jsonEncode({
-        'email': email,
+        'email': identifier, // نرسله تحت مفتاح email ليتوافق مع الـ API الحالي
         'password': password,
       }),
     );
@@ -42,4 +42,28 @@ class AuthService {
       throw Exception('Login failed: ${response.body}');
     }
   }
+  // داخل كلاس AuthService
+Future<void> changePassword(String currentPassword, String newPassword, String token) async {
+  final response = await http.post(
+    Uri.parse('$baseUrl/change-password'), // تأكد من وجود هذا المسار في الباك إند
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': 'Bearer $token',
+    },
+    body: jsonEncode({
+      'oldPassword': currentPassword,
+      'newPassword': newPassword,
+    }),
+  );
+  if (response.statusCode != 200 && response.statusCode != 201) {
+    throw Exception('Failed to change password');
+  }
+}
+
+Future<void> requestEmailVerification(String token) async {
+  await http.post(
+    Uri.parse('$baseUrl/send-email-otp'), // مسار إرسال كود الإيميل
+    headers: {'Authorization': 'Bearer $token'},
+  );
+}
 }
