@@ -1,3 +1,4 @@
+import 'package:easy_localization/easy_localization.dart';
 // --- FILE: lib/widgets/car_header.dart ---
 import 'package:elgarage/providers/fleet_provider.dart';
 import 'package:flutter/material.dart';
@@ -95,7 +96,7 @@ final fleetProvider = Provider.of<FleetProvider>(context, listen: false);    fin
                 // 1. الكيلومتر الحالي (عبر AppProvider)
                 _buildCompactInfo(
                   CupertinoIcons.speedometer,
-                  'CURRENT KM',
+                  "fleet.table_current_km".tr(),
                   '${car.mileageKm}',
                   AppColors.primary,
                onTap: disableKmUpdate ? null : () => _showUpdateKmDialog(context, appProvider, mainProvider, fleetProvider),
@@ -105,7 +106,7 @@ final fleetProvider = Provider.of<FleetProvider>(context, listen: false);    fin
                 // 2. الحالة (عبر MaintenanceProvider)
                 _buildCompactInfo(
                   statusIcon,
-                  'STATUS',
+                  "fleet.table_status".tr(),
                   healthStatus,
                   statusColor,
                 ),

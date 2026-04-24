@@ -1,3 +1,4 @@
+import 'package:easy_localization/easy_localization.dart';
 // --- FILE: lib/screens/car_details_screen.dart ---
 
 import 'package:flutter/material.dart';
@@ -193,7 +194,7 @@ class _CarDetailsScreenState extends State<CarDetailsScreen>
                 mainAxisAlignment: MainAxisAlignment.spaceAround,
                 children: [
                   _buildStatItem(
-                    'Current KM',
+                    "driver.current_km_label".tr(),
                     '${selectedCar.mileageKm} K',
                     CupertinoIcons.speedometer,
                     AppColors.primary,
@@ -202,14 +203,14 @@ class _CarDetailsScreenState extends State<CarDetailsScreen>
                   ),
                   _divider(),
                   _buildStatItem(
-                    'Status',
+                    "driver.status_label".tr(),
                     healthStatus,
                     CupertinoIcons.checkmark_shield_fill,
                     healthColor,
                   ),
                   _divider(),
                   _buildStatItem(
-                    'Remaining',
+                    "driver.remaining_label".tr(),
                     '$remaining KM',
                     CupertinoIcons.hourglass,
                     AppColors.primary,
@@ -226,9 +227,9 @@ class _CarDetailsScreenState extends State<CarDetailsScreen>
               labelColor: AppColors.textMain,
               unselectedLabelColor: Colors.grey,
               indicatorColor: AppColors.primary,
-              tabs: const [
+              tabs:  [
                 Tab(text: 'HISTORY'),
-                Tab(text: 'MAINTENANCE'),
+                Tab(text: "fleet.maintenance".tr()),
               ],
             ),
             Expanded(
@@ -341,8 +342,8 @@ class _CarDetailsScreenState extends State<CarDetailsScreen>
                     SnackBar(
                       content: Text(
                         success
-                            ? "Odometer synced with server"
-                            : "Sync failed, try again",
+                            ? "fleet.sync_success".tr()
+                            : "fleet.sync_failed".tr(),
                       ),
                       backgroundColor: success
                           ? Colors.green

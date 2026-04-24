@@ -1,3 +1,4 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:elgarage/providers/app_provider.dart';
 import 'package:elgarage/app_screens/car_details_screen.dart';
 import 'package:flutter/material.dart';
@@ -66,12 +67,12 @@ TabBar(
   labelColor: AppColors.primary,
   unselectedLabelColor: Colors.grey,
   labelStyle: const TextStyle(fontSize: 10, fontWeight: FontWeight.w900),
-  tabs: const [
-    Tab(text: "MAINTENANCE", icon: Icon(Icons.build_circle_outlined, size: 18)), // 1
-      Tab(text: "DISTANCE", icon: Icon(Icons.speed_outlined, size: 18)),         // 5
-    Tab(text: "EFFICIENCY", icon: Icon(Icons.analytics_outlined, size: 18)),   // 3 (الجديدة)
-    Tab(text: "FUEL USAGE", icon: Icon(Icons.gas_meter_outlined, size: 18)),   // 4
-    Tab(text: "FUEL COST", icon: Icon(Icons.payments_outlined, size: 18)),     // 2
+  tabs: [
+    Tab(text: "fleet.maintenance".tr(), icon: const Icon(Icons.build_circle_outlined, size: 18)), // 1
+      Tab(text: "fleet.distance".tr(), icon: const Icon(Icons.speed_outlined, size: 18)),         // 5
+    Tab(text: "fleet.efficiency".tr(), icon: const Icon(Icons.analytics_outlined, size: 18)),   // 3 (الجديدة)
+     Tab(text: "fleet.chart_fuel_usage_tab".tr(), icon: Icon(Icons.gas_meter_outlined, size: 18)),   // 4
+     Tab(text: "fleet.chart_fuel_cost_tab".tr(), icon: Icon(Icons.payments_outlined, size: 18)),     // 2
 
   ],
 ),
@@ -84,7 +85,7 @@ SizedBox(
     controller: _tabController,
     children: [
       _buildXYChart(
-        "MAINTENANCE COST (EGP)", 
+        "fleet.chart_maint_cost".tr(), 
         List.from(data)..sort((a, b) => b.nextMaintenanceCost.compareTo(a.nextMaintenanceCost)), 
         (v) => v.nextMaintenanceCost, 
         AppColors.primary
@@ -94,7 +95,7 @@ SizedBox(
 
 // 1. في تشارت الـ DISTANCE
 _buildXYChart(
-  "DISTANCE DRIVEN (KM)", 
+  "fleet.chart_distance".tr(), 
   List.from(data)..sort((a, b) => b.kms.compareTo(a.kms)), 
   (v) => v.kms.toDouble(), // 👈 هنا استبدل kms بالمسمى الصح للمسافة المقطوعة (Trip)
   const Color.fromARGB(255, 101, 222, 176)
@@ -102,7 +103,7 @@ _buildXYChart(
 
 // 2. في تشارت الـ EFFICIENCY وحسبة الجدول
 _buildXYChart(
-  "EFFICIENCY (KM/L)", 
+  "fleet.chart_efficiency".tr(), 
   List.from(data)..sort((a, b) {
     // 👈 لازم هنا كمان تستبدل v.kms بالمسافة المقطوعة في الفترة
     double effA = a.fuelLiters > 0 ? (a.kms / a.fuelLiters) : 0.0; 
@@ -113,13 +114,13 @@ _buildXYChart(
   const Color.fromARGB(255, 101, 222, 176)
 ),
       _buildXYChart(
-        "FUEL CONSUMED (L)", 
+        "FUEL CONSUMED (L)".tr(),
         List.from(data)..sort((a, b) => b.fuelLiters.compareTo(a.fuelLiters)), 
         (v) => v.fuelLiters, 
         const Color.fromARGB(255, 101, 222, 176)
       ),
  _buildXYChart(
-        "FUEL COST (EGP)", 
+        "fleet.chart_fuel_cost".tr(), 
         List.from(data)..sort((a, b) => b.totalCost.compareTo(a.totalCost)), 
         (v) => v.totalCost, 
         AppColors.primary
@@ -150,11 +151,11 @@ Widget _buildGlobalStatsOverview() {
       children: [
         Row(
           children: [
-            _statBox("MAINTENANCE", "${maintenance.toInt()}", "EGP", AppColors.primary, AppColors.primary),
+            _statBox("fleet.maintenance".tr(), "${maintenance.toInt()}", "EGP", AppColors.primary, AppColors.primary),
             _verticalDivider(),
-            _statBox("TOTAL COST", "${total.toInt()}", "EGP", AppColors.primary, AppColors.primary),
+            _statBox("fleet.total_cost".tr(), "${total.toInt()}", "EGP", AppColors.primary, AppColors.primary),
             _verticalDivider(),
-            _statBox("FUEL COST", "${fuel.toInt()}", "EGP", AppColors.primary, AppColors.primary),
+            _statBox("fleet.chart_fuel_cost_tab".tr(), "${fuel.toInt()}", "EGP", AppColors.primary, AppColors.primary),
           ],
         ),
         const Padding(
@@ -163,9 +164,9 @@ Widget _buildGlobalStatsOverview() {
         ),
         Row(
           children: [
-            _statBox("TOTAL KMS", "${widget.stats?.totalKmsDriven ?? 0}", "KM", const Color.fromARGB(255, 101, 222, 176), const Color.fromARGB(255, 101, 222, 176)),
+            _statBox("fleet.total_kms".tr(), "${widget.stats?.totalKmsDriven ?? 0}", "KM", const Color.fromARGB(255, 101, 222, 176), const Color.fromARGB(255, 101, 222, 176)),
             _verticalDivider(),
-            _statBox("TOTAL FUEL", "${widget.stats?.totalFuelConsumedLiters.toInt() ?? 0}", "LITERS",  Color.fromARGB(255, 101, 222, 176), const Color.fromARGB(255, 101, 222, 176)),
+            _statBox("fleet.total_fuel".tr(), "${widget.stats?.totalFuelConsumedLiters.toInt() ?? 0}", "LITERS",  Color.fromARGB(255, 101, 222, 176), const Color.fromARGB(255, 101, 222, 176)),
           ],
         ),
       ],
@@ -290,8 +291,8 @@ Text(
             sortAscending: !_sortByEfficiency,
           columns: [
             const DataColumn(label: Text('VEHICLE MODEL', style: TextStyle(color: AppColors.primary, fontSize: 9, fontWeight: FontWeight.w900))),
-            const DataColumn(label: Text('PLATE', style: TextStyle(color: AppColors.primary, fontSize: 9, fontWeight: FontWeight.w900))),
-            const DataColumn(label: Text('CURRENT KM', style: TextStyle(color: AppColors.primary, fontSize: 9, fontWeight: FontWeight.w900))),
+            DataColumn(label: Text("fleet.table_plate".tr(), style: const TextStyle(color: AppColors.primary, fontSize: 9, fontWeight: FontWeight.w900))),
+            DataColumn(label: Text("fleet.table_current_km".tr(), style: const TextStyle(color: AppColors.primary, fontSize: 9, fontWeight: FontWeight.w900))),
             DataColumn(
               onSort: (columnIndex, ascending) => setState(() => _sortByEfficiency = false),
               label: const Text('REMAINING', style: TextStyle(color: AppColors.primary, fontSize: 9, fontWeight: FontWeight.w900))
@@ -300,7 +301,7 @@ Text(
             const DataColumn(label: Text('NEXT COST', style: TextStyle(color: AppColors.primary, fontSize: 9, fontWeight: FontWeight.w900))),
             DataColumn(
               onSort: (columnIndex, ascending) => setState(() => _sortByEfficiency = true),
-              label: const Text('EFFICIENCY', style: TextStyle(color: AppColors.primary, fontSize: 9, fontWeight: FontWeight.w900))
+              label: Text("fleet.efficiency".tr(), style: TextStyle(color: AppColors.primary, fontSize: 9, fontWeight: FontWeight.w900))
             ),
           ],
           rows: data.map((v) {

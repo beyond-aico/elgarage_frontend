@@ -1,3 +1,4 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:elgarage/core/models/fleet_analytics_model.dart';
 import 'package:elgarage/core/app_ui/app_footer.dart'; 
 import 'package:elgarage/core/app_ui/app_header.dart'; 
@@ -141,10 +142,10 @@ void _selectDateRange(BuildContext context, FleetProvider fleet, AppProvider app
   final stats = fleet.fleetStats;
   if (stats == null) {
     // ✅ تغليف رسالة المزامنة بالخلفية الموحدة
-    return const TexturedBackground(
+    return  TexturedBackground(
       child: Center(
         child: Text(
-          "HOLD ON, SYNCING DATA...", 
+          "fleet.syncing".tr(), 
           style: TextStyle(color: AppColors.textMain, fontWeight: FontWeight.bold)
         )
       ),

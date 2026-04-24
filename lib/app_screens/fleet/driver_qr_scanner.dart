@@ -1,3 +1,4 @@
+import 'package:easy_localization/easy_localization.dart';
 // --- FILE: lib/screens/fleet/driver_qr_scanner.dart ---
 import 'package:flutter/material.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
@@ -85,7 +86,7 @@ class _DriverQRScannerState extends State<DriverQRScanner> {
       child: Scaffold(
         backgroundColor: Colors.black,
         appBar: AppBar(
-          title: const Text("Scan Vehicle Barcode", style: TextStyle(color: Colors.white, fontSize: 16)),
+          title:  Text("driver.scan_title".tr(), style: TextStyle(color: Colors.white, fontSize: 16)),
           backgroundColor: Colors.transparent,
           leading: IconButton(icon: const Icon(Icons.close, color: Colors.white), onPressed: _forceLogoutAndExit),
         ),
@@ -114,7 +115,7 @@ class _DriverQRScannerState extends State<DriverQRScanner> {
       child: Container(
         width: 260, height: 260,
         decoration: BoxDecoration(border: Border.all(color: AppColors.primary, width: 3), borderRadius: BorderRadius.circular(30)),
-        child: const Align(alignment: Alignment.topCenter, child: Padding(padding: EdgeInsets.only(top: 20), child: Text("Place barcode inside box", style: TextStyle(color: Colors.white)))),
+        child: Align(alignment: Alignment.topCenter, child: Padding(padding: const EdgeInsets.only(top: 20), child: Text("driver.scan_hint".tr(), style: const TextStyle(color: Colors.white)))),
       ),
     );
   }

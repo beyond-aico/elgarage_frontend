@@ -1,3 +1,4 @@
+import 'package:easy_localization/easy_localization.dart';
 // --- FILE: lib/screens/fleet/driver_screen.dart ---
 
 import 'package:elgarage/providers/maintenance_provider.dart';
@@ -116,9 +117,9 @@ class _DriverScreenState extends State<DriverScreen> with SingleTickerProviderSt
                   labelColor: AppColors.primary,
                   unselectedLabelColor: Colors.white60,
                   labelStyle: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
-                  tabs: const [
-                    Tab(text: "تسجيل وقود"),
-                    Tab(text: "حالة الصيانة"),
+                  tabs:  [
+                    Tab(text: "driver.fuel_tab".tr()),
+                    Tab(text: "driver.maint_tab".tr()),
                   ],
                 ),
                 Expanded(
@@ -158,11 +159,11 @@ class _DriverScreenState extends State<DriverScreen> with SingleTickerProviderSt
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceAround,
         children: [
-          _buildStatItem('Current KM', '${car.mileageKm} K', CupertinoIcons.speedometer, AppColors.primary),
+          _buildStatItem("driver.current_km_label".tr(), '${car.mileageKm} K', CupertinoIcons.speedometer, AppColors.primary),
           _divider(),
-          _buildStatItem('Status', healthStatus, CupertinoIcons.checkmark_shield_fill, healthColor),
+          _buildStatItem("driver.status_label".tr(), healthStatus, CupertinoIcons.checkmark_shield_fill, healthColor),
           _divider(),
-          _buildStatItem('Remaining', '$remaining KM', CupertinoIcons.hourglass, AppColors.primary),
+          _buildStatItem("driver.remaining_label".tr(), '$remaining KM', CupertinoIcons.hourglass, AppColors.primary),
         ],
       ),
     );
@@ -194,11 +195,11 @@ class _DriverScreenState extends State<DriverScreen> with SingleTickerProviderSt
       child: Column(
         children: [
           // 4️⃣ بوكسات الإدخال بنظام الـ Industrial (أبيض مع ظل) لسهولة الاستخدام
-          _buildIndustrialInput(_kmController, "قراءة العداد الحالية (كم)", CupertinoIcons.speedometer),
+          _buildIndustrialInput(_kmController, "driver.odometer_label".tr(), CupertinoIcons.speedometer),
           const SizedBox(height: 15),
-          _buildIndustrialInput(_litersController, "كمية الوقود (لتر)", CupertinoIcons.drop_fill),
+          _buildIndustrialInput(_litersController, "driver.fuel_liters_label".tr(), CupertinoIcons.drop_fill),
           const SizedBox(height: 15),
-          _buildIndustrialInput(_costController, "التكلفة الإجمالية (EGP)", CupertinoIcons.money_dollar),
+          _buildIndustrialInput(_costController, "driver.total_cost_label".tr(), CupertinoIcons.money_dollar),
           const SizedBox(height: 30),
           
           if (fleet.error != null)
@@ -228,7 +229,7 @@ class _DriverScreenState extends State<DriverScreen> with SingleTickerProviderSt
                   await mainProvider.fetchDueMaintenance(fleet.authenticatedCar!.id, newKm);
                   
                   ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text("✅ تم تحديث العداد وجدولة الصيانة بنجاح")));
+                     SnackBar(content: Text("driver.success_msg".tr())));
                   
                   // تنظيف الحقول بعد النجاح
                   _kmController.clear(); 
@@ -243,7 +244,7 @@ class _DriverScreenState extends State<DriverScreen> with SingleTickerProviderSt
               ),
               child: fleet.isLoading 
                 ? const CircularProgressIndicator(color: AppColors.primary)
-                : const Text("حفظ وإرسال التقرير", 
+                :  Text("driver.submit_btn".tr(), 
                     style: TextStyle(color: AppColors.primary, fontSize: 16, fontWeight: FontWeight.bold)),
             ),
           ),
@@ -253,7 +254,7 @@ class _DriverScreenState extends State<DriverScreen> with SingleTickerProviderSt
   }
 
   Widget _buildScanPrompt() {
-    return const Center(
+    return  Center(
       child: Padding(
         padding: EdgeInsets.all(40.0),
         child: Column(
@@ -261,7 +262,7 @@ class _DriverScreenState extends State<DriverScreen> with SingleTickerProviderSt
           children: [
             Icon(Icons.qr_code_scanner, size: 80, color: Colors.white24),
             SizedBox(height: 20),
-            Text("لم يتم العثور على سيارة مربوطة بحسابك.", 
+            Text("driver.no_car_error".tr(), 
               textAlign: TextAlign.center, style: TextStyle(color: Colors.white60, fontSize: 14)),
           ],
         ),
