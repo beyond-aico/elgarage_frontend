@@ -5,8 +5,8 @@ import 'package:flutter/cupertino.dart';
 import 'package:provider/provider.dart';
 import '../core/constants/app_colors.dart';
 import '../providers/auth_provider.dart';
-import '../core/ui/main_layout.dart';
-import '../core/ui/textured_background.dart';
+import '../core/app_ui/main_layout.dart';
+import '../core/app_ui/textured_background.dart';
 
 class RegisterWebScreen extends StatefulWidget {
   const RegisterWebScreen({super.key});

@@ -6,10 +6,10 @@ import 'package:provider/provider.dart';
 import '../core/constants/app_colors.dart';
 import '../providers/app_provider.dart';
 import '../providers/auth_provider.dart';
-import '../core/ui/textured_background.dart';
-import '../widgets/car_card.dart';
+import '../core/app_ui/textured_background.dart';
+import '../app_widgets/car_card.dart';
 import 'marketplace_web_screen.dart'; // ✅ تأكد من استدعاء ملف الويبimport '../screens/emergency_screen.dart';
-import '../screens/more/more_screen.dart';
+import '../app_screens/more/more_screen.dart';
 
 class FleetDashboardWeb extends StatefulWidget {
   const FleetDashboardWeb({super.key});

@@ -6,7 +6,7 @@ import 'package:provider/provider.dart';
 import '../core/constants/app_colors.dart';
 import '../providers/app_provider.dart';
 import '../providers/auth_provider.dart';
-import '../core/ui/textured_background.dart';
+import '../core/app_ui/textured_background.dart';
 
 class AddCarWebScreen extends StatefulWidget {
   const AddCarWebScreen({super.key});

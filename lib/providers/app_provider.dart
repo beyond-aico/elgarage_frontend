@@ -7,11 +7,11 @@ import 'package:flutter/cupertino.dart';
 import '../core/models/car_model.dart';
 import '../core/models/product_model.dart';
 import '../core/models/emergency_model.dart';
+import '../core/data/dummy_data.dart'; 
 
 class AppProvider with ChangeNotifier {
   final CarService _carService = CarService();
 
-  // --- إدارة السيارات (البيانات الأساسية) ---
   List<Car> _myCars = [];
   Car? _selectedCar;
   bool _isLoadingCars = false;
@@ -24,20 +24,25 @@ class AppProvider with ChangeNotifier {
   String? get carError => _carError;
   bool get isUpdatingMileage => _isUpdatingMileage;
 
-  // --- إدارة المتجر والطلبات ---
   final List<ProductModel> _cartItems = [];
   final List<Map<String, dynamic>> _myOrders = [];
   List<ProductModel> get cartItems => _cartItems;
   List<Map<String, dynamic>> get myOrders => _myOrders;
   double get cartTotal => _cartItems.fold(0, (sum, item) => sum + item.price);
 
-  // --- بيانات المؤسسة والواجهة ---
   String? _organizationName;
   String get organizationName => _organizationName ?? "Personal Garage";
   int _currentTabIndex = 0;
   int get currentTabIndex => _currentTabIndex;
 
-// lib/providers/app_provider.dart
+List<Map<String, dynamic>> get serviceCenters => DummyData.serviceCenters;
+List<ProductModel> get marketProducts => DummyData.marketProducts;
+List<EmergencyModel> getEmergencyByType(String type) =>
+DummyData.emergencyContacts.where((e) => e.type == type).toList();
+List<Map<String, dynamic>> get categories => DummyData.categories;
+String getImageForPart(String partName) {
+  return DummyData.getPartImage(partName);
+}
 
 Future<void> syncUserContext(
     User? user, 
@@ -48,73 +53,23 @@ Future<void> syncUserContext(
     if (user == null) return;
     _organizationName = user.organizationName;
     
-    // جلب السيارات باستخدام الرابط العام (Token-based) لضمان عدم حدوث 404
-    await fetchMyCars(
-      authProvider: auth, 
-      forceRefresh: true
-    );
+    await fetchMyCars(authProvider: auth, forceRefresh: true);
 
-    // ربط السائق بسيارته وجلب جدول صيانته فوراً
-    if (user.role.toUpperCase() == "DRIVER" && _myCars.isNotEmpty) {
-      final driverCar = _myCars.firstWhere(
-        (car) => car.userId == user.id, 
-        orElse: () => _myCars.first
-      );
-      
-      _selectedCar = driverCar; 
-      fleet.setAuthenticatedCar(driverCar);
-      
-      // طلب تحديث الصيانة من السيرفر فور تسجيل الدخول
-      await maintenance.fetchDueMaintenance(driverCar.id, driverCar.mileageKm);
-      
+    if (user.role.toUpperCase() == "DRIVER") {
+      if (fleet.authenticatedCar != null) {
+        _selectedCar = fleet.authenticatedCar;
+        await maintenance.fetchDueMaintenance(_selectedCar!.id, _selectedCar!.mileageKm);
+      }
       notifyListeners();
-      debugPrint("DEBUG: [syncUserContext] ${user.name} fully synced with Maintenance.");
+      debugPrint("DEBUG: [syncUserContext] Driver ${user.name} context synced.");
     }
   }
 
-  // ✅ تعديل دالة تحليل الأسطول لتعكس البيانات الحية 100%
-  Map<String, dynamic> get fleetAnalytics {
-    if (_myCars.isEmpty) {
-      return {
-        "total_units": 0, 
-        "active_now": 0,
-        "maintenance_due": 0, 
-        "efficiency": "0%"
-      };
-    }
-
-    int total = _myCars.length;
-    return {
-      "total_units": total,
-      "active_now": total, // تعتمد على العدد الفعلي الموجود في القائمة
-      "maintenance_due": 0,
-      "monthly_cost": "--- EGP",
-      "efficiency": "100%",
-    };
-  }
-
-  // ✅ دالة ترتيب السيارات
   void reorderMyCars(int oldIndex, int newIndex) {
     if (newIndex > oldIndex) newIndex -= 1;
     final item = _myCars.removeAt(oldIndex);
     _myCars.insert(newIndex, item);
     notifyListeners();
-  }
-
-  // ✅ قائمة مراكز الخدمة
-  final List<Map<String, dynamic>> _serviceCenters = [
-    {'name': 'Auto Fix Center', 'location': 'Nasr City', 'labor_cost': 200.0},
-    {'name': 'Pro Car Service', 'location': 'New Cairo', 'labor_cost': 300.0},
-  ];
-  List<Map<String, dynamic>> get serviceCenters => _serviceCenters;
-
-  // ✅ دالة الصور
-  String getImageForPart(String partName) {
-    String name = partName.toLowerCase();
-    if (name.contains('oil')) return 'assets/images/engine_oil.png';
-    if (name.contains('spark')) return 'assets/images/spark_plug.png';
-    if (name.contains('brake')) return 'assets/images/brake_pad.png';
-    return 'assets/images/engine_oil.png';
   }
 
  Future<void> fetchMyCars({
@@ -124,20 +79,14 @@ Future<void> syncUserContext(
     bool forceRefresh = false,
   }) async {
     if (_isLoadingCars && !forceRefresh && _myCars.isNotEmpty) return;
-
     _isLoadingCars = true;
     _carError = null;
     notifyListeners();
-
     try {
-      // ✅ الحل الجذري: نعتمد دائماً على getMyCars() لأن الباك إند يفلتر بالتوكن
-      // تم إلغاء شرط ACCOUNT_MANAGER الذي كان يطلب getFleetCars بـ ID
       List<Car> fetchedCars = await _carService.getMyCars();
 
       _myCars = List<Car>.from(fetchedCars);
-      
-      // تحديد أول سيارة كسيارة مختارة افتراضياً إذا لم تكن هناك سيارة محددة
-      if (_myCars.isNotEmpty && _selectedCar == null) {
+        if (_myCars.isNotEmpty && _selectedCar == null) {
         _selectedCar = _myCars.first;
       }
     } catch (e) {
@@ -176,30 +125,39 @@ Future<void> syncUserContext(
     }
   }
 
- Future<bool> updateCarCurrentKm(int newKm) async {
-    if (_selectedCar == null) return false;
-    _isUpdatingMileage = true;
-    notifyListeners();
-    try {
-      bool success = await _carService.updateCarMileage(
-        _selectedCar!.id,
-        newKm,
-      );
-      if (success) {
-        _selectedCar = _selectedCar!.copyWith(mileageKm: newKm);
-        // تحديث القيمة في القائمة الرئيسية أيضاً لضمان التزامن في كل الشاشات
-        int index = _myCars.indexWhere((c) => c.id == _selectedCar!.id);
-        if (index != -1) _myCars[index] = _selectedCar!;
-        return true;
-      }
-      return false;
-    } finally {
-      _isUpdatingMileage = false;
-      notifyListeners();
-    }
-  }
+// lib/providers/app_provider.dart
 
-  // --- إدارة المتجر (Actions) ---
+Future<bool> updateCarCurrentKm(int newKm, {FleetProvider? fleetProvider}) async {
+  if (_selectedCar == null) return false;
+  _isUpdatingMileage = true;
+  notifyListeners();
+  
+  try {
+    bool success = await _carService.updateCarMileage(
+      _selectedCar!.id,
+      newKm,
+    );
+    
+    if (success) {
+      // 1. تحديث السيارة المختارة في AppProvider
+      _selectedCar = _selectedCar!.copyWith(mileageKm: newKm);
+      
+      // 2. تحديث القيمة في القائمة الرئيسية لضمان التزامن
+      int index = _myCars.indexWhere((c) => c.id == _selectedCar!.id);
+      if (index != -1) _myCars[index] = _selectedCar!;
+      
+      // 3. ✅ التحديث السحري: إبلاغ الـ FleetProvider بالتحديث لو كان ممرراً
+      fleetProvider?.updateVehicleMileageLocally(_selectedCar!.id, newKm);
+
+      return true;
+    }
+    return false;
+  } finally {
+    _isUpdatingMileage = false;
+    notifyListeners();
+  }
+}
+
   void addToCart(List<dynamic> items) {
     for (var item in items) {
       if (item is ProductModel) {
@@ -216,84 +174,54 @@ Future<void> syncUserContext(
     notifyListeners();
   }
 
-  void placeOrder() {
-    if (_cartItems.isEmpty) return;
-    _myOrders.insert(0, {
-      'id': 'ORD-${DateTime.now().millisecondsSinceEpoch.toString().substring(8)}',
-      'date': DateTime.now(),
-      'items': List.from(_cartItems),
-      'total': cartTotal,
-      'status': 'Pending',
-    });
-    _cartItems.clear();
-    notifyListeners();
+void placeOrder(Map<String, dynamic> deliveryDetails) {
+  if (_cartItems.isEmpty || _selectedCar == null) return;
+  
+  // حساب السيرفس القادم (مثلاً أقرب 10 آلاف)
+  int nextService = ((_selectedCar!.mileageKm / 10000).floor() + 1) * 10000;
+
+  _myOrders.insert(0, {
+    'id': 'ORD-${DateTime.now().millisecondsSinceEpoch.toString().substring(8)}',
+    'date': DateTime.now(),
+    'items': List.from(_cartItems),
+    'total': cartTotal,
+    'status': 'Pending',
+    'delivery': deliveryDetails,
+    'estimatedDelivery': '2 Days',
+    // ✅ إضافة بيانات العربية والباكدج للأوردر
+    'carInfo': {
+      'name': '${_selectedCar!.make} ${_selectedCar!.model}',
+      'plate': _selectedCar!.licensePlate ?? "---",
+      'brand': _selectedCar!.make,
+    },
+    'packageType': '$nextService KM PACKAGE', 
+  });
+  
+  _cartItems.clear();
+  notifyListeners();
+}
+
+String? get preSelectedCenterName {
+  try {
+    // البحث عن أول عنصر في السلة ينتمي لفئة 'Service'
+    final serviceItem = _cartItems.firstWhere((item) => item.category == 'Service');
+    // استخراج اسم المركز من النص "Installation: اسم المركز"
+    return serviceItem.name.replaceFirst('Installation: ', '');
+  } catch (e) {
+    return null; // لا يوجد مركز في السلة
   }
+}
 
-  // --- بيانات ثابتة (Market & Emergency) ---
-  final List<ProductModel> _marketProducts = [
-    ProductModel(
-      id: 'p1',
-      name: 'Total Quartz 9000 5W-40',
-      price: 1450,
-      category: 'Oils',
-      imagePath: 'assets/images/1.jpg',
-    ),
-    ProductModel(
-      id: 'p2',
-      name: 'Brembo Brake Pads Set',
-      price: 2800,
-      category: 'Brakes',
-      imagePath: 'assets/images/2.png',
-    ),
-    ProductModel(
-      id: 'p3',
-      name: 'NGK Iridium Spark Plugs',
-      price: 1100,
-      category: 'Engine',
-      imagePath: 'assets/images/3.jfif',
-    ),
-    ProductModel(
-      id: 'p4',
-      name: 'Bosch Premium Oil Filter',
-      price: 450,
-      category: 'Filters',
-      imagePath: 'assets/images/1.jpg',
-    ),
-  ];
-  List<ProductModel> get marketProducts => _marketProducts;
-
-  final List<EmergencyModel> _emergencyContacts = [
-    EmergencyModel(
-      name: 'Helpoo Roadside Assistance',
-      phoneNumber: '17000',
-      location: 'All Egypt',
-      type: 'Winch',
-      rating: '5.0',
-    ),
-    EmergencyModel(
-      name: 'Battery Express',
-      phoneNumber: '19110',
-      location: 'Greater Cairo',
-      type: 'Battery',
-      rating: '4.9',
-    ),
-  ];
-  List<EmergencyModel> getEmergencyByType(String type) =>
-      _emergencyContacts.where((e) => e.type == type).toList();
-
-  final List<Map<String, dynamic>> _categories = [
-    {'name': 'All', 'icon': CupertinoIcons.square_grid_2x2_fill},
-    {'name': 'Service Centers', 'icon': CupertinoIcons.wrench_fill},
-    {'name': 'Oils', 'icon': CupertinoIcons.drop_fill},
-  ];
-  List<Map<String, dynamic>> get categories => _categories;
+void cancelOrder(String orderId) {
+  _myOrders.removeWhere((order) => order['id'] == orderId);
+  notifyListeners();
+}
 
   void setTabIndex(int index) {
     _currentTabIndex = index;
     notifyListeners();
   }
 
-  // --- جلب البيانات المرجعية ---
   Future<List<dynamic>> fetchBrands() async => await _carService.getBrands();
   Future<List<dynamic>> fetchModels(String brandId) async =>
       await _carService.getModels(brandId);
@@ -306,7 +234,6 @@ Future<void> syncUserContext(
     notifyListeners();
   }
 
-  // ✅ تحسين دالة مسح البيانات لضمان تصفير السلة والطلبات عند الخروج
   void resetOnLogout() {
     _currentTabIndex = 0;
     _selectedCar = null;
@@ -319,4 +246,5 @@ Future<void> syncUserContext(
   }
 
   void fetchDueMaintenance({required String carId}) {}
+
 }

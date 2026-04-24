@@ -49,8 +49,14 @@ class Car {
     );
   }
 
+String get localImagePath {
+  String raw = make.split(' ').first.toLowerCase().trim();
+  if (raw.isEmpty) return 'assets/images/car_logo.png';
+  String brand = raw[0].toUpperCase() + raw.substring(1);
+  return 'assets/images/cars/$brand.png';
+}
+
   factory Car.fromJson(Map<String, dynamic> json) {
-    // تعريف المتغيرات التي كانت ناقصة في التشخيص
     String makeData = 'Unknown Make';
     String modelData = 'Unknown Model';
 

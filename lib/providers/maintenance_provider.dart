@@ -122,34 +122,37 @@ class MaintenanceProvider with ChangeNotifier {
     notifyListeners();
   }
 
-  List<ProductModel> getMaintenanceItemsFor(int milestone) {
-    var apiItems = _dueMaintenance
-        .where((item) {
-          int roundedNextDue = (item.nextDueAt / 10000).round() * 10000;
+ List<ProductModel> getMaintenanceItemsFor(int milestone, int currentMilestone) {
+  return _dueMaintenance.where((item) {
+    // 1. هل البند ده أصلاً ميعاده الدوري يقع في المحطة دي؟
+    // مثال: لو الزيت كل 10 آلاف، والتابة 140 ألف.. يبقى الـ 140 بتقبل القسمة على 10.
+    bool isScheduledForThisMilestone = milestone % item.intervalKm == 0;
 
-          // أظهر القطعة إذا كانت في ميعادها المظبوط
-          // أو إذا كانت حالة السيرفر لها OVERDUE ووصلنا لتبويب الـ Recommended
-          if (item.status == 'OVERDUE') {
-            return milestone >= roundedNextDue;
-          }
-
-          return roundedNextDue == milestone;
-        })
-        .map((item) {
-          return ProductModel(
-            id: item.id,
-            name: item.name,
-            price: item.price > 0 ? item.price : _getPriceForPart(item.name),
-            category: item.category,
-            imagePath: getImageForPart(item.name),
-            isMissed: item.status == 'OVERDUE',
-          );
-        })
-        .toList();
-
-    return apiItems;
-  }
-  // --- Helpers (مساعدة العرض) ---
+    // 2. لو إحنا في تابة الـ Recommended (المحطة الحالية)
+    if (milestone == currentMilestone) {
+      // بنعرض المجدول للمحطة دي + أي ديون قديمة (Overdue)
+      return isScheduledForThisMilestone || item.status == 'OVERDUE';
+    } 
+    
+    // 3. لو إحنا في تابة الـ Previous (المحطة السابقة)
+    else if (milestone < currentMilestone) {
+      // بنعرض فقط الحاجات اللي كان ميعادها الدوري في المحطة دي
+      return isScheduledForThisMilestone;
+    } 
+    
+    // 4. تابة الـ Upcoming
+    else {
+      return isScheduledForThisMilestone;
+    }
+  }).map((item) => ProductModel(
+    id: item.name,
+    name: item.name,
+    price: item.price > 0 ? item.price : _getPriceForPart(item.name),
+    category: item.category,
+    imagePath: getImageForPart(item.name),
+    isMissed: item.status == 'OVERDUE', 
+  )).toList();
+}
 
   double _getPriceForPart(String name) {
     name = name.toLowerCase();

@@ -1,99 +1,134 @@
-// Assuming you have or will create basic models
+import 'package:flutter/cupertino.dart';
+import '../models/product_model.dart';
+import '../models/emergency_model.dart';
 
-// --- MOCK DATABASE SERVICE ---
-class DummyDataService {
-  
-  // 1. Users Table (Simulating DB Table)
-  static final List<Map<String, dynamic>> _users = [
+class DummyData {
+
+  static final List<Map<String, dynamic>> serviceCenters = [
     {
-      'id': 'u_admin',
-      'username': 'f',
-      'password': 'f', // In real app, this is hashed
-      'role': 'FLEET_MANAGER',
-      'name': 'Hesham Fathy',
-      'company': 'ElGarage Logistics'
+      'name': 'Bosch Car Service El Mikaneeky',
+      'location': 'First Settlement',
+      'labor_cost': 250.0,
+      'mapUrl': 'https://maps.app.goo.gl/ioehkEboW2AR8aVo6?g_st=awb',
     },
     {
-      'id': 'u_driver_01',
-      'username': 'd',
-      'password': 'd',
-      'role': 'DRIVER',
-      'assignedCarId': 'c_001',
-      'name': 'Ahmed Driver'
+      'name': 'Bosch Car Service El Mikaneeky',
+      'location': 'Mobil Gas Station - Hassan Maamoun',
+      'labor_cost': 200.0,
+      'mapUrl': 'https://maps.app.goo.gl/MrH1utNjNSUomeLMA?g_st=awb',
     },
     {
-      'id': 'u_individual',
-      'username': 'u',
-      'password': 'u',
-      'role': 'INDIVIDUAL',
-      'name': 'Individual Owner'
-    }
+      'name': 'Bosch Car Service El Mikaneeky',
+      'location': 'Mobil Gas Station - Nasr Road',
+      'labor_cost': 200.0,
+      'mapUrl': 'https://maps.app.goo.gl/Yh6CQPrw1H9Tw1vm8?g_st=awb',
+    },
+    {
+      'name': 'Bosch Car Service El Mikaneeky',
+      'location': 'Mobil Gas Station - Sheraton',
+      'labor_cost': 300.0,
+      'mapUrl': 'https://maps.app.goo.gl/nLJ7JB6bs5yL1XPR9?g_st=awb',
+    },
   ];
 
-  // 2. Fleet Cars Table
-  // Generating 20 dummy cars with industrial/fleet context
-  static final List<Map<String, dynamic>> _fleetCars = List.generate(20, (index) {
-    int id = index + 1;
-    double mileage = 10000.0 + (index * 5000); 
-    bool maintenanceNeeded = mileage > 50000 && mileage < 55000; // Random logic
-    
-    return {
-      'id': 'c_${id.toString().padLeft(3, '0')}',
-      'make': index % 2 == 0 ? 'Toyota' : 'Chevrolet',
-      'model': index % 2 == 0 ? 'Hilux' : 'Optra',
-      'year': 2021 + (index % 3),
-      'plateNumber': 'ABC ${100 + id}',
-      'currentOdometer': mileage,
-      'status': maintenanceNeeded ? 'MAINTENANCE_REQUIRED' : 'ACTIVE',
-      'lastServiceDate': '2025-10-${(id % 30).toString().padLeft(2, '0')}',
-      'image': 'assets/images/car_placeholder.png', // Placeholder
-      'driverId': 'u_driver_${id.toString().padLeft(2, '0')}'
-    };
-  });
+  static final List<ProductModel> marketProducts = [
+  // --- منتجات توتال (Total) ---
+  ProductModel(
+    id: 'oil-total-q-5w40',
+    name: 'Total Quartz 5W40 4L',
+    price: 2375,
+    category: 'Oils',
+    imagePath: 'assets/images/m.6.jpeg',
+  ),
+  ProductModel(
+    id: 'oil-total-q-20w50',
+    name: 'Total Quartz 20W50 4L',
+    price: 935,
+    category: 'Oils',
+    imagePath: 'assets/images/m.7.jpeg',
+  ),
+  ProductModel(
+    id: 'oil-total-r-20w50',
+    name: 'Total Rubia 20W50 5L',
+    price: 1045,
+    category: 'Oils',
+    imagePath: 'assets/images/m.8.jpeg',
+  ),
 
-  // 3. Maintenance Logs
-  static final List<Map<String, dynamic>> logs = [];
+  // --- منتجات موبيل (Mobil) ---
+  ProductModel(
+    id: 'oil-mobil-5w40',
+    name: 'Mobil 5W40 4L',
+    price: 2300,
+    category: 'Oils',
+    imagePath: 'assets/images/m.1.jpeg',
+  ),
+  ProductModel(
+    id: 'oil-mobil-xhp-15w50',
+    name: 'Mobil 15W50 XHP 4L',
+    price: 1120,
+    category: 'Oils',
+    imagePath: 'assets/images/m.9.jpeg',
+  ),
+  ProductModel(
+    id: 'oil-mobil-delvac-20w50',
+    name: 'Mobil Delvac 20W50 MX 20L',
+    price: 4290,
+    category: 'Oils',
+    imagePath: 'assets/images/m.2.jpeg',
+  ),
 
-  // --- METHODS ---
+  // --- منتجات شل (Shell) ---
+  ProductModel(
+    id: 'oil-shell-helix-15w50',
+    name: 'Shell Helix 15W50 4L',
+    price: 1150,
+    category: 'Oils',
+    imagePath: 'assets/images/m.5.jpeg',
+  ),
+  ProductModel(
+    id: 'oil-shell-ultra-5w30',
+    name: 'Shell Helix Ultra 5W30 4L',
+    price: 2795,
+    category: 'Oils',
+    imagePath: 'assets/images/m.3.jpeg',
+  ),
+];
+  // 3. جهات اتصال الطوارئ
+  static final List<EmergencyModel> emergencyContacts = [
+    EmergencyModel(
+      name: 'Helpoo Roadside Assistance',
+      phoneNumber: '17000',
+      location: 'All Egypt',
+      type: 'Winch',
+      rating: '5.0',
+    ),
+    EmergencyModel(
+      name: 'Battery Express',
+      phoneNumber: '19110',
+      location: 'Greater Cairo',
+      type: 'Battery',
+      rating: '4.9',
+    ),
+  ];
 
-  static Map<String, dynamic>? login(String username, String password, String type) {
-    try {
-      final user = _users.firstWhere(
-        (u) => u['username'] == username && u['password'] == password,
-      );
-      
-      // Strict Role Check
-      if (type == 'FLEET' && user['role'] == 'INDIVIDUAL') return null;
-      if (type == 'INDIVIDUAL' && user['role'] != 'INDIVIDUAL') return null;
-      
-      return user;
-    } catch (e) {
-      return null;
-    }
-  }
+  static final List<Map<String, dynamic>> categories = [
+    {'name': 'All', 'icon': CupertinoIcons.square_grid_2x2_fill},
+    {'name': 'Service Centers', 'icon': CupertinoIcons.wrench_fill},
+    {'name': 'Oils', 'icon': CupertinoIcons.drop_fill},
+  ];
 
-  static List<Map<String, dynamic>> getFleetCars() {
-    return _fleetCars;
-  }
-
-  static Map<String, dynamic>? getCarById(String id) {
-    return _fleetCars.firstWhere((c) => c['id'] == id, orElse: () => {});
-  }
-
-  // Driver updates Odometer
-  static Map<String, dynamic> updateOdometer(String carId, double newReading) {
-    final carIndex = _fleetCars.indexWhere((c) => c['id'] == carId);
-    if (carIndex != -1) {
-      _fleetCars[carIndex]['currentOdometer'] = newReading;
-      
-      // Simple Logic: If mileage > 100,000 trigger alert
-      if (newReading % 10000 < 500) { 
-         _fleetCars[carIndex]['status'] = 'MAINTENANCE_REQUIRED';
-      } else {
-         _fleetCars[carIndex]['status'] = 'ACTIVE';
-      }
-      return _fleetCars[carIndex];
-    }
-    throw Exception('Car not found');
-  }
+static String getPartImage(String partName) {
+  String name = partName.toLowerCase();
+  if (name.contains('total')) return 'assets/images/m.1.jpg';
+  if (name.contains('mobil')) return 'assets/images/m.2.jpg';
+  if (name.contains('shell')) return 'assets/images/m.3.jpg';
+  
+  if (name.contains('oil')) return 'assets/images/m.4.jpeg';
+  if (name.contains('spark')) return 'assets/images/3.jfif';
+  if (name.contains('brake')) return 'assets/images/2.png';
+  
+  // الصورة الافتراضية
+  return 'assets/images/engine_oil.jpg';
+}
 }

@@ -5,8 +5,8 @@ import 'package:flutter/cupertino.dart';
 import 'package:provider/provider.dart';
 import '../core/constants/app_colors.dart';
 import '../providers/app_provider.dart';
-import '../screens/tabs/history_tab.dart'; // استخدام التابات الموجودة فعلاً
-import '../screens/tabs/maintenance_tab.dart';
+import '../app_screens/tabs/history_tab.dart'; // استخدام التابات الموجودة فعلاً
+import '../app_screens/tabs/maintenance_tab.dart';
 
 class CarDetailsWebScreen extends StatefulWidget {
   const CarDetailsWebScreen({super.key});

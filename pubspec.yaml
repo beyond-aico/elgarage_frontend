@@ -39,8 +39,8 @@ dependencies:
   flutter_paypal_payment: ^1.0.8
   intl_phone_field: ^3.2.0
   pinput: ^6.0.2
-  #qr_flutter: ^4.1.0
-  #mobile_scanner: ^7.2.0
+  qr_flutter: ^4.1.0
+  mobile_scanner: ^7.2.0
 
 dev_dependencies:
   flutter_test:
@@ -52,6 +52,7 @@ flutter:
   uses-material-design: true
 
   assets:
-   - assets/images/
-   - assets/translations/
-   - assets/images/beyond.png
+    -  assets/images/
+    -  assets/images/cars/
+    -  assets/translations/
+    -  assets/images/beyond.png

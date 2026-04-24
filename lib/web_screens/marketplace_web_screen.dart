@@ -1,7 +1,7 @@
 // lib/web_screens/marketplace_web_screen.dart
 
 import 'package:elgarage/core/models/product_model.dart';
-import 'package:elgarage/screens/cart_screen.dart';
+import 'package:elgarage/app_screens/cart_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:provider/provider.dart';

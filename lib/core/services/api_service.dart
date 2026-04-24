@@ -4,7 +4,7 @@ import 'package:http/http.dart' as http;
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 class ApiService {
-  // ✅ تعديل: استخدام نفس إعدادات التخزين الموجودة في AuthProvider لضمان قراءة نفس البيانات
+  // ✅ استخدام نفس إعدادات التخزين لضمان تزامن التوكن
   final _storage = const FlutterSecureStorage(
     aOptions: AndroidOptions(
       sharedPreferencesName: 'ElGarage_Secure_Final',
@@ -12,11 +12,9 @@ class ApiService {
     iOptions: IOSOptions(accessibility: KeychainAccessibility.first_unlock),
   );
 
-  // ✅ نستخدم AppConfig.baseUrl أو نتأكد من المسار الصحيح
   final String baseUrl = "https://elgaragebackend-production.up.railway.app/api/v1"; 
 
   Future<Map<String, String>> _getAuthHeaders() async {
-    // ✅ تصحيح: المفتاح هو accessToken وليس jwt_token
     String? token = await _storage.read(key: 'accessToken');
     return {
       'Content-Type': 'application/json',
@@ -24,22 +22,40 @@ class ApiService {
     };
   }
 
-  Future<Map<String, dynamic>> getFleetDashboard() async {
+  // ✅ تحديث: دعم الفلترة الزمنية للداشبورد (Start & End Date)
+  Future<Map<String, dynamic>> getFleetDashboard({String? startDate, String? endDate}) async {
+    final queryParams = <String, String>{};
+    if (startDate != null) queryParams['startDate'] = startDate;
+    if (endDate != null) queryParams['endDate'] = endDate;
+
+    final uri = Uri.parse('$baseUrl/admin/reports/fleet/dashboard')
+        .replace(queryParameters: queryParams);
+
     final response = await http.get(
-      Uri.parse('$baseUrl/admin/reports/fleet/dashboard'),
+      uri,
       headers: await _getAuthHeaders(),
     );
+    
     return response.statusCode == 200 ? jsonDecode(response.body)['data'] : {};
   }
 
-  // ✅ جلب تحليلات العربيات (للجداول والرسومات)
-  Future<List<dynamic>> getVehiclesAnalytics() async {
+  // ✅ تحديث: دعم الفلترة الزمنية لتحليلات المركبات
+  Future<List<dynamic>> getVehiclesAnalytics({String? startDate, String? endDate}) async {
+    final queryParams = <String, String>{};
+    if (startDate != null) queryParams['startDate'] = startDate;
+    if (endDate != null) queryParams['endDate'] = endDate;
+
+    final uri = Uri.parse('$baseUrl/fleet/analytics/vehicles')
+        .replace(queryParameters: queryParams);
+
     final response = await http.get(
-      Uri.parse('$baseUrl/fleet/analytics/vehicles'),
+      uri,
       headers: await _getAuthHeaders(),
     );
+    
     return response.statusCode == 200 ? jsonDecode(response.body)['data'] : [];
   }
+
   // التحقق من الباركود (للسائق)
   Future<Map<String, dynamic>> verifyBarcode(String barcode) async {
     final response = await http.post(
@@ -53,7 +69,7 @@ class ApiService {
     throw Exception('Invalid Barcode');
   }
 
-// ✅ التعديل: حفظ التوكن في التخزين الآمن فوراً
+  // حفظ التوكن في التخزين الآمن فوراً عند دخول السائق بالباركود
   Future<Map<String, dynamic>> verifyBarcodeWithPassword(String barcode, String password) async {
     final response = await http.post(
       Uri.parse('$baseUrl/fleet/auth-barcode'),
@@ -68,7 +84,6 @@ class ApiService {
       final responseData = jsonDecode(response.body);
       final data = responseData['data'];
 
-      // 🔐 حفظ التوكن الجديد عشان السواق يفضل مسجل دخول
       if (data['accessToken'] != null) {
         await _storage.write(key: 'accessToken', value: data['accessToken']);
         debugPrint("🔐 Token Saved from Barcode Login!");
