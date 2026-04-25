@@ -9,6 +9,7 @@ import 'package:provider/provider.dart';
 import '../core/constants/app_colors.dart';
 import '../providers/app_provider.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:easy_localization/easy_localization.dart';
 
 class CartScreen extends StatelessWidget {
   const CartScreen({super.key});
@@ -39,7 +40,7 @@ final provider = Provider.of<AppProvider>(context);
                         onPressed: () => Navigator.pop(context),
                       ),
                       Text(
-                        'MY CART',
+                        'cart.title'.tr(),
                         style: TextStyle(
                           fontSize: screenWidth * 0.06,
                           fontWeight: FontWeight.w900,
@@ -203,7 +204,7 @@ final provider = Provider.of<AppProvider>(context);
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
                   ),
                   icon: const Icon(CupertinoIcons.wrench, color: AppColors.textMain, size: 18),
-                  label: const Text("Book Installation Center", style: TextStyle(color: AppColors.textMain, fontWeight: FontWeight.w900, fontSize: 13)),
+                  label: Text('cart.book_center_btn'.tr(), style: TextStyle(color: AppColors.textMain, fontWeight: FontWeight.w900, fontSize: 13)),
                   onPressed: () => _showServiceCentersSheet(context),
                 ),
               ),
@@ -211,7 +212,7 @@ final provider = Provider.of<AppProvider>(context);
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  const Text("TOTAL AMOUNT", style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Colors.grey, letterSpacing: 1)),
+                  Text('cart.total_amount'.tr(), style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Colors.grey, letterSpacing: 1)),
                   Text(
                     '${provider.cartTotal.toInt()} EGP',
                     style: const TextStyle(fontSize: 26, fontWeight: FontWeight.w900, color: AppColors.textMain),
@@ -233,7 +234,7 @@ final provider = Provider.of<AppProvider>(context);
                     // ✅ تم التعديل: إتمام الطلب والرجوع لصفحة العربية
                     _handleCheckout(context, provider);
                   },
-                  child: const Text("CONFIRM ORDER", style: TextStyle(color: AppColors.primary, fontSize: 16, fontWeight: FontWeight.w900, letterSpacing: 1)),
+                  child: Text('cart.confirm_order_btn'.tr(), style: TextStyle(color: AppColors.primary, fontSize: 16, fontWeight: FontWeight.w900, letterSpacing: 1)),
                 ),
               ),
             ],
@@ -272,9 +273,9 @@ onPressed: () {
         children: [
           Icon(CupertinoIcons.cart, size: screenWidth * 0.25, color: Colors.grey.withAlpha(50)),
           const SizedBox(height: 20),
-          const Text("Your cart is empty", style: TextStyle(color: Colors.grey, fontSize: 18, fontWeight: FontWeight.bold)),
+          Text('cart.empty_title'.tr(), style: TextStyle(color: Colors.grey, fontSize: 18, fontWeight: FontWeight.bold)),
           const SizedBox(height: 10),
-          const Text("Add premium parts to get started", style: TextStyle(color: Colors.grey, fontSize: 12)),
+          Text('cart.empty_subtitle'.tr(), style: TextStyle(color: Colors.grey, fontSize: 12)),
         ],
       ),
     );
@@ -300,8 +301,8 @@ onPressed: () {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  const Text(
-                    "SELECT CENTER",
+                  Text(
+                    'cart.select_center'.tr(),
                     style: TextStyle(fontSize: 18, fontWeight: FontWeight.w900, letterSpacing: 1),
                   ),
                   IconButton(

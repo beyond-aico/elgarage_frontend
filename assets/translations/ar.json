@@ -163,5 +163,67 @@
     "scan_title": "مسح باركود السيارة",
     "scan_hint": "ضع الباركود داخل المربع",
     "invalid_code": "كود غير صالح"
+  },
+  "marketplace": {
+    "title": "المتجر",
+    "subtitle": "قطع غيار أصلية",
+    "search_hint": "ابحث عن قطع غيار...",
+    "price_label": "السعر"
+  },
+  "cart": {
+    "title": "عربة التسوق",
+    "book_center_btn": "حجز مركز تركيب",
+    "total_amount": "المبلغ الإجمالي",
+    "confirm_order_btn": "تأكيد الطلب",
+    "empty_title": "عربة التسوق فارغة",
+    "empty_subtitle": "أضف قطع غيار للبدء",
+    "select_center": "اختر المركز"
+  },
+  "orders": {
+    "title": "طلباتي",
+    "delivery_method": "طريقة الاستلام",
+    "select_center": "اختر مركز الصيانة",
+    "method_center": "في المركز",
+    "method_home": "توصيل للمنزل",
+    "address_hint": "العنوان بالتفصيل وعلامة مميزة",
+    "confirm_final_btn": "تأكيد الطلب النهائي",
+    "empty_state": "لا توجد طلبات بعد",
+    "cancel_dialog_title": "إلغاء الطلب؟"
+  },
+  "emergency": {
+    "title": "الطوارئ",
+    "subtitle": "مساعدة على الطريق ٢٤/٧",
+    "severe_warning": "حادث خطير؟ اتصل بـ 123 فوراً.",
+    "towing_services": "خدمات الونش",
+    "request_now": "اطلب الآن"
+  },
+  "car_details": {
+    "history_tab": "السجل",
+    "delete_car_action": "حذف السيارة",
+    "update_mileage_title": "تحديث الكيلومترات الحالية",
+    "reminder_title": "ذكرني قبل الصيانة بـ:"
+  },
+  "dashboard": {
+    "vehicle_model_label": "موديل المركبة",
+    "remaining_label": "المتبقي"
+  },
+  "dynamic": {
+    "my_garage_count": "{} سيارات في الجراج",
+    "call_number": "اتصل بـ {}"
+  },
+  "about": {
+    "title": "من نحن",
+    "mission_title": "مهمتنا",
+    "mission_text": "إحداث ثورة في صيانة السيارات وإدارة الأساطيل من خلال ربط السائقين بمراكز الخدمة المعتمدة وقطع الغيار الأصلية.",
+    "vision_title": "رؤيتنا",
+    "vision_text": "أن نصبح المنصة الرائدة في مجال السيارات في منطقة الشرق الأوسط وشمال أفريقيا.",
+    "version": "الإصدار {}"
+  },
+  "policy": {
+    "title": "سياسة الخصوصية",
+    "data_collection_title": "جمع البيانات",
+    "data_collection_text": "نحن نجمع بيانات السيارة الأساسية وبيانات الاستخدام لتزويدك بتذكيرات صيانة دقيقة وعروض مخصصة من المتجر.",
+    "terms_title": "شروط الخدمة",
+    "terms_text": "باستخدامك لتطبيق الجراج، فإنك توافق على شروط الاستخدام القياسية الخاصة بنا فيما يتعلق بحجوزات الخدمة ومشتريات المتجر."
   }
 }

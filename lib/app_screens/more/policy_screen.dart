@@ -3,6 +3,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';
 import '../../core/constants/app_colors.dart';
 import '../../core/app_ui/textured_background.dart';
+import 'package:easy_localization/easy_localization.dart';
 
 class PolicyScreen extends StatelessWidget {
   const PolicyScreen({super.key});
@@ -29,7 +30,7 @@ class PolicyScreen extends StatelessWidget {
                         onPressed: () => Navigator.pop(context),
                       ),
                       Text(
-                        "PRIVACY POLICY",
+                        'policy.title'.tr(),
                         style: TextStyle(
                           color: AppColors.textMain,
                           fontWeight: FontWeight.w900,
@@ -52,8 +53,8 @@ class PolicyScreen extends StatelessWidget {
                       
                       // --- 2. أقسام السياسة باستخدام نظام الكروت المتبادلة ---
                       _buildPolicyCard(
-                        title: "Data Collection",
-                        content: "We collect vehicle data, location for emergency services, and contact info to provide AI-driven maintenance advice.",
+                        title: 'policy.data_collection_title'.tr(),
+                        content: 'policy.data_collection_content'.tr(),
                         isDark: true, // كارت غامق
                       ),
                       

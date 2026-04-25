@@ -3,6 +3,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';
 import '../../core/constants/app_colors.dart';
 import '../../core/app_ui/textured_background.dart';
+import 'package:easy_localization/easy_localization.dart';
 
 class AboutUsScreen extends StatelessWidget {
   const AboutUsScreen({super.key});
@@ -29,7 +30,7 @@ class AboutUsScreen extends StatelessWidget {
                         onPressed: () => Navigator.pop(context),
                       ),
                       Text(
-                        "ABOUT US",
+                        'about.title'.tr(),
                         style: TextStyle(
                           color: AppColors.textMain,
                           fontWeight: FontWeight.w900,

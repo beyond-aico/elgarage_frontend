@@ -163,5 +163,67 @@
     "scan_title": "Scan Vehicle Barcode",
     "scan_hint": "Place barcode inside box",
     "invalid_code": "Invalid Code"
+  },
+  "marketplace": {
+    "title": "MARKETPLACE",
+    "subtitle": "PREMIUM SPARE PARTS",
+    "search_hint": "SEARCH GENUINE PARTS...",
+    "price_label": "PRICE"
+  },
+  "cart": {
+    "title": "MY CART",
+    "book_center_btn": "Book Installation Center",
+    "total_amount": "TOTAL AMOUNT",
+    "confirm_order_btn": "CONFIRM ORDER",
+    "empty_title": "Your cart is empty",
+    "empty_subtitle": "Add premium parts to get started",
+    "select_center": "SELECT CENTER"
+  },
+  "orders": {
+    "title": "MY ORDERS",
+    "delivery_method": "DELIVERY METHOD",
+    "select_center": "SELECT SERVICE CENTER",
+    "method_center": "AT CENTER",
+    "method_home": "HOME",
+    "address_hint": "Detailed Address & Landmark",
+    "confirm_final_btn": "CONFIRM FINAL ORDER",
+    "empty_state": "NO ORDERS YET",
+    "cancel_dialog_title": "CANCEL ORDER?"
+  },
+  "emergency": {
+    "title": "EMERGENCY",
+    "subtitle": "Roadside Assistance 24/7",
+    "severe_warning": "Severe accident? Call 123 immediately.",
+    "towing_services": "Towing Services",
+    "request_now": "REQUEST NOW"
+  },
+  "car_details": {
+    "history_tab": "HISTORY",
+    "delete_car_action": "Delete Car",
+    "update_mileage_title": "Update Current Mileage",
+    "reminder_title": "Remind me before maintenance by:"
+  },
+  "dashboard": {
+    "vehicle_model_label": "VEHICLE MODEL",
+    "remaining_label": "REMAINING"
+  },
+  "dynamic": {
+    "my_garage_count": "{} Cars in Garage",
+    "call_number": "CALL {}"
+  },
+  "about": {
+    "title": "ABOUT US",
+    "mission_title": "Our Mission",
+    "mission_text": "To revolutionize car maintenance and fleet management by connecting drivers with premium service centers and genuine spare parts.",
+    "vision_title": "Our Vision",
+    "vision_text": "Becoming the leading automotive platform in the MENA region.",
+    "version": "Version {}"
+  },
+  "policy": {
+    "title": "PRIVACY POLICY",
+    "data_collection_title": "Data Collection",
+    "data_collection_text": "We collect basic vehicle and usage data to provide you with accurate maintenance reminders and customized marketplace offers.",
+    "terms_title": "Terms of Service",
+    "terms_text": "By using ElGarage, you agree to our standard terms of use regarding service bookings and marketplace purchases."
   }
 }

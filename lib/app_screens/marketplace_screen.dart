@@ -7,7 +7,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:provider/provider.dart';
 import '../core/constants/app_colors.dart';
 import '../providers/app_provider.dart';
-
+import 'package:easy_localization/easy_localization.dart';
 class MarketplaceScreen extends StatelessWidget {
   const MarketplaceScreen({super.key});
 
@@ -45,7 +45,7 @@ class MarketplaceScreen extends StatelessWidget {
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Text(
-                                  'MARKETPLACE',
+                                  'marketplace.title'.tr(),
                                   style: TextStyle(
                                     fontSize: screenWidth * 0.07,
                                     fontWeight: FontWeight.w900,
@@ -53,8 +53,8 @@ class MarketplaceScreen extends StatelessWidget {
                                     letterSpacing: 1.5,
                                   ),
                                 ),
-                                const Text(
-                                  'PREMIUM SPARE PARTS',
+                                Text(
+                                  'marketplace.subtitle'.tr(),
                                   style: TextStyle(fontSize: 10, color: Colors.white54, fontWeight: FontWeight.bold, letterSpacing: 1),
                                 ),
                               ],
@@ -184,7 +184,7 @@ class MarketplaceScreen extends StatelessWidget {
                       Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          const Text("PRICE", style: TextStyle(color: Colors.white38, fontSize: 8, fontWeight: FontWeight.bold)),
+                          Text('marketplace.price_label'.tr(), style: TextStyle(color: Colors.white38, fontSize: 8, fontWeight: FontWeight.bold)),
                           Text(
                             '${product.price.toInt()} EGP',
                             style: const TextStyle(color: AppColors.primary, fontSize: 14, fontWeight: FontWeight.bold),
@@ -269,10 +269,10 @@ class MarketplaceScreen extends StatelessWidget {
         borderRadius: BorderRadius.circular(18),
         border: Border.all(color: Colors.white10),
       ),
-      child: const TextField(
+      child: TextField(
         style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
         decoration: InputDecoration(
-          hintText: "SEARCH GENUINE PARTS...",
+          hintText: 'marketplace.search_hint'.tr(),
           hintStyle: TextStyle(color: Colors.white24, fontSize: 12, letterSpacing: 1),
           prefixIcon: Icon(CupertinoIcons.search, color: AppColors.primary, size: 18),
           border: InputBorder.none,

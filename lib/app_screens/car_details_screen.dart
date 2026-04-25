@@ -1,6 +1,4 @@
-import 'package:easy_localization/easy_localization.dart';
 // --- FILE: lib/screens/car_details_screen.dart ---
-
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:provider/provider.dart';
@@ -11,6 +9,7 @@ import '../core/app_ui/textured_background.dart';
 import 'tabs/history_tab.dart';
 import 'tabs/maintenance_tab.dart';
 import 'cart_screen.dart';
+import 'package:easy_localization/easy_localization.dart';
 
 class CarDetailsScreen extends StatefulWidget {
   const CarDetailsScreen({super.key});
@@ -125,14 +124,14 @@ class _CarDetailsScreenState extends State<CarDetailsScreen>
               }
             },
             itemBuilder: (context) => [
-              const PopupMenuItem(
+              PopupMenuItem(
                 value: 'delete',
                 child: Row(
                   children: [
                     Icon(Icons.delete_outline, color: Colors.red, size: 20),
                     SizedBox(width: 10),
                     Text(
-                      'Delete Car',
+                      'car_details.delete_car_action'.tr(),
                       style: TextStyle(
                         color: Colors.red,
                         fontWeight: FontWeight.bold,
@@ -228,7 +227,7 @@ class _CarDetailsScreenState extends State<CarDetailsScreen>
               unselectedLabelColor: Colors.grey,
               indicatorColor: AppColors.primary,
               tabs:  [
-                Tab(text: 'HISTORY'),
+                Tab(text: 'car_details.history_tab'.tr()),
                 Tab(text: "fleet.maintenance".tr()),
               ],
             ),
@@ -295,7 +294,7 @@ class _CarDetailsScreenState extends State<CarDetailsScreen>
     showCupertinoDialog(
       context: context,
       builder: (context) => CupertinoAlertDialog(
-        title: const Text("Update Current Mileage"),
+        title: Text('car_details.update_mileage_title'.tr()),
         content: Padding(
           padding: const EdgeInsets.symmetric(vertical: 15),
           child: CupertinoTextField(
@@ -366,7 +365,7 @@ class _CarDetailsScreenState extends State<CarDetailsScreen>
     showCupertinoModalPopup(
       context: context,
       builder: (context) => CupertinoActionSheet(
-        title: const Text("Remind me before maintenance by:"),
+        title: Text('car_details.reminder_title'.tr()),
         actions: [500, 1000, 2000]
             .map(
               (km) => CupertinoActionSheetAction(

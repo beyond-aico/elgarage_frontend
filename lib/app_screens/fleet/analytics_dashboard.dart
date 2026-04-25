@@ -290,12 +290,12 @@ Text(
             sortColumnIndex: _sortByEfficiency ? 4 : 3,
             sortAscending: !_sortByEfficiency,
           columns: [
-            const DataColumn(label: Text('VEHICLE MODEL', style: TextStyle(color: AppColors.primary, fontSize: 9, fontWeight: FontWeight.w900))),
+            DataColumn(label: Text('dashboard.vehicle_model_label'.tr(), style: TextStyle(color: AppColors.primary, fontSize: 9, fontWeight: FontWeight.w900))),
             DataColumn(label: Text("fleet.table_plate".tr(), style: const TextStyle(color: AppColors.primary, fontSize: 9, fontWeight: FontWeight.w900))),
             DataColumn(label: Text("fleet.table_current_km".tr(), style: const TextStyle(color: AppColors.primary, fontSize: 9, fontWeight: FontWeight.w900))),
             DataColumn(
               onSort: (columnIndex, ascending) => setState(() => _sortByEfficiency = false),
-              label: const Text('REMAINING', style: TextStyle(color: AppColors.primary, fontSize: 9, fontWeight: FontWeight.w900))
+              label: Text('dashboard.remaining_label'.tr(), style: TextStyle(color: AppColors.primary, fontSize: 9, fontWeight: FontWeight.w900))
             ),
 
             const DataColumn(label: Text('NEXT COST', style: TextStyle(color: AppColors.primary, fontSize: 9, fontWeight: FontWeight.w900))),

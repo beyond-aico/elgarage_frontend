@@ -6,6 +6,7 @@ import 'package:url_launcher/url_launcher.dart';
 import '../core/constants/app_colors.dart';
 import '../providers/app_provider.dart';
 import '../core/app_ui/textured_background.dart';
+import 'package:easy_localization/easy_localization.dart';
 
 class EmergencyScreen extends StatelessWidget {
   const EmergencyScreen({super.key});
@@ -43,7 +44,7 @@ class EmergencyScreen extends StatelessWidget {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            'EMERGENCY',
+                            'emergency.title'.tr(),
                             style: TextStyle(
                               fontSize: screenWidth * 0.08,
                               fontWeight: FontWeight.w900,
@@ -51,8 +52,8 @@ class EmergencyScreen extends StatelessWidget {
                               letterSpacing: 2,
                             ),
                           ),
-                          const Text(
-                            'Roadside Assistance 24/7',
+                          Text(
+                            'emergency.subtitle'.tr(),
                             style: TextStyle(fontSize: 12, color: Colors.white70, fontWeight: FontWeight.bold),
                           ),
                           const SizedBox(height: 20),
@@ -73,7 +74,7 @@ class EmergencyScreen extends StatelessWidget {
                     physics: const BouncingScrollPhysics(),
                     padding: EdgeInsets.symmetric(horizontal: screenWidth * 0.05),
                     children: [
-                      _buildSectionHeader("Towing Services", CupertinoIcons.car_detailed),
+                      _buildSectionHeader('emergency.towing_services'.tr(), CupertinoIcons.car_detailed),
                       _buildContactList(context, 'Winch', screenWidth),
                       
                       const SizedBox(height: 20),
@@ -109,9 +110,9 @@ class EmergencyScreen extends StatelessWidget {
         children: [
           const Icon(CupertinoIcons.exclamationmark_shield_fill, color: AppColors.error, size: 20),
           const SizedBox(width: 10),
-          const Expanded(
+          Expanded(
             child: Text(
-              "Severe accident? Call 123 immediately.",
+              'emergency.severe_warning'.tr(),
               style: TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.bold),
             ),
           ),
@@ -211,7 +212,7 @@ Widget _buildContactList(BuildContext context, String type, double screenWidth) 
                     Row(
                       children: [
                         Text(
-                          "REQUEST NOW",
+                          'emergency.request_now'.tr(),
                           style: TextStyle(color: AppColors.primary, fontSize: 11, fontWeight: FontWeight.w900),
                         ),
                         const SizedBox(width: 8),

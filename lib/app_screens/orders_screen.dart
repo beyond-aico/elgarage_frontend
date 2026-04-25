@@ -6,6 +6,7 @@ import '../providers/app_provider.dart';
 import '../core/constants/app_colors.dart';
 import '../core/app_ui/textured_background.dart';
 import '../core/app_ui/app_footer.dart';
+import 'package:easy_localization/easy_localization.dart';
 
 class CheckoutScreen extends StatefulWidget {
   const CheckoutScreen({super.key});
@@ -51,7 +52,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                 child: ListView(
                   padding: const EdgeInsets.all(20),
                   children: [
-                    _sectionTitle("DELIVERY METHOD"),
+                    _sectionTitle('orders.delivery_method'.tr()),
                     _buildMethodToggle(),
                     const SizedBox(height: 30),
                     
@@ -96,7 +97,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        _sectionTitle("SELECT SERVICE CENTER"),
+        _sectionTitle('orders.select_center'.tr()),
         if (cartCenter != null)
           // 1. لو اليوزر اختار مركز من صفحة My Cart بنعرضه هنا كأنه "مأكد"
           _buildPreSelectedCard(cartCenter) 
@@ -180,9 +181,9 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
   Widget _buildMethodToggle() {
     return Row(
       children: [
-        _methodCard("AT CENTER", Icons.store, deliveryMethod == 'CENTER', () => setState(() => deliveryMethod = 'CENTER')),
+        _methodCard('orders.select_center'.tr(), Icons.store, deliveryMethod == 'CENTER', () => setState(() => deliveryMethod = 'CENTER')),
         const SizedBox(width: 15),
-        _methodCard("HOME", Icons.home, deliveryMethod == 'HOME', () => setState(() => deliveryMethod = 'HOME')),
+        _methodCard('orders.method_home'.tr(), Icons.home, deliveryMethod == 'HOME', () => setState(() => deliveryMethod = 'HOME')),
       ],
     );
   }
@@ -190,7 +191,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
   Widget _buildHomeForm() {
     return Column(
       children: [
-        _buildTextField(addressController, "Detailed Address & Landmark", Icons.location_on),
+        _buildTextField(addressController, 'orders.address_hint'.tr(), Icons.location_on),
         const SizedBox(height: 15),
         _buildTextField(phoneController, "Phone Number", Icons.phone, isPhone: true),
       ],
@@ -234,7 +235,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
             ),
           );
         },
-        child: const Text("CONFIRM FINAL ORDER", style: TextStyle(color: AppColors.primary, fontWeight: FontWeight.w900)),
+        child: Text('orders.confirm_final_btn'.tr(), style: TextStyle(color: AppColors.primary, fontWeight: FontWeight.w900)),
       ),
     );
   }
@@ -310,7 +311,7 @@ class OrdersScreen extends StatelessWidget {
             _buildHeader(context),
             Expanded(
               child: orders.isEmpty 
-                ? const Center(child: Text("NO ORDERS YET", style: TextStyle(color: Colors.grey)))
+                ? Center(child: Text('orders.empty_state'.tr(), style: TextStyle(color: Colors.grey)))
                 : ListView.builder(
                     itemCount: orders.length,
                     padding: const EdgeInsets.all(15),
@@ -529,7 +530,7 @@ Widget _buildOrderInfoRow(IconData icon, String label, String value) {
     showCupertinoDialog(
       context: context,
       builder: (context) => CupertinoAlertDialog(
-        title: const Text("CANCEL ORDER?"),
+        title: Text('orders.cancel_dialog_title'.tr()),
         content: const Text("Are you sure you want to remove this order?"),
         actions: [
           CupertinoDialogAction(child: const Text("No"), onPressed: () => Navigator.pop(context)),
@@ -552,7 +553,7 @@ Widget _buildOrderInfoRow(IconData icon, String label, String value) {
       child: Row(
         children: [
           IconButton(icon: const Icon(Icons.arrow_back_ios_new, color: AppColors.textMain), onPressed: () => Navigator.pop(context)),
-          const Text("MY ORDERS", style: TextStyle(color: AppColors.textMain, fontWeight: FontWeight.w900, fontSize: 20)),
+          Text('orders.title'.tr(), style: TextStyle(color: AppColors.textMain, fontWeight: FontWeight.w900, fontSize: 20)),
         ],
       ),
     ),
